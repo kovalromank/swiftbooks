@@ -1,13 +1,13 @@
 const express = require('express');
 const app = express();
 require('dotenv').config();
-
+const { initDB } = require("./config/init_db");
 
 
 //Handle command line args
 process.argv.forEach(function (val, index, array) {
     if (val === "--init-db") {
-        require("./config/init_db.js");
+        initDB();
     }
 });
 
@@ -19,19 +19,15 @@ app.use(express.json()); // for parsing application/json
 
 
 // Import Routes
-//const sampleRoutes = require('./routes/sampleRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 
 
-// Routes Middleware
-//app.use('/api/sample', sampleRoutes);
+// Use Routes
+app.use('/api/auth', userRoutes);
 
 
 
-// Starting the server
-/*const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
 
-module.exports = app;*/
+// Export app
+module.exports = app;
