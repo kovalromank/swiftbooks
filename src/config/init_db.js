@@ -1,6 +1,7 @@
-const pool = require('./db.js');
+const pool = require('./db');
 
-const createTables = async () => {
+
+const initDB = async () => {
     const createUserTable = `
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -14,10 +15,11 @@ const createTables = async () => {
 
     try {
         await pool.query(createUserTable);
-        console.log("User table created successfully.");
+        console.log("Tables created successfully.");
     } catch (error) {
         console.error("Error creating tables", error);
     }
 };
 
-createTables();
+
+initDB();

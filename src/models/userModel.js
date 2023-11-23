@@ -1,8 +1,8 @@
-const pool = require('./src/config/db.js');
+const pool = require('../config/db');
 
 const createUser = async (username, email, hashedPassword) => {
     const result = await pool.query(
-        'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id', 
+        'INSERT INTO users (username, email, password, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING id', 
         [username, email, hashedPassword]
     );
     return result.rows[0];
