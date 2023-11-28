@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 
 import { theme } from "@/theme";
+import { AppShellLayout } from "@/components/layouts/app-shell";
 
 import "@mantine/core/styles.css";
 import "./globals.css";
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <ColorSchemeScript forceColorScheme="light" />
     </head>
     <body>
-    <MantineProvider theme={theme}>{children}</MantineProvider>
+    <MantineProvider theme={theme}>
+      <AppShellLayout>{children}</AppShellLayout>
+    </MantineProvider>
     </body>
     </html>
   );
