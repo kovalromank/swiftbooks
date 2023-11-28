@@ -18,14 +18,12 @@ const initDB = async () => {
 
     const createBookTable = `
         CREATE TABLE IF NOT EXISTS books (
-            id SERIAL PRIMARY KEY,
-            google_book_id TEXT NOT NULL,
+            id TEXT PRIMARY KEY,
             title TEXT NOT NULL,
             subtitle TEXT,
             author VARCHAR(255),
             publisher VARCHAR(255),
             published_date DATE,
-            genre TEXT,
             language VARCHAR(50),
             description TEXT,
             thumbnail TEXT,

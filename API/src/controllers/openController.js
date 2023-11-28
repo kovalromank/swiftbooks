@@ -61,8 +61,7 @@ exports.search = async (req, res) => {
 //find book by its speficied google_id
 exports.book_info_from_id = async (req, res) => {
     try {
-        const { id } = req.body; //i am assuming field means genre of book
-
+        const { id } = req.body; 
         // Fetch data from Google Books API
         const response = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
         const book = response.data;
@@ -103,5 +102,24 @@ exports.recent_public_booklists = async (req, res) => {
         res.status(200).json(recent_lists);       
     } catch (error) {
         res.status(500).json({'message': 'Failed to get ten most recent lists.'});   
+    }
+};
+
+
+
+exports.get_book_info_from_list = async (req, res) => {
+    try {
+        const { list_id } = req.body;
+
+        let is_list_public = booklistModel.is_list_public(list_id);
+        if (!is_list_public) {
+            res.status(401).json({'message': 'Tried accessing private list that isnt owned by user.'});  
+        }
+
+        const list_data = booklistModel.get_list_data(list_id);
+
+        res.status(200).json(list_data);       
+    } catch (error) {
+        res.status(500).json({'message': 'Failed to open list.'});   
     }
 };
