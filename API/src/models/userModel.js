@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const jwt = require('jsonwebtoken');
 
 const createUser = async (username, email, hashedPassword) => {
     const result = await pool.query(
@@ -8,6 +9,7 @@ const createUser = async (username, email, hashedPassword) => {
     return result.rows[0];
 };
 
+
 const findUserByEmail = async (email) => {
     const result = await pool.query(
         'SELECT * FROM users WHERE email = $1', 
@@ -16,4 +18,28 @@ const findUserByEmail = async (email) => {
     return result.rows[0];
 };
 
-module.exports = { createUser, findUserByEmail };
+
+const getUsernameFromId = async (id) => {
+    const result = await pool.query(
+        'SELECT * FROM users WHERE id = $1', 
+        [id]
+    );
+    return result.rows[0].username;
+};
+
+
+const getUserIdFromToken = (token) => {
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const userId = decoded.id;
+
+        return userId;
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+};
+
+
+module.exports = { createUser, findUserByEmail, getUserIdFromToken };
