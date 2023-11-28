@@ -16,14 +16,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-    <head>
-      <ColorSchemeScript forceColorScheme="light" />
-    </head>
-    <body>
-    <MantineProvider theme={theme}>
-      <AppShellLayout>{children}</AppShellLayout>
-    </MantineProvider>
-    </body>
+      <head>
+        <ColorSchemeScript forceColorScheme="light" />
+      </head>
+      <body>
+        <MantineProvider theme={theme}>
+          <AppShellLayout>{children}</AppShellLayout>
+        </MantineProvider>
+      </body>
     </html>
   );
 }
