@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+}
+
+.column {
+  display: inline-block;
+}
+
+.image {
+  display: block;
+  object-fit: cover;
+}
+
+.imageSmall {
+  width: 4.6875rem;
+  height: 4.6875rem;
+}
+
+.imageLarge {
+  width: 9.375rem;
+  height: 9.375rem;
+}
