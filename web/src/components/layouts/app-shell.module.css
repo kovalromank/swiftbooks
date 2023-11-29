@@ -1,0 +1,27 @@
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+}
+
+.title {
+  margin-left: 20px;
+  font-size: 1.5rem;
+}
+
+.title span {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.headerButtonLast {
+  margin-left: 1.25rem;
+}
+
+.container {
+  padding: 3.75rem;
+}

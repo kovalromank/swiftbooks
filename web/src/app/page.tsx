@@ -1,11 +1,7 @@
 import { FC } from "react";
 
 const Home: FC = () => {
-  return (
-    <main>
-      <span>Home</span>
-    </main>
-  );
+  return <main style={{ padding: 60 }}>Home</main>;
 };
 
 export default Home;
