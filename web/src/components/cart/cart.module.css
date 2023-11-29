@@ -1,0 +1,20 @@
+.container {
+  max-width: 25rem;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.total {
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.button {
+  width: 100%;
+}
