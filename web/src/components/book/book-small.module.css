@@ -1,0 +1,38 @@
+.image {
+  width: 5rem;
+  height: 5rem;
+  object-fit: cover;
+  display: block;
+}
+
+.author {
+  color: var(--mantine-color-gray-7);
+  font-size: 0.625rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-bottom: 0.12rem;
+}
+
+.title {
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin-bottom: 0.62rem;
+}
+
+.price {
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.container {
+  display: flex;
+}
+
+.details {
+  margin-left: 0.63rem;
+}
