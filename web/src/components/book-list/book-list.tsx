@@ -4,6 +4,7 @@ import { Button, Title } from "@mantine/core";
 import { BookListThumb } from "@/components/book-list/book-list-thumb";
 
 import classes from "./book-list.module.css";
+import Link from "next/link";
 
 export const BookList: FC = () => {
   return (
@@ -17,7 +18,13 @@ export const BookList: FC = () => {
         <div className={classes.info}>Books: 5</div>
         <div className={classes.info}>Pages: 1204</div>
         <div className={classes.spacer}></div>
-        <Button variant="filled" size="xs">
+        <Button
+          component={Link}
+          variant="light"
+          color="violet"
+          size="xs"
+          href="/book-lists/view/123"
+        >
           VIEW
         </Button>
       </div>

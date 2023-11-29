@@ -3,7 +3,6 @@
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  margin-bottom: 2.5rem;
 }
 
 .header2 {
@@ -11,5 +10,12 @@
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+}
+
+.margin.header {
+  margin-bottom: 2.5rem;
+}
+
+.margin.header2 {
   margin-bottom: 1.25rem;
 }

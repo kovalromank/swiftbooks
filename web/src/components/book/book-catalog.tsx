@@ -4,10 +4,14 @@ import { Book } from "@/components/book/book";
 
 import classes from "./book-catalog.module.css";
 
-export const BookCatalog: FC = () => {
+interface BookCatalogProps {
+  n?: number;
+}
+
+export const BookCatalog: FC<BookCatalogProps> = ({ n = 9 }) => {
   return (
     <div className={classes.list}>
-      {Array(9)
+      {Array(n)
         .fill(0)
         .map((_, i) => (
           <Book key={i} />
