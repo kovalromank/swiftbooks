@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 
 // Mock the entire userModel module
 jest.mock('../src/models/userModel');
+userModel.getUserIdFromToken = jest.fn((token) => jest.requireActual('../src/models/userModel').getUserIdFromToken(token));
 
 
 
@@ -100,4 +101,30 @@ describe('User Authentication', () => {
         expect(response.statusCode).toBe(500);
         expect(response.body.token).toBeUndefined();
     });
+
+
+    // Test for successful login + getting current user id from active jwt token
+    it('should login successfully and return a token which should be decoded to user id', async () => {  
+
+        // Mock finduserbyemail
+        userModel.findUserByEmail.mockResolvedValue({ 
+            id: 42,
+            email: 'validuser@example.com',
+            password: await bcrypt.hash("validpassword", 10)
+        });
+
+        // test
+        const response = await request(app)
+            .post('/api/auth/login')
+            .send({
+                email: 'validuser@example.com',
+                password: 'validpassword'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.token).toBeDefined();
+        expect(userModel.getUserIdFromToken(response.body.token)).toBe(42)
+    });
+
+
 });
