@@ -42,4 +42,4 @@ const getUserIdFromToken = (token) => {
 };
 
 
-module.exports = { createUser, findUserByEmail, getUserIdFromToken };
+module.exports = { createUser, findUserByEmail, getUserIdFromToken, getUsernameFromId };

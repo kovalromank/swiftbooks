@@ -2,7 +2,26 @@ const axios = require('axios');
 const booklistModel = require('../models/booklistModel');
 
 
-//Search books by title, auth, and genre
+/**
+ * Searches for books using the Google Books API based on provided query parameters.
+ * This asynchronous function handles a request to search for books by title, author, or genre (field).
+ * It supports pagination through an offset value, which dictates the starting point of search results.
+ *
+ * @param {Object} req - The request object containing search parameters.
+ * @param {Object} res - The response object used for sending back the search results or error message.
+ *
+ * The request body should include:
+ *  - author: String (optional) - the author of the book.
+ *  - field: String (optional) - the genre or subject of the book.
+ *  - title: String (optional) - the title of the book.
+ *  - offset: Number (optional) - the number of times the user has pressed 'load more', used for pagination.
+ *
+ * The function constructs a query string based on these parameters and calls the Google Books API.
+ * It then processes the API response, filtering and mapping the results to a summarized format, 
+ * and sends this list back in the response. If an error occurs, it sends a 500 status code with an error message.
+ * 
+ * Note: The 'field' parameter is only used if it's the sole search term, as it can interfere with other search parameters.
+ */
 exports.search = async (req, res) => {
     //offset expects 0 / null, or number of times user presses load more
     try {
@@ -51,14 +70,33 @@ exports.search = async (req, res) => {
             };
         });
 
-        res.status(200).json(summarizedBooks.filter(item => item !== undefined));
+        return res.status(200).json(summarizedBooks.filter(item => item !== undefined));
         
     } catch (error) {
-        res.status(500).json({'message': 'Failed to search for book.'});
+        return res.status(500).json({'message': 'Failed to search for book.'});
     }
 };
 
-//find book by its speficied google_id
+
+/**
+ * Retrieves detailed information for a book based on its Google Books API ID.
+ * 
+ * This function takes the Google Books ID from the request body, uses it to fetch 
+ * book details from the Google Books API, and then returns a summarized version of 
+ * these details in the response. It handles any errors by returning a 500 status code 
+ * with an error message. 
+ * It extracts essential information such as title, authors, publisher, publication date, description,
+ * page count, categories, ratings, maturity rating, image links, and sales information.
+ * If the specific detail is not available, it defaults to null.
+ * 
+ * @param {Object} req - The HTTP request object, containing the book's Google ID in its body.
+ * @param {Object} res - The HTTP response object used to send back the requested book information.
+ * @returns {Object} A response object containing the book's details if successful, 
+ *                   or an error message if the operation fails.
+ * 
+ * The function asynchronously fetches book data using the provided Google ID.  The function also 
+ * handles exceptions, ensuring the server responds appropriately in case of failures.
+ */
 exports.book_info_from_id = async (req, res) => {
     try {
         const { id } = req.body; 
@@ -86,27 +124,56 @@ exports.book_info_from_id = async (req, res) => {
             sale_price: book.saleInfo.retailPrice ? book.saleInfo.retailPrice.amount : null, //current best avaialbe price (same as price above or lower if on sale)
         };
 
-        res.status(200).json(summarizedBook);
+        return res.status(200).json(summarizedBook);
         
     } catch (error) {
-        res.status(500).json({'message': 'Failed to find book.'});
+        return res.status(500).json({'message': 'Failed to find book.'});
     }
 };
 
 
-//get 10 most recently modified public booklists
+/**
+ * This function is an asynchronous API endpoint for retrieving the ten most recently modified public booklists.
+ * It uses the 'booklistModel' to query the database and fetch the required lists. 
+ *
+ * @param {Request} req - The request object, not used in this function but required by convention.
+ * @param {Response} res - The response object used to send back the HTTP response.
+ * @returns {Promise<Response>} - The function sends a JSON response with the status code 200 and the data of the 
+ * recently modified public booklists if successful. In case of an error, it sends a status code 500 with an error message.
+ */
 exports.recent_public_booklists = async (req, res) => {
     try {
         const recent_lists = await booklistModel.ten_most_recent_public_lists();
 
-        res.status(200).json(recent_lists);       
+        return res.status(200).json(recent_lists);       
     } catch (error) {
-        res.status(500).json({'message': 'Failed to get ten most recent lists.'});   
+        return res.status(500).json({'message': 'Failed to get ten most recent lists.'});   
     }
 };
 
 
-
+/**
+ * This function handles an HTTP request to retrieve book information from a specified list. 
+ * It's an asynchronous function that expects a request (`req`) and provides a response (`res`).
+ *
+ * @param {Object} req - The HTTP request object. This should contain a body with the 'list_id' 
+ *                       property, which is used to identify the specific book list.
+ * @param {Object} res - The HTTP response object. This is used to send back the retrieved data 
+ *                       or error messages.
+ * 
+ * The function performs the following steps:
+ * 1. Extracts the 'list_id' from the request body.
+ * 2. Checks if the list with the given 'list_id' is public by calling the 'is_list_public' 
+ *    method of the 'booklistModel'.
+ * 3. If the list is not public, it sends a 401 (Unauthorized) response with a message indicating 
+ *    that the user tried to access a private list they don't own.
+ * 4. If the list is public, it retrieves the list data using the 'get_list_data' method of the 
+ *    'booklistModel' and sends this data back in a 200 (OK) response.
+ * 5. Catches any errors during the process and sends a 500 (Internal Server Error) response 
+ *    with an appropriate error message.
+ *
+ * @returns A promise resolved with an HTTP response containing the list data or an error message.
+ */
 exports.get_book_info_from_list = async (req, res) => {
     try {
         const { list_id } = req.body;
@@ -118,8 +185,8 @@ exports.get_book_info_from_list = async (req, res) => {
 
         const list_data = booklistModel.get_list_data(list_id);
 
-        res.status(200).json(list_data);       
+        return res.status(200).json(list_data);       
     } catch (error) {
-        res.status(500).json({'message': 'Failed to open list.'});   
+        return res.status(500).json({'message': 'Failed to open list.'});   
     }
 };
