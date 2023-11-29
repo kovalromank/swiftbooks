@@ -2,9 +2,9 @@ import { FC } from "react";
 
 import { Book } from "@/components/book/book";
 
-import classes from "./book-list.module.css";
+import classes from "./book-catalog.module.css";
 
-export const BookList: FC = () => {
+export const BookCatalog: FC = () => {
   return (
     <div className={classes.list}>
       {Array(9)

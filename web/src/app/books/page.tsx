@@ -2,7 +2,7 @@ import { FC } from "react";
 import { Metadata } from "next";
 
 import { Header } from "@/components/header";
-import { BookList } from "@/components/book/book-list";
+import { BookCatalog } from "@/components/book/book-catalog";
 import { BookFilter } from "@/components/book/book-filter";
 
 import classes from "./page.module.css";
@@ -18,7 +18,7 @@ const Books: FC = () => {
       <div className={classes.filterContainer}>
         <BookFilter />
       </div>
-      <BookList />
+      <BookCatalog />
     </>
   );
 };
