@@ -31,7 +31,7 @@ exports.search = async (req, res) => {
         if (title) query += `${title}+intitle:${title}`;
         if (author) query += `+inauthor:${author}`;
 
-        if (query === '' && field) query += `+subject:${field}`; //field kind of breaks search so only include it if its a sole search term
+        if (field) query += `+subject:${field}`; 
         query = query.trim();
 
         let page_offset = offset * limit;
