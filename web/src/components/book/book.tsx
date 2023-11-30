@@ -1,9 +1,8 @@
 import { Button, Select, Title } from "@mantine/core";
-import { FC } from "react";
-import Image from "next/image";
+import { FC, useMemo } from "react";
 import cx from "clsx";
 
-import bookCover1 from "@/images/book-cover-1.jpeg";
+import { ApiBook } from "@/api/types";
 
 import classes from "./book.module.css";
 
@@ -13,25 +12,41 @@ const quantities = Array(10)
 
 export interface BookProps {
   variant?: "default" | "cart";
+  data: ApiBook;
 }
 
-export const Book: FC<BookProps> = ({ variant = "default" }) => {
+export const Book: FC<BookProps> = ({ variant = "default", data }) => {
+  const format = useMemo(
+    () =>
+      new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+      }),
+    [],
+  );
+
   return (
     <div className={cx(classes.container, { [classes.cart]: variant === "cart" })}>
-      <div>
-        <Image
-          src={bookCover1}
-          alt="Book cover 1"
-          width={150}
-          height={150}
-          className={classes.image}
-        />
-      </div>
+      {data.thumbnail ? (
+        <div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={data.thumbnail}
+            alt="Book cover 1"
+            width={150}
+            height={150}
+            className={classes.image}
+          />
+        </div>
+      ) : null}
       <div className={classes.details}>
-        <div className={classes.author}>Morgan Housel</div>
-        <Title order={4} className={classes.title}>
-          The Psychology of Money
-        </Title>
+        {data.authors?.length ? <div className={classes.author}>{data.authors[0]}</div> : null}
+        {data.title ? (
+          <Title order={4} className={classes.title}>
+            {data.title}
+          </Title>
+        ) : null}
         {variant === "cart" ? (
           <div className={classes.quantityContainer}>
             <div className={classes.price}>$49.98</div>
@@ -45,16 +60,20 @@ export const Book: FC<BookProps> = ({ variant = "default" }) => {
               comboboxProps={{ withinPortal: false }}
             />
           </div>
-        ) : (
-          <div className={classes.price}>$24.99</div>
-        )}
+        ) : data.price != null ? (
+          <div className={classes.price}>{format.format(data.price)}</div>
+        ) : null}
         {variant === "cart" ? (
-          <Button variant="light" color="red" size="xs" className={classes.removeButton}>
+          <Button variant="light" color="red" size="xs" className={classes.button}>
             REMOVE
           </Button>
-        ) : (
-          <Button variant="light" color="violet" size="xs">
+        ) : data.price != null ? (
+          <Button variant="light" color="violet" size="xs" className={classes.button}>
             ADD TO CART
+          </Button>
+        ) : (
+          <Button variant="light" color="red" size="xs" className={classes.button} disabled>
+            SOLD OUT
           </Button>
         )}
       </div>
