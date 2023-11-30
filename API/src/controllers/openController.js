@@ -73,7 +73,7 @@ exports.search = async (req, res) => {
         return res.status(200).json(summarizedBooks.filter(item => item !== undefined));
         
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to search for book.'});
+        return res.status(500).json({message: 'Failed to search for book.'});
     }
 };
 
@@ -127,7 +127,7 @@ exports.book_info_from_id = async (req, res) => {
         return res.status(200).json(summarizedBook);
         
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to find book.'});
+        return res.status(500).json({message: 'Failed to find book.'});
     }
 };
 
@@ -147,7 +147,7 @@ exports.recent_public_booklists = async (req, res) => {
 
         return res.status(200).json(recent_lists);       
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to get ten most recent lists.'});   
+        return res.status(500).json({message: 'Failed to get ten most recent lists.'});   
     }
 };
 
@@ -174,19 +174,19 @@ exports.recent_public_booklists = async (req, res) => {
  *
  * @returns A promise resolved with an HTTP response containing the list data or an error message.
  */
-exports.get_book_info_from_list = async (req, res) => {
+exports.get_book_ids_from_list = async (req, res) => {
     try {
         const { list_id } = req.body;
 
         let is_list_public = booklistModel.is_list_public(list_id);
         if (!is_list_public) {
-            res.status(401).json({'message': 'Tried accessing private list that isnt owned by user.'});  
+            res.status(401).json({message: 'Tried accessing private list that isnt owned by user.'});  
         }
 
         const list_data = booklistModel.get_list_data(list_id);
 
         return res.status(200).json(list_data);       
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to open list.'});   
+        return res.status(500).json({message: 'Failed to open list.'});   
     }
 };

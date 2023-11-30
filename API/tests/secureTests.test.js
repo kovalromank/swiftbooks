@@ -45,7 +45,7 @@ describe('get_user_booklists', () => {
         userModel.getUserIdFromToken.mockReturnValue(1); // Mocking user ID retrieval
 
         const response = await request(app)
-            .post('/api/secure/get-user-booklists');
+            .get('/api/secure/get-user-booklists');
 
         expect(response.statusCode).toBe(200);
     });
@@ -59,7 +59,7 @@ describe('delete_user_booklist', () => {
         userModel.getUserIdFromToken.mockReturnValue(1); // Mocking user ID retrieval
 
         const response = await request(app)
-            .post('/api/secure/delete-user-booklist');
+            .delete('/api/secure/delete-user-booklist');
 
         expect(response.statusCode).toBe(200);
     });
@@ -102,7 +102,7 @@ describe('delete_book_from_booklist', () => {
         booklistModel.does_book_exist.mockResolvedValue(false); // Mock book doesnt exist in db yet
 
         const response = await request(app)
-            .post('/api/secure/delete-book-from-list') 
+            .delete('/api/secure/delete-book-from-list') 
             .send({ list_id: 1, book_object: {id: 'testid'} });
 
         expect(response.statusCode).toBe(200);
@@ -114,7 +114,7 @@ describe('delete_book_from_booklist', () => {
         booklistModel.does_book_exist.mockResolvedValue(false); // Mock book doesnt exist in db yet
 
         const response = await request(app)
-            .post('/api/secure/delete-book-from-list') 
+            .delete('/api/secure/delete-book-from-list') 
             .send({ list_id: 1, book_object: {id: 'testid'} });
 
         expect(response.statusCode).toBe(401);
@@ -131,7 +131,7 @@ describe('get_book_info_from_list', () => {
         booklistModel.is_list_public.mockResolvedValue(true); // Mock list is public
 
         const response = await request(app)
-            .post('/api/secure/get-booklist-books') 
+            .get('/api/secure/get-booklist-books') 
             .send({ list_id: 1});
 
         expect(response.statusCode).toBe(200);
@@ -143,7 +143,7 @@ describe('get_book_info_from_list', () => {
         booklistModel.is_list_public.mockResolvedValue(false); // Mock list is private
 
         const response = await request(app)
-            .post('/api/secure/get-booklist-books') 
+            .get('/api/secure/get-booklist-books') 
             .send({ list_id: 1 });
 
         expect(response.statusCode).toBe(200);
@@ -155,7 +155,7 @@ describe('get_book_info_from_list', () => {
         booklistModel.is_list_public.mockResolvedValue(false); // Mock list is private
 
         const response = await request(app)
-            .post('/api/secure/get-booklist-books') 
+            .get('/api/secure/get-booklist-books') 
             .send({ list_id: 1 });
 
         expect(response.statusCode).toBe(401);

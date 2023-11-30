@@ -5,11 +5,11 @@ const initDB = async () => {
     const createUserTable = `
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
-            username VARCHAR(50) NOT NULL,
+            username VARCHAR(50) NOT NULL UNIQUE,
             email VARCHAR(100) NOT NULL UNIQUE,
             password VARCHAR(255) NOT NULL,
             active BOOLEAN NOT NULL,
-            admin BOOLEAN NOT NULL,
+            status VARCHAR(20) NOT NULL,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         );
@@ -18,18 +18,7 @@ const initDB = async () => {
 
     const createBookTable = `
         CREATE TABLE IF NOT EXISTS books (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            subtitle TEXT,
-            author VARCHAR(255),
-            publisher VARCHAR(255),
-            published_date DATE,
-            language VARCHAR(50),
-            description TEXT,
-            thumbnail TEXT,
-            full_image TEXT, 
-            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            id TEXT PRIMARY KEY, -- google id of book
         );
     `;
 
@@ -63,8 +52,22 @@ const initDB = async () => {
             added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             content TEXT,
+            stars INT NOT NULL,
+            hidden BOOLEAN NOT NULL,
         );
     `;
+
+
+    const createCartTable = `
+        CREATE TABLE IF NOT EXISTS carts (
+            user_id INT REFERENCES users(id) ON DELETE CASCADE,
+            book_id TEXT REFERENCES books(id) ON DELETE CASCADE,
+            quantity INT NOT NULL,
+            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, book_id)
+        );
+    `;
+
 
     try {
         await pool.query(createUserTable);

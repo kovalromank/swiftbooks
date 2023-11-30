@@ -67,24 +67,24 @@ const does_user_own_list = async (user_id, booklist_id) => {
 }
 
 
-const does_book_exist = async (book_obj) => {
+const does_book_exist = async (book_id) => {
     const query = `
         SELECT * FROM books
         WHERE id = $1
     `;
-    const result = await pool.query(query, [book_obj.id]);
+    const result = await pool.query(query, [book_id]);
 
     return result.rows.length > 0;
 }
 
 
-const add_book = async (book_obj) => {
+const add_book = async (book_id) => {
     const result = await pool.query(
         `INSERT INTO books 
-            (id, title, subtitle, author, publisher, published_date, language, description, thumbnail, full_image, added_at, updated_at) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()) 
+            (id) 
+            VALUES ($1) 
             RETURNING id`, 
-        [book_obj.id, book_obj.title, book_obj.subtitle, book_obj.author, book_obj.publisher, book_obj.published_date, book_obj.language, book_obj.description, book_obj.thumbnail, book_obj.full_image]
+        [book_id]
     );
     return result.rows[0];
 };
@@ -150,5 +150,46 @@ const get_list_data = async (list_id) => {
 
 
 
+const add_review = async (user_id, list_id, stars, text_content) => {
+    const result = await pool.query(
+        `INSERT INTO booklist_reviews 
+            (booklist_id, user_id, added_at, updated_at, content, stars, hidden) 
+            VALUES ($1, $2, NOW(), NOW(), $3, $4, $5) 
+            RETURNING id`, 
+        [list_id, user_id, text_content, stars, false]
+    );
 
-module.exports = { get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist };
+    return result.rows; 
+};
+
+
+
+const update_booklist_name = async (list_id, name) => {
+    await pool.query( //update updated time for list
+        `UPDATE booklists 
+            SET updated_at = NOW(),
+                list_name = $2
+            WHERE id = $1`,
+        [list_id, name]
+    );
+    return result.rows[0];
+};
+
+
+
+const toggle_hide_review = async (review_id) => {
+    await pool.query( //update updated time for list
+        `UPDATE booklists_reviews 
+            SET updated_at = NOW(),
+                hidden = NOT hidden
+            WHERE id = $1`,
+        [review_id]
+    );
+    return result.rows[0];
+};
+
+
+module.exports = { 
+    toggle_hide_review, update_booklist_name, add_review, get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, 
+    does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist 
+};
