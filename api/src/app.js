@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 require('dotenv').config();
-const { initDB, resetDbTables } = require("./config/init_db");
+const { initDB, resetDbTables, fillDbWithTestData } = require("./config/init_db");
 
 
 //Handle command line args
@@ -11,10 +11,12 @@ process.argv.forEach(function (val, index, array) {
         initDB();
     }
 
-    if (index == 0) { 
-        if (val === "--reset-db") {
-            resetDbTables();
-        }
+    if (val === "--reset-db") {
+        resetDbTables();
+    }
+
+    if (val === "--fill-tables") {
+        fillDbWithTestData();
     }
 });
 
