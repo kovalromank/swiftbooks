@@ -1,5 +1,6 @@
 const booklistModel = require('../models/booklistModel');
 const userModel = require('../models/userModel');
+const openController = require('./openController');
 
 
 //BOOKLIST STUFF
@@ -154,7 +155,6 @@ exports.add_book_to_booklist = async (req, res) => {
         return res.status(200).json({message: 'Added book to list.'});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to add book to booklist'});
     }
 };
@@ -237,6 +237,15 @@ exports.get_book_ids_from_list = async (req, res) => {
 };
 
 
+/**
+ * Adds a review to a book list.
+ * 
+ * This function allows a user to add a review to a book list. It first verifies the user's
+ * identity through a token, checks if the targeted list is public, and then adds the review.
+ *
+ * @param {Object} req - The request object containing headers (authorization token) and body (list_id, stars, text_content).
+ * @param {Object} res - The response object used to send back a JSON response.
+ */
 exports.add_review_to_list = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
@@ -259,6 +268,15 @@ exports.add_review_to_list = async (req, res) => {
 };
 
 
+/**
+ * Updates the name of a book list.
+ * 
+ * This function allows a user to update the name of their book list. It verifies the user's
+ * identity and checks if the user owns the book list before updating the name.
+ *
+ * @param {Object} req - The request object containing headers (authorization token) and body (list_id, name).
+ * @param {Object} res - The response object used to send back a JSON response.
+ */
 exports.update_booklist_name = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
@@ -276,14 +294,78 @@ exports.update_booklist_name = async (req, res) => {
         return res.status(200).json({message: 'updated booklist.'});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to update booklist'});
     }
 };
 
 
+/**
+ * This handler extracts the authorization token from the request header, retrieves the user ID
+ * associated with the token, and checks if the user owns the list they are trying to update.
+ * If the user owns the list, it calls 'update_booklist_publicity' to toggle the list's public status.
+ * The function handles any errors that may occur during the process and sends appropriate HTTP responses.
+ *
+ * @param {Object} req - request object, containing the list_id in the body and the user token in headers.
+ * @param {Object} res - response object used to send back HTTP responses.
+ * @returns {Promise<Response>} response object with status code and message.
+ */
+exports.update_booklist_publicity = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const { list_id } = req.body;
+
+        let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
+        if (!is_user_list) {
+            return res.status(401).json({message: 'user does not own list.'});
+        }
+
+        await booklistModel.update_booklist_publicity(list_id);
+
+        return res.status(200).json({message: 'updated booklist.'});
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to update booklist'});
+    }
+};
+
+
+/** 
+ * This async function acts as a route handler. It extracts the
+ * `list_id` from the request body, uses it to fetch reviews by calling `get_reviews`, and
+ * sends the results back in the HTTP response. If an error occurs, it sends a 500 status code
+ * with an error message.
+ *
+ * @param {Request} req - The request object, expected to contain `list_id` in the body.
+ * @param {Response} res - The response object.
+ * @returns {Promise<Response>} A promise that resolves to the response object.
+ */
+exports.get_reviews_for_list = async (req, res) => {
+    try {
+        const { list_id } = req.body;
+
+        const reviews = await booklistModel.get_reviews(list_id);
+
+        return res.status(200).json(reviews);       
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to open list.'});   
+    }
+};
+
+
+
 //AUTH USER INFO FETCH
 
+/**
+ * Retrieves user details.
+ * 
+ * This function fetches details of the user. It extracts the user's identity from the provided
+ * token and retrieves their details from the database.
+ *
+ * @param {Object} req - The request object containing headers (authorization token).
+ * @param {Object} res - The response object used to send back the user details in JSON format.
+ */
 exports.get_user_details = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
@@ -301,12 +383,24 @@ exports.get_user_details = async (req, res) => {
 
 //MANAGER / ADMIN REVIEW HIDING
 
+/**
+ * Toggles the hidden status of a review.
+ * 
+ * This function is used by admins or managers to hide or unhide a review. It checks if the user
+ * has admin or manager privileges before toggling the hidden status of the specified review.
+ *
+ * @param {Object} req - The request object containing headers (authorization token) and body (review_id).
+ * @param {Object} res - The response object used to send back a JSON response.
+ */
 exports.toggle_hide_review = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
 
-        if (!userModel.isAdmin(user_id) || !userModel.isManager(user_id)) {
+        let is_admin = await userModel.isAdmin(user_id);
+        let is_manager = await userModel.isManager(user_id);
+
+        if (!is_admin && !is_manager) {
             return res.status(401).json({message: 'Only manager or admin can do this.'});
         }
 
@@ -317,7 +411,6 @@ exports.toggle_hide_review = async (req, res) => {
         return res.status(200).json({message: 'Changed review hidden status.'});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to update review status'});
     }
 };
@@ -326,6 +419,16 @@ exports.toggle_hide_review = async (req, res) => {
 
 //CART AND CHECKOUT
 
+/**
+ * Adds a book to the user's cart or updates the quantity if the book already exists in the cart.
+ * 
+ * This function allows users to add a new book to their cart or update the quantity of an existing book.
+ * It verifies the user's identity through a token, checks if the book is already in the cart, and then
+ * performs the appropriate action based on that check.
+ *
+ * @param {Object} req - The request object containing headers (authorization token) and body (book_id, quantity).
+ * @param {Object} res - The response object used to send back a JSON response.
+ */
 exports.add_book_to_cart = async (req, res) => { //endpoint can be used for adding book initially or updating quantity in cart
     try {
         const token = req.headers.authorization?.split(' ')[1];
@@ -333,18 +436,126 @@ exports.add_book_to_cart = async (req, res) => { //endpoint can be used for addi
 
         const { book_id, quantity } = req.body; 
 
-        if (booklistModel.is_book_in_cart(user_id, book_id)) {
+        if (await booklistModel.is_book_in_cart(user_id, book_id)) {
             await booklistModel.update_book_quantity(user_id, book_id, quantity);
         } else {
             await booklistModel.add_book_to_cart(user_id, book_id, quantity);
         }
 
-        await booklistModel.toggle_hide_review(review_id);
-
-        return res.status(200).json({message: 'Changed review hidden status.'});
+        return res.status(200).json({message: 'updated cart'});
         
     } catch (error) {
         console.log(error)
-        return res.status(500).json({message: 'Failed to update review status'});
+        return res.status(500).json({message: 'Failed to update cart'});
+    }
+};
+
+
+/**
+ * Deletes a book from the user's cart.
+ * 
+ * This function removes a specific book from the user's cart. It verifies the user's
+ * identity through a token and then deletes the specified book from the cart.
+ *
+ * @param {Object} req - The request object containing headers (authorization token) and body (book_id).
+ * @param {Object} res - The response object used to send back a JSON response.
+ */
+exports.delete_book_from_cart = async (req, res) => { 
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const { book_id } = req.body; 
+
+        await booklistModel.delete_book_from_cart(user_id, cart_id);
+
+        return res.status(200).json({message: 'deleted book from cart'});
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to delete book from cart'});
+    }
+};
+
+
+/**
+ * Clears all items from the user's cart.
+ * 
+ * This function empties the user's cart. It verifies the user's identity through a token
+ * and then removes all items from their cart.
+ *
+ * @param {Object} req - The request object containing headers (authorization token).
+ * @param {Object} res - The response object used to send back a JSON response.
+ */
+exports.clear_cart = async (req, res) => { 
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        await booklistModel.clear_cart(user_id);
+
+        return res.status(200).json({message: 'cleared cart'});
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to clear cart'});
+    }
+};
+
+
+/**
+ * Retrieves the contents of the user's cart.
+ * 
+ * This function fetches the details of all items in the user's cart. It verifies the user's
+ * identity through a token and retrieves the cart details.
+ *
+ * @param {Object} req - The request object containing headers (authorization token).
+ * @param {Object} res - The response object used to send back the cart details in JSON format.
+ */
+exports.get_cart = async (req, res) => { 
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const cart_details = await booklistModel.get_cart(user_id);
+
+        return res.status(200).json(cart_details);
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to get cart'});
+    }
+};
+
+
+/**
+ * Processes the checkout of the user's cart.
+ * 
+ * This function handles the checkout process for the items in the user's cart. It verifies the user's
+ * identity, creates an order, adds all items from the cart to the order, and then clears the cart.
+ * It requires detailed information about the order and cart items to process the checkout.
+ * Cart details should be sent from front end in format [{book_id: 1, quantity: 5, price: 53.2}, ...]
+ *
+ * @param {Object} req - The request object containing headers (authorization token) and body (cart_details, total_price, personal and address information).
+ * @param {Object} res - The response object used to send back the order ID in a JSON response.
+ */
+exports.checkout = async (req, res) => { 
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        //cart details expect list of object containing cart info ie [{book_id: 1, quantity: 5, price: 53.2}, ...]
+        //I would store price in cart db table but it can change so makes sense to send front frontend
+        const { cart_details, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code } = req.body; 
+
+        const order_id = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code);
+
+        cart_details.forEach(async function(item, index) {
+            await booklistModel.add_book_to_order(order_id, item.book_id, item.quantity, item.price);
+        });
+
+        await booklistModel.clear_cart(user_id); //empty cart on successful checkout
+
+        return res.status(200).json({order_id: order_id});
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to get cart'});
     }
 };

@@ -64,7 +64,36 @@ const initDB = async () => {
             book_id TEXT REFERENCES books(id) ON DELETE CASCADE,
             quantity INT NOT NULL,
             added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (user_id, book_id)
+        );
+    `;
+
+    const createOrderTable = `
+        CREATE TABLE IF NOT EXISTS orders (
+            id SERIAL PRIMARY KEY,
+            user_id INT REFERENCES users(id) ON DELETE CASCADE,
+            price FLOAT NOT NULL,
+            first_name VARCHAR(100),
+            last_name VARCHAR(100),
+            email VARCHAR(100),
+            phone VARCHAR(50),
+            address VARCHAR(200),
+            country VARCHAR(100),
+            province VARCHAR(100),
+            city VARCHAR(100),
+            postal_code VARCHAR(20),
+            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        );
+    `;
+
+    const createOrderItemsTable = `
+        CREATE TABLE IF NOT EXISTS order_items (
+            order_id INT REFERENCES orders(id) ON DELETE CASCADE,
+            book_id TEXT REFERENCES books(id) ON DELETE CASCADE,
+            quantity INT NOT NULL,
+            unit_price FLOAT NOT NULL,
+            PRIMARY KEY (order_id, book_id)
         );
     `;
 
@@ -75,6 +104,9 @@ const initDB = async () => {
         await pool.query(createBooklistTable);
         await pool.query(createBooklistBooksTable);
         await pool.query(createBooklistReviewsTable);
+        await pool.query(createCartTable);
+        await pool.query(createOrderTable);
+        await pool.query(createOrderItemsTable);
         console.log("Tables created successfully.");
     } catch (error) {
         console.error("Error creating tables", error);

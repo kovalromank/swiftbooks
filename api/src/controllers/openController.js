@@ -25,7 +25,7 @@ const booklistModel = require('../models/booklistModel');
 exports.search = async (req, res) => {
     //offset expects 0 / null, or number of times user presses load more
     try {
-        const { author, field, title, offset } = req.body; //i am assuming field means genre of book
+        const { author, field, title, offset = 0, limit = 40 } = req.body; //i am assuming field means genre of book
 
         let query = '';
         if (title) query += `${title}`;
@@ -35,11 +35,10 @@ exports.search = async (req, res) => {
         if (query === '' && field) query += `+subject:${field}`; //field kind of breaks search so only include it if its a sole search term
         query = query.trim();
 
-        let page_offset = 0;
-        if (offset) page_offset = Number(offset) * 40;
+        let page_offset = offset * limit;
 
         // Fetch data from Google Books API
-        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=en&maxResults=40&startIndex=${page_offset}&key=${process.env.GOOGLE_API_KEY}`);
+        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=en&maxResults=${limit}&startIndex=${page_offset}&filter=ebooks&key=${process.env.GOOGLE_API_KEY}`); //remove filter if we want later (suipposed to find only books that are for sale or free)
         const books = response.data.items;
 
         // Send back a summarized list of books
