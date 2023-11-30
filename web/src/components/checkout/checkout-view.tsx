@@ -10,7 +10,7 @@ export const CheckoutView: FC = () => {
       <GridCol span={{ base: 12, sm: 8, md: 6, xl: 4 }} order={{ base: 2, md: 1 }}>
         <Form />
       </GridCol>
-      <GridCol span={{ base: 12, sm: 8, md: 6, xl: 4 }} order={{ base: 1, md: 2 }}>
+      <GridCol span={{ base: 12, sm: 8, md: 6, lg: 5, xl: 4 }} order={{ base: 1, md: 2 }}>
         <Summary />
       </GridCol>
     </Grid>
