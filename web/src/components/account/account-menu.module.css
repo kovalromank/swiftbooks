@@ -5,6 +5,12 @@
   line-height: normal;
 }
 
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .email {
   color: var(--mantine-color-gray-6);
   font-size: 0.75rem;
