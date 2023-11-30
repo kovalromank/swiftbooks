@@ -138,7 +138,7 @@ const resetDbTables = async () => {
 
 
 
-const fillDbWithData = async () => {
+const fillDbWithTestData = async () => {
     try {
         // Insert data into the 'users' table
         const password1 = await bcrypt.hash('password', 10);
@@ -159,8 +159,17 @@ const fillDbWithData = async () => {
         const insertBooks = `
             INSERT INTO books (id)
             VALUES 
-                ('Yz8Fnw0PlEQC'), --hunger games
-                ('f280CwAAQBAJ'); -- harry potter complete collection
+                ('Yz8Fnw0PlEQC'),
+                ('vtMyAQAAMAAJ'),
+                ('A29JAAAAMAAJ'),
+                ('ve0BAAAAQAAJ'),
+                ('kMdaAAAAMAAJ'),
+                ('fFIXAAAAYAAJ'),
+                ('dyQ7AAAAYAAJ'),
+                ('9C8DAAAAYAAJ'),
+                ('8REWAAAAYAAJ'),
+                ('RlwjNqpa9i0C'),
+                ('f280CwAAQBAJ'); 
         `;
         await pool.query(insertBooks);
 
@@ -168,8 +177,10 @@ const fillDbWithData = async () => {
         const insertBooklists = `
             INSERT INTO booklists (list_name, is_public, created_by_id, created_by_username)
             VALUES 
-                ('Fantasy List', false, 1, 'user1'),
-                ('Sci-Fi List', true, 2, 'user2');
+                ('private list', false, 3, 'active_user'),
+                ('public list 1', true, 3, 'active_user'),
+                ('public list 2', true, 3, 'active_user'),
+                ('public list 3', true, 2, 'manager');
         `;
         await pool.query(insertBooklists);
 
@@ -177,8 +188,23 @@ const fillDbWithData = async () => {
         const insertBooklistBooks = `
             INSERT INTO booklists_books (booklist_id, book_id)
             VALUES 
-                (1, 'book1'),
-                (2, 'book2');
+                (1, 'Yz8Fnw0PlEQC'),
+                (1, 'vtMyAQAAMAAJ'),
+                (1, 'A29JAAAAMAAJ'),
+                (1, 'fFIXAAAAYAAJ'),
+
+                (2, 'f280CwAAQBAJ'),
+                (2, 'dyQ7AAAAYAAJ'),
+                (2, 've0BAAAAQAAJ'),
+                (2, '9C8DAAAAYAAJ'),
+
+                (3, 'f280CwAAQBAJ'),
+                (3, 'kMdaAAAAMAAJ'),
+                (3, '8REWAAAAYAAJ'),
+                (3, 'RlwjNqpa9i0C'),
+
+                (4, 've0BAAAAQAAJ'),
+                (4, 'dyQ7AAAAYAAJ');
         `;
         await pool.query(insertBooklistBooks);
 
@@ -186,8 +212,13 @@ const fillDbWithData = async () => {
         const insertBooklistReviews = `
             INSERT INTO booklists_reviews (booklist_id, user_id, content, stars, hidden)
             VALUES 
-                (1, 1, 'Great book!', 5, false),
-                (2, 2, 'Interesting read.', 4, false);
+                (2, 2, 'Cool list', 5, false),
+                (2, 3, 'i like this', 3, true),
+
+                (3, 4, 'Great booklist!', 5, false),
+                (3, 4, 'medicore', 2, false),
+
+                (4, 3, 'i hate this list', 1, false);
         `;
         await pool.query(insertBooklistReviews);
 
@@ -195,7 +226,13 @@ const fillDbWithData = async () => {
         const insertCarts = `
             INSERT INTO carts (user_id, book_id, quantity)
             VALUES 
-                (1, 'book1', 1),
+                (3, 'book1', 1),
+                (3, 'book1', 1),
+                (3, 'book1', 1),
+                (3, 'book1', 1),
+                (3, 'book1', 1),
+
+
                 (2, 'book2', 2);
         `;
         await pool.query(insertCarts);
@@ -226,4 +263,4 @@ const fillDbWithData = async () => {
 
 
 
-module.exports = { initDB, resetDbTables, fillDbWithData };
+module.exports = { initDB, resetDbTables, fillDbWithTestData };

@@ -31,7 +31,7 @@ exports.search = async (req, res) => {
         if (title) query += `${title}+intitle:${title}`;
         if (author) query += `+inauthor:${author}`;
 
-        if (query === '' && field) query += `+subject:${field}`; //field kind of breaks search so only include it if its a sole search term
+        if (field) query += `+subject:${field}`; 
         query = query.trim();
 
         let page_offset = offset * limit;
@@ -43,6 +43,9 @@ exports.search = async (req, res) => {
 
         // Fetch data from Google Books API
         const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=en&maxResults=${limit}&startIndex=${page_offset}&filter=ebooks&key=${process.env.GOOGLE_API_KEY}`); //remove filter if we want later (suipposed to find only books that are for sale or free)
+        
+        if (response.data.totalItems == 0) return res.status(200).json([]);
+
         const books = response.data.items;
 
         //track unique IDs
