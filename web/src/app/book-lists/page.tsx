@@ -1,33 +1,14 @@
 import { FC } from "react";
 import { Metadata } from "next";
 
-import { Header } from "@/components/header";
-import { BookList } from "@/components/book-list/book-list";
-import { Hr } from "@/components/hr";
-
-import classes from "./page.module.css";
+import { BookLists } from "@/components/book-list/book-lists";
 
 export const metadata: Metadata = {
   title: "Book lists | Swift Books",
 };
 
-const BookLists: FC = () => {
-  return (
-    <>
-      <Header>Browse public book lists</Header>
-      <div className={classes.listContainer}>
-        <BookList />
-        <Hr />
-        <BookList />
-        <Hr />
-        <BookList />
-        <Hr />
-        <BookList />
-        <Hr />
-        <BookList />
-      </div>
-    </>
-  );
+const BookListsPage: FC = () => {
+  return <BookLists />;
 };
 
-export default BookLists;
+export default BookListsPage;
