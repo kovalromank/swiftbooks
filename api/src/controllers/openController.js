@@ -25,7 +25,7 @@ const booklistModel = require('../models/booklistModel');
 exports.search = async (req, res) => {
     //offset expects 0 / null, or number of times user presses load more
     try {
-        const { author, field, title, offset = 0, limit = 40 } = req.body; //i am assuming field means genre of book
+        const { author, field, title, offset = 0, limit = 40 } = req.query; //i am assuming field means genre of book
 
         let query = '';
         if (title) query += `${title}+intitle:${title}`;
@@ -45,35 +45,41 @@ exports.search = async (req, res) => {
         const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=en&maxResults=${limit}&startIndex=${page_offset}&filter=ebooks&key=${process.env.GOOGLE_API_KEY}`); //remove filter if we want later (suipposed to find only books that are for sale or free)
         const books = response.data.items;
 
-        // Send back a summarized list of books
-        let index = -1;
-        const summarizedBooks = books.map(book => {
-            // Extract and return necessary information
-            if (book.volumeInfo.language != 'en')
-                return
+        //track unique IDs
+        const seenIds = new Map();
+        const summarizedBooks = books
+            .filter(book => {
 
-            index++;
-            return {
-                id: book.id,
-                index: index,
-                title: book.volumeInfo.title || null,
-                subtitle: book.volumeInfo.subtitle || null,
-                authors: book.volumeInfo.authors || null,
-                publisher: book.volumeInfo.publisher || null,
-                published_date: book.volumeInfo.publishedDate || null,
-                description: book.volumeInfo.description || null,
-                numPages: book.volumeInfo.pageCount || null,
-                categories: book.volumeInfo.categories || null,
-                averageStars: book.volumeInfo.averageRating || null, //average number starts out of 5
-                mature: book.volumeInfo.maturityRating || null, //is 17+ age recommended (NOT_MATURE OR MATURE)
-                thumbnail: book.volumeInfo.imageLinks ? book.volumeInfo.imageLinks.thumbnail : null, //link to image
-                saleability: book.saleInfo.sale_price || null, //Is book for sale (FOR_SALE OR NOT_FOR_SALE)
-                price: book.saleInfo.listPrice ? book.saleInfo.listPrice.amount : null, //recommended price
-                sale_price: book.saleInfo.retailPrice ? book.saleInfo.retailPrice.amount : null, //current best avaialbe price (same as price above or lower if on sale)
-            };
-        });
+                if (book.volumeInfo.language !== 'en') return false;
 
-        return res.status(200).json(summarizedBooks.filter(item => item !== undefined));
+                //duplicate id
+                if (seenIds.has(book.id)) return false;
+
+                seenIds.set(book.id, true);
+                return true;
+            })
+            .map((book, index) => {
+                return {
+                    id: book.id,
+                    index: index,
+                    title: book.volumeInfo.title || null,
+                    subtitle: book.volumeInfo.subtitle || null,
+                    authors: book.volumeInfo.authors || null,
+                    publisher: book.volumeInfo.publisher || null,
+                    published_date: book.volumeInfo.publishedDate || null,
+                    description: book.volumeInfo.description || null,
+                    numPages: book.volumeInfo.pageCount || null,
+                    categories: book.volumeInfo.categories || null,
+                    averageStars: book.volumeInfo.averageRating || null, //average number starts out of 5
+                    mature: book.volumeInfo.maturityRating || null, //is 17+ age recommended (NOT_MATURE OR MATURE)
+                    thumbnail: book.volumeInfo.imageLinks ? book.volumeInfo.imageLinks.thumbnail : null, //link to image
+                    saleability: book.saleInfo.sale_price || null, //Is book for sale (FOR_SALE OR NOT_FOR_SALE)
+                    price: book.saleInfo.listPrice ? book.saleInfo.listPrice.amount : null, //recommended price
+                    sale_price: book.saleInfo.retailPrice ? book.saleInfo.retailPrice.amount : null, //current best available price (same as price above or lower if on sale)
+                };
+            });
+
+        return res.status(200).json(summarizedBooks);
         
     } catch (error) {
         return res.status(500).json({message: 'Failed to search for book.'});
@@ -102,7 +108,12 @@ exports.search = async (req, res) => {
  */
 exports.book_info_from_id = async (req, res) => {
     try {
-        const { id } = req.body; 
+        const { id } = req.query; 
+
+        if (!id) {
+            return res.status(400).json({message: 'no id provided in query'})
+        }
+
         // Fetch data from Google Books API
         const response = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
         const book = response.data;
@@ -179,7 +190,7 @@ exports.recent_public_booklists = async (req, res) => {
  */
 exports.get_book_ids_from_list = async (req, res) => {
     try {
-        const { list_id } = req.body;
+        const { list_id } = req.query;
 
         let is_list_public = booklistModel.is_list_public(list_id);
         if (!is_list_public) {

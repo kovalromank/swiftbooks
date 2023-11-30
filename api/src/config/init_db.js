@@ -1,4 +1,5 @@
 const pool = require('./db');
+const bcrypt = require('bcrypt');
 
 
 const initDB = async () => {
@@ -114,4 +115,115 @@ const initDB = async () => {
 };
 
 
-module.exports = {initDB};
+
+const resetDbTables = async () => {
+    const dropTablesQueries = `
+        DROP TABLE IF EXISTS order_items;
+        DROP TABLE IF EXISTS orders;
+        DROP TABLE IF EXISTS carts;
+        DROP TABLE IF EXISTS booklists_reviews;
+        DROP TABLE IF EXISTS booklists_books;
+        DROP TABLE IF EXISTS booklists;
+        DROP TABLE IF EXISTS books;
+        DROP TABLE IF EXISTS users;
+    `;
+
+    try {
+        await pool.query(dropTablesQueries);
+        console.log("All tables dropped successfully.");
+    } catch (error) {
+        console.error("Error dropping tables", error);
+    }
+};
+
+
+
+const fillDbWithData = async () => {
+    try {
+        // Insert data into the 'users' table
+        const password1 = await bcrypt.hash('password', 10);
+        const password2 = await bcrypt.hash('password', 10);
+        const password3 = await bcrypt.hash('password', 10);
+        const password4 = await bcrypt.hash('password', 10);
+        const insertUsers = `
+            INSERT INTO users (username, email, password, active, status)
+            VALUES 
+                ('admin', 'user1@example.com', ${password1}, true, 'admin'),
+                ('manager', 'user2@example.com', ${password2}, true, 'manager'),
+                ('active_user', 'user3@example.com', ${password3}, true, 'user'),
+                ('deactivated_user', 'user4@example.com', ${password4}, false, 'user'),
+        `;
+        await pool.query(insertUsers);
+
+        // Insert data into the 'books' table
+        const insertBooks = `
+            INSERT INTO books (id)
+            VALUES 
+                ('Yz8Fnw0PlEQC'), --hunger games
+                ('f280CwAAQBAJ'); -- harry potter complete collection
+        `;
+        await pool.query(insertBooks);
+
+        // Insert data into the 'booklists' table
+        const insertBooklists = `
+            INSERT INTO booklists (list_name, is_public, created_by_id, created_by_username)
+            VALUES 
+                ('Fantasy List', false, 1, 'user1'),
+                ('Sci-Fi List', true, 2, 'user2');
+        `;
+        await pool.query(insertBooklists);
+
+        // Insert data into the 'booklists_books' table
+        const insertBooklistBooks = `
+            INSERT INTO booklists_books (booklist_id, book_id)
+            VALUES 
+                (1, 'book1'),
+                (2, 'book2');
+        `;
+        await pool.query(insertBooklistBooks);
+
+        // Insert data into the 'booklists_reviews' table
+        const insertBooklistReviews = `
+            INSERT INTO booklists_reviews (booklist_id, user_id, content, stars, hidden)
+            VALUES 
+                (1, 1, 'Great book!', 5, false),
+                (2, 2, 'Interesting read.', 4, false);
+        `;
+        await pool.query(insertBooklistReviews);
+
+        // Insert data into the 'carts' table
+        const insertCarts = `
+            INSERT INTO carts (user_id, book_id, quantity)
+            VALUES 
+                (1, 'book1', 1),
+                (2, 'book2', 2);
+        `;
+        await pool.query(insertCarts);
+
+        // Insert data into the 'orders' table
+        const insertOrders = `
+            INSERT INTO orders (user_id, price, first_name, last_name, email, phone, address, country, province, city, postal_code)
+            VALUES 
+                (1, 19.99, 'John', 'Doe', 'john@example.com', '1234567890', '123 Main St', 'Country1', 'Province1', 'City1', 'A1A1A1'),
+                (2, 29.99, 'Jane', 'Doe', 'jane@example.com', '0987654321', '456 Main St', 'Country2', 'Province2', 'City2', 'B2B2B2');
+        `;
+        await pool.query(insertOrders);
+
+        // Insert data into the 'order_items' table
+        const insertOrderItems = `
+            INSERT INTO order_items (order_id, book_id, quantity, unit_price)
+            VALUES 
+                (1, 'book1', 1, 19.99),
+                (2, 'book2', 1, 29.99);
+        `;
+        await pool.query(insertOrderItems);
+
+        console.log("Data inserted successfully.");
+    } catch (error) {
+        console.error("Error inserting data", error);
+    }
+};
+
+
+
+module.exports = { initDB, resetDbTables, fillDbWithData };
