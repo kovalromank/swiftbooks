@@ -12,14 +12,14 @@ const initDB = async () => {
             active BOOLEAN NOT NULL,
             status VARCHAR(20) NOT NULL,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
     `;
 
 
     const createBookTable = `
         CREATE TABLE IF NOT EXISTS books (
-            id TEXT PRIMARY KEY, -- google id of book
+            id TEXT PRIMARY KEY -- google id of book
         );
     `;
 
@@ -39,7 +39,7 @@ const initDB = async () => {
     const createBooklistBooksTable = `
         CREATE TABLE IF NOT EXISTS booklists_books (
             booklist_id INT REFERENCES booklists(id) ON DELETE CASCADE,
-            book_id INT REFERENCES books(id) ON DELETE CASCADE,
+            book_id TEXT REFERENCES books(id) ON DELETE CASCADE,
             added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (booklist_id, book_id)
         );
@@ -54,7 +54,7 @@ const initDB = async () => {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             content TEXT,
             stars INT NOT NULL,
-            hidden BOOLEAN NOT NULL,
+            hidden BOOLEAN NOT NULL
         );
     `;
 
@@ -84,7 +84,7 @@ const initDB = async () => {
             province VARCHAR(100),
             city VARCHAR(100),
             postal_code VARCHAR(20),
-            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
 
@@ -113,7 +113,6 @@ const initDB = async () => {
         console.error("Error creating tables", error);
     }
 };
-
 
 
 const resetDbTables = async () => {
@@ -148,10 +147,10 @@ const fillDbWithTestData = async () => {
         const insertUsers = `
             INSERT INTO users (username, email, password, active, status)
             VALUES 
-                ('admin', 'user1@example.com', ${password1}, true, 'admin'),
-                ('manager', 'user2@example.com', ${password2}, true, 'manager'),
-                ('active_user', 'user3@example.com', ${password3}, true, 'user'),
-                ('deactivated_user', 'user4@example.com', ${password4}, false, 'user'),
+                ('admin', 'user1@example.com', '${password1}', true, 'admin'),
+                ('manager', 'user2@example.com', '${password2}', true, 'manager'),
+                ('active_user', 'user3@example.com', '${password3}', true, 'user'),
+                ('deactivated_user', 'user4@example.com', '${password4}', false, 'user');
         `;
         await pool.query(insertUsers);
 
@@ -226,14 +225,14 @@ const fillDbWithTestData = async () => {
         const insertCarts = `
             INSERT INTO carts (user_id, book_id, quantity)
             VALUES 
-                (3, 'book1', 1),
-                (3, 'book1', 1),
-                (3, 'book1', 1),
-                (3, 'book1', 1),
-                (3, 'book1', 1),
+                (3, 'Yz8Fnw0PlEQC', 1),
+                (3, 'vtMyAQAAMAAJ', 2),
+                (3, 'A29JAAAAMAAJ', 1),
+                (3, 'fFIXAAAAYAAJ', 4),
+                (3, 'f280CwAAQBAJ', 1),
 
 
-                (2, 'book2', 2);
+                (2, 'kMdaAAAAMAAJ', 2);
         `;
         await pool.query(insertCarts);
 
@@ -241,8 +240,8 @@ const fillDbWithTestData = async () => {
         const insertOrders = `
             INSERT INTO orders (user_id, price, first_name, last_name, email, phone, address, country, province, city, postal_code)
             VALUES 
-                (1, 19.99, 'John', 'Doe', 'john@example.com', '1234567890', '123 Main St', 'Country1', 'Province1', 'City1', 'A1A1A1'),
-                (2, 29.99, 'Jane', 'Doe', 'jane@example.com', '0987654321', '456 Main St', 'Country2', 'Province2', 'City2', 'B2B2B2');
+                (2, 19.99, 'John', 'Doe', 'john@example.com', '1234567890', '123 Main St', 'Country1', 'Province1', 'City1', 'A1A1A1'),
+                (3, 29.99, 'Jane', 'Doe', 'jane@example.com', '0987654321', '456 Main St', 'Country2', 'Province2', 'City2', 'B2B2B2');
         `;
         await pool.query(insertOrders);
 
@@ -250,8 +249,8 @@ const fillDbWithTestData = async () => {
         const insertOrderItems = `
             INSERT INTO order_items (order_id, book_id, quantity, unit_price)
             VALUES 
-                (1, 'book1', 1, 19.99),
-                (2, 'book2', 1, 29.99);
+                (1, 'RlwjNqpa9i0C', 1, 19.99),
+                (2, 'dyQ7AAAAYAAJ', 1, 29.99);
         `;
         await pool.query(insertOrderItems);
 
