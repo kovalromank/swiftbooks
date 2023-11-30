@@ -1,19 +1,20 @@
-import { FC } from "react";
+import { FC, HTMLAttributes } from "react";
 import { Anchor } from "@mantine/core";
 import Link from "next/link";
 import cx from "clsx";
 import { usePathname } from "next/navigation";
 
+import sharedClasses from "./shared.module.css";
 import classes from "./header-links.module.css";
 
-export const HeaderLinks: FC = () => {
+export const HeaderLinks: FC<HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => {
   const pathname = usePathname();
 
   return (
-    <div className={classes.linkContainer}>
+    <div className={cx(classes.linkContainer, className)} {...rest}>
       <Anchor
         component={Link}
-        className={cx(classes.link, { [classes.active]: pathname === "/books" })}
+        className={cx(sharedClasses.link, { [sharedClasses.active]: pathname === "/books" })}
         href="/books"
       >
         Books
@@ -21,7 +22,7 @@ export const HeaderLinks: FC = () => {
       <div className={classes.separator}></div>
       <Anchor
         component={Link}
-        className={cx(classes.link, { [classes.active]: pathname === "/book-lists" })}
+        className={cx(sharedClasses.link, { [sharedClasses.active]: pathname === "/book-lists" })}
         href="/book-lists"
       >
         Book lists
@@ -29,7 +30,7 @@ export const HeaderLinks: FC = () => {
       <div className={classes.separator}></div>
       <Anchor
         component={Link}
-        className={cx(classes.link, { [classes.active]: pathname === "/users" })}
+        className={cx(sharedClasses.link, { [sharedClasses.active]: pathname === "/users" })}
         href="/users"
       >
         Admin

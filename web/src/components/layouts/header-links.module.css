@@ -6,19 +6,7 @@
   text-transform: uppercase;
 }
 
-.link {
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  color: var(--mantine-color-text);
-}
-
 .separator {
   width: 1rem;
   border-top: 0.0625rem solid var(--mantine-color-text);
-}
-
-.link.active {
-  color: var(--mantine-color-teal-7);
 }
