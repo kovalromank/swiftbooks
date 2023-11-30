@@ -37,3 +37,20 @@
 .details {
   margin-left: 1.25rem;
 }
+
+.quantityContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.44rem;
+  margin-bottom: 0.44rem;
+}
+
+.quantitySelect {
+  max-width: 4rem;
+}
+
+.quantityContainer .price {
+  margin-top: 0;
+  margin-bottom: 0;
+}

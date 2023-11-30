@@ -3,9 +3,12 @@
 import { FC, ReactNode } from "react";
 import { ActionIcon, AppShell, Title } from "@mantine/core";
 import Image from "next/image";
-import { IconShoppingBag, IconUser } from "@tabler/icons-react";
+import { IconUser } from "@tabler/icons-react";
+
+import { CartMenu } from "@/components/cart/cart-menu";
 
 import logo from "@/images/logo.png";
+
 import classes from "./app-shell.module.css";
 
 export const AppShellLayout: FC<{ children: ReactNode }> = ({ children }) => {
@@ -19,9 +22,8 @@ export const AppShellLayout: FC<{ children: ReactNode }> = ({ children }) => {
 
         <div className={classes.spacer}></div>
 
-        <ActionIcon size="2.5rem" variant="subtle" color="black">
-          <IconShoppingBag size="2.5rem" />
-        </ActionIcon>
+        <CartMenu />
+
         <ActionIcon
           size="2.5rem"
           variant="subtle"

@@ -1,0 +1,17 @@
+.dropdown {
+  max-height: calc(100vh - var(--app-shell-header-height) - 2rem);
+  overflow: auto;
+  padding: 0;
+}
+
+.modalInner {
+  justify-content: flex-end;
+}
+
+.header {
+  font-family: var(--mantine-font-family-headings);
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
