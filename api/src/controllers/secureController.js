@@ -217,8 +217,11 @@ exports.get_book_ids_from_list = async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
 
-        const { list_id } = req.body;
+        const { list_id } = req.query;
 
+        if (!list_id) {
+            return res.status(400).json({message: 'list id not provided'});  
+        }
 
         let is_list_public = await booklistModel.is_list_public(list_id);
         if (!is_list_public) {
@@ -343,7 +346,11 @@ exports.update_booklist_publicity = async (req, res) => {
  */
 exports.get_reviews_for_list = async (req, res) => {
     try {
-        const { list_id } = req.body;
+        const { list_id } = req.query;
+        
+        if (!list_id) {
+            return res.status(400).json({message: 'list id not provided'}); 
+        }
 
         const reviews = await booklistModel.get_reviews(list_id);
 
