@@ -1,3 +1,17 @@
+.margin {
+  margin-bottom: 2.5rem;
+}
+
+.margin2 {
+  margin-bottom: 1.25rem;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .header {
   font-size: 2.25rem;
   font-style: normal;
@@ -10,12 +24,4 @@
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-}
-
-.margin.header {
-  margin-bottom: 2.5rem;
-}
-
-.margin.header2 {
-  margin-bottom: 1.25rem;
 }
