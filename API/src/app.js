@@ -23,6 +23,7 @@ app.use(express.json()); // for parsing application/json
 const userRoutes = require('./routes/userRoutes');
 const openRoutes = require('./routes/openRoutes');
 const secureRoutes = require('./routes/secureRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 
 
@@ -30,6 +31,7 @@ const secureRoutes = require('./routes/secureRoutes');
 app.use('/api/auth', userRoutes);
 app.use('/api/open', openRoutes);
 app.use('/api/secure', secureRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 

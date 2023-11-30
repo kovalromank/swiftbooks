@@ -2,6 +2,8 @@ const booklistModel = require('../models/booklistModel');
 const userModel = require('../models/userModel');
 
 
+//BOOKLIST STUFF
+
 /**
  * Creates a new booklist for a user.
  * 
@@ -34,17 +36,17 @@ exports.create_booklist = async (req, res) => {
         let num_lists = await booklistModel.num_booklists_by_user(user_id);
 
         if (num_lists >= 20) {
-            return res.status(403).json({'message': 'Too many lists already. Maximum number of lists already exist.'})
+            return res.status(403).json({message: 'Too many lists already. Maximum number of lists already exist.'})
         }
 
-        const { list_name, is_public = false   } = req.body;
+        const { list_name, is_public = false } = req.body;
 
         let username = await userModel.getUsernameFromId(user_id);
         await booklistModel.create_booklist_db(user_id, username, list_name, is_public);
 
-        return res.status(200).json({'message': 'Booklist created.'});
+        return res.status(200).json({message: 'Booklist created.'});
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to create booklist'});
+        return res.status(500).json({message: 'Failed to create booklist'});
     }
 };
 
@@ -73,7 +75,7 @@ exports.get_user_booklists = async (req, res) => {
         return res.status(200).json(my_lists);
         
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to find booklists'});
+        return res.status(500).json({message: 'Failed to find booklists'});
     }
 };
 
@@ -105,10 +107,10 @@ exports.delete_user_booklist = async (req, res) => {
 
         await booklistModel.delete_booklist(user_id, list_id);
 
-        return res.status(200).json({'message': 'Booklist deleted.'});
+        return res.status(200).json({message: 'Booklist deleted.'});
         
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to delete booklist'});
+        return res.status(500).json({message: 'Failed to delete booklist'});
     }
 };
 
@@ -135,25 +137,25 @@ exports.add_book_to_booklist = async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
 
-        const { list_id, book_object } = req.body; //expect the list_id and the book_object returned from open endpoints book from id or book search
+        const { list_id, book_id } = req.body; //expect google book id
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
         if (!is_user_list) {
-            return res.status(401).json({'message': 'Tried adding book to list that user does not own.'});
+            return res.status(401).json({message: 'Tried adding book to list that user does not own.'});
         }
 
-        let book_exists = await booklistModel.does_book_exist(book_object);
+        let book_exists = await booklistModel.does_book_exist(book_id);
         if (!book_exists) {
-            await booklistModel.add_book(book_object);
+            await booklistModel.add_book(book_id);
         }
 
-        await booklistModel.add_book_to_booklist(list_id, book_object.id);
+        await booklistModel.add_book_to_booklist(list_id, book_id);
 
-        return res.status(200).json({'message': 'Added book to list.'});
+        return res.status(200).json({message: 'Added book to list.'});
         
     } catch (error) {
         console.log(error)
-        return res.status(500).json({'message': 'Failed to add book to booklist'});
+        return res.status(500).json({message: 'Failed to add book to booklist'});
     }
 };
 
@@ -168,7 +170,7 @@ exports.add_book_to_booklist = async (req, res) => {
  * If the user owns the list, it proceeds to delete the specified book from the booklist and responds with a 200 status,
  * indicating successful deletion. In case of any errors, it catches them and responds with a 500 server error status.
  *
- * @param {object} req - The request object, containing the user's token, list ID, and book object.
+ * @param {object} req - The request object, containing the user's token, list ID, and book id.
  * @param {object} res - The response object used to send back the HTTP response.
  */
 exports.delete_book_from_booklist = async (req, res) => {
@@ -176,19 +178,19 @@ exports.delete_book_from_booklist = async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
 
-        const { list_id, book_object } = req.body; //expect the list_id and the book_object returned from open endpoints book from id or book search
+        const { list_id, book_id } = req.body; //expect the list_id and the book_object returned from open endpoints book from id or book search
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
         if (!is_user_list) {
-            return res.status(401).json({'message': 'Tried removing book from list that user does not own.'});
+            return res.status(401).json({message: 'Tried removing book from list that user does not own.'});
         }
 
-        await booklistModel.delete_book_from_booklist(list_id, book_object.id);
+        await booklistModel.delete_book_from_booklist(list_id, book_id);
 
-        return res.status(200).json({'message': 'Added book to list.'});
+        return res.status(200).json({message: 'Added book to list.'});
         
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to remove book from booklist'});
+        return res.status(500).json({message: 'Failed to remove book from booklist'});
     }
 };
 
@@ -210,7 +212,7 @@ exports.delete_book_from_booklist = async (req, res) => {
  *                        retrieved list data or error messages.
  * @returns {Promise<void>} A promise that resolves to sending a response to the client.
  */
-exports.get_book_info_from_list = async (req, res) => {
+exports.get_book_ids_from_list = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
@@ -222,7 +224,7 @@ exports.get_book_info_from_list = async (req, res) => {
         if (!is_list_public) {
             let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
             if (!is_user_list) {
-                return res.status(401).json({'message': 'Tried accessing private list that isnt owned by user.'});  
+                return res.status(401).json({message: 'Tried accessing private list that isnt owned by user.'});  
             }
         }
 
@@ -230,6 +232,119 @@ exports.get_book_info_from_list = async (req, res) => {
 
         return res.status(200).json(list_data);       
     } catch (error) {
-        return res.status(500).json({'message': 'Failed to open list.'});   
+        return res.status(500).json({message: 'Failed to open list.'});   
+    }
+};
+
+
+exports.add_review_to_list = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const { list_id, stars, text_content } = req.body;
+
+
+        let is_list_public = await booklistModel.is_list_public(list_id);
+        if (!is_list_public) {
+            return res.status(401).json({message: 'Tried adding comment to private list.'});  
+        }
+
+        await booklistModel.add_review(user_id, list_id, stars, text_content);
+
+               
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to open list.'});   
+    }
+};
+
+
+exports.update_booklist_name = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const { list_id, name } = req.body;
+
+        let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
+        if (!is_user_list) {
+            return res.status(401).json({message: 'Tried adding book to list that user does not own.'});
+        }
+
+        await booklistModel.update_booklist_name(list_id, name);
+
+        return res.status(200).json({message: 'updated booklist.'});
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message: 'Failed to update booklist'});
+    }
+};
+
+
+//AUTH USER INFO FETCH
+
+exports.get_user_details = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const user_details = await userModel.getUserDetails(user_id);
+        
+        return res.status(200).json(user_details);
+    } catch (error) {
+        return res.status(500).json();
+    }
+}
+
+
+
+//MANAGER / ADMIN REVIEW HIDING
+
+exports.toggle_hide_review = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        if (!userModel.isAdmin(user_id) || !userModel.isManager(user_id)) {
+            return res.status(401).json({message: 'Only manager or admin can do this.'});
+        }
+
+        const { review_id } = req.body; 
+
+        await booklistModel.toggle_hide_review(review_id);
+
+        return res.status(200).json({message: 'Changed review hidden status.'});
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message: 'Failed to update review status'});
+    }
+};
+
+
+
+//CART AND CHECKOUT
+
+exports.add_book_to_cart = async (req, res) => { //endpoint can be used for adding book initially or updating quantity in cart
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const { book_id, quantity } = req.body; 
+
+        if (booklistModel.is_book_in_cart(user_id, book_id)) {
+            await booklistModel.update_book_quantity(user_id, book_id, quantity);
+        } else {
+            await booklistModel.add_book_to_cart(user_id, book_id, quantity);
+        }
+
+        await booklistModel.toggle_hide_review(review_id);
+
+        return res.status(200).json({message: 'Changed review hidden status.'});
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message: 'Failed to update review status'});
     }
 };
