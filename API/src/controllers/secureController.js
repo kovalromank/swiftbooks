@@ -377,3 +377,18 @@ exports.clear_cart = async (req, res) => {
         return res.status(500).json({message: 'Failed to clear cart'});
     }
 };
+
+
+exports.get_cart = async (req, res) => { 
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const cart_details = await booklistModel.get_cart(user_id);
+
+        return res.status(200).json(cart_details);
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to get cart'});
+    }
+};

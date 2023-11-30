@@ -39,7 +39,7 @@ exports.search = async (req, res) => {
         if (offset) page_offset = Number(offset) * 40;
 
         // Fetch data from Google Books API
-        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=en&maxResults=40&startIndex=${page_offset}&key=${process.env.GOOGLE_API_KEY}`);
+        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=en&maxResults=40&startIndex=${page_offset}&filter=ebooks&key=${process.env.GOOGLE_API_KEY}`); //remove filter if we want later (suipposed to find only books that are for sale or free)
         const books = response.data.items;
 
         // Send back a summarized list of books

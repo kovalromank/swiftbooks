@@ -25,7 +25,7 @@ router.put('/toggle-hide-review', verifyToken, secureController.toggle_hide_revi
 router.post('/add-book-to-cart', verifyToken, secureController.add_book_to_cart); //no test cases yet
 router.delete('/delete-book-from-cart', verifyToken, secureController.delete_book_from_cart); //no test cases yet
 router.delete('/clear-cart', verifyToken, secureController.clear_cart); //no test cases yet
-//get cart details
+router.get('/get-cart', verifyToken, secureController.get_cart); //no test cases yet
 
 
 module.exports = router;
