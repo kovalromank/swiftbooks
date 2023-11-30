@@ -6,9 +6,11 @@ import bookCover1 from "@/images/book-cover-1.jpeg";
 
 import classes from "./book-small.module.css";
 
-export interface BookSmallProps {}
+export interface BookSmallProps {
+  variant?: "default" | "cart";
+}
 
-export const BookSmall: FC<BookSmallProps> = () => {
+export const BookSmall: FC<BookSmallProps> = ({ variant = "default" }) => {
   return (
     <div className={classes.container}>
       <div>
@@ -25,9 +27,13 @@ export const BookSmall: FC<BookSmallProps> = () => {
         <Title order={4} className={classes.title}>
           The Psychology of Money
         </Title>
-        <Button variant="light" color="red" size="compact-xs">
-          REMOVE
-        </Button>
+        {variant === "cart" ? (
+          <div className={classes.price}>1 x $24.99</div>
+        ) : (
+          <Button variant="light" color="red" size="compact-xs">
+            REMOVE
+          </Button>
+        )}
       </div>
     </div>
   );
