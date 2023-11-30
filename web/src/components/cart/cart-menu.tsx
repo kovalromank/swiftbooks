@@ -1,16 +1,20 @@
 "use client";
 
 import { FC, useState, MouseEvent, useCallback } from "react";
-import { ActionIcon, Modal } from "@mantine/core";
+import { ActionIcon, ActionIconProps, Modal, useMantineTheme } from "@mantine/core";
 import { IconShoppingBag } from "@tabler/icons-react";
+import { useMediaQuery } from "@mantine/hooks";
 
 import { Cart } from "./cart";
 
 import classes from "./cart-menu.module.css";
 
-export const CartMenu: FC = () => {
+export const CartMenu: FC<ActionIconProps> = ({ size, ...rest }) => {
   const [opened, setOpened] = useState(false);
   const [offset, setOffset] = useState<{ x?: number; y?: number }>({ x: undefined, y: undefined });
+
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`, false);
 
   const onCartClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     const { x, y, width, height } = event.currentTarget.getBoundingClientRect();
@@ -20,7 +24,13 @@ export const CartMenu: FC = () => {
 
   return (
     <>
-      <ActionIcon size="2.5rem" variant="subtle" color="black" onClick={onCartClick}>
+      <ActionIcon
+        size={size || "2.5rem"}
+        variant="subtle"
+        color="black"
+        onClick={onCartClick}
+        {...rest}
+      >
         <IconShoppingBag size="2.5rem" />
       </ActionIcon>
       <Modal
@@ -31,7 +41,8 @@ export const CartMenu: FC = () => {
         onClose={() => setOpened(false)}
         xOffset={offset.x}
         yOffset={offset.y}
-        classNames={{ inner: classes.modalInner }}
+        fullScreen={isMobile}
+        classNames={{ inner: !isMobile ? classes.modalInner : undefined }}
       >
         <Cart onClose={() => setOpened(false)} />
       </Modal>

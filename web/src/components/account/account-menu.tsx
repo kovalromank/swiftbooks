@@ -6,6 +6,7 @@ import {
   PopoverDropdown,
   Button,
   CloseButton,
+  ActionIconProps,
 } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
 
@@ -13,7 +14,7 @@ import { Hr } from "@/components/hr";
 
 import classes from "./account-menu.module.css";
 
-export const AccountMenu: FC = () => {
+export const AccountMenu: FC<ActionIconProps> = (props) => {
   const [opened, setOpened] = useState(false);
 
   return (
@@ -33,6 +34,7 @@ export const AccountMenu: FC = () => {
             variant="subtle"
             color="black"
             onClick={() => setOpened(!opened)}
+            {...props}
           >
             <IconUser size="2.5rem" />
           </ActionIcon>
