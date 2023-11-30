@@ -16,7 +16,7 @@ import logo from "@/images/logo.png";
 import classes from "./app-shell.module.css";
 
 export const AppShellLayout: FC<{ children: ReactNode }> = ({ children }) => {
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle, close }] = useDisclosure();
 
   return (
     <AppShell
@@ -58,7 +58,7 @@ export const AppShellLayout: FC<{ children: ReactNode }> = ({ children }) => {
         </div>
       </AppShell.Header>
 
-      <Navbar />
+      <Navbar onClose={close} />
 
       <AppShell.Main>
         <div className={classes.container}>{children}</div>

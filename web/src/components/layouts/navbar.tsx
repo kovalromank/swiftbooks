@@ -1,17 +1,23 @@
-import { FC } from "react";
+import { FC, useCallback } from "react";
 import { Anchor, AppShell, Title } from "@mantine/core";
 import Link from "next/link";
-import { IconBook2, IconBooks, IconUsers } from "@tabler/icons-react";
 import cx from "clsx";
 import { usePathname } from "next/navigation";
 
 import { Hr } from "@/components/hr";
+import { links } from "./links";
 
 import sharedClasses from "./shared.module.css";
 import classes from "./navbar.module.css";
 
-export const Navbar: FC = () => {
+interface NavbarProps {
+  onClose?: () => void;
+}
+
+export const Navbar: FC<NavbarProps> = ({ onClose }) => {
   const pathname = usePathname();
+
+  const onLinkClick = useCallback(() => onClose?.(), [onClose]);
 
   return (
     <AppShell.Navbar hiddenFrom="sm" className={classes.container}>
@@ -20,33 +26,19 @@ export const Navbar: FC = () => {
       </Title>
       <div className={classes.items}>
         <Hr />
-        <Anchor
-          component={Link}
-          href="/books"
-          className={cx(sharedClasses.link, classes.link, {
-            [sharedClasses.active]: pathname === "/books",
-          })}
-        >
-          <IconBook2 /> Books
-        </Anchor>
-        <Anchor
-          component={Link}
-          href="/book-lists"
-          className={cx(sharedClasses.link, classes.link, {
-            [sharedClasses.active]: pathname === "/book-lists",
-          })}
-        >
-          <IconBooks /> Book lists
-        </Anchor>
-        <Anchor
-          component={Link}
-          href="/users"
-          className={cx(sharedClasses.link, classes.link, {
-            [sharedClasses.active]: pathname === "/users",
-          })}
-        >
-          <IconUsers /> Admin
-        </Anchor>
+        {links.map(({ href, label, icon }) => (
+          <Anchor
+            key={href}
+            component={Link}
+            href={href}
+            className={cx(sharedClasses.link, classes.link, {
+              [sharedClasses.active]: pathname === href,
+            })}
+            onClick={onLinkClick}
+          >
+            {icon} {label}
+          </Anchor>
+        ))}
       </div>
     </AppShell.Navbar>
   );
