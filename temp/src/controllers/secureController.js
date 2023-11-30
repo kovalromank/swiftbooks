@@ -404,7 +404,7 @@ exports.checkout = async (req, res) => {
 
         const { total_price, first_name, last_name, email, phone, address, country, province, city, postal_code } = req.body; 
 
-        const order_id = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code)
+        const order_id = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code);
 
         return res.status(200).json();
         
