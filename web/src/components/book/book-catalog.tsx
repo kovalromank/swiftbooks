@@ -1,21 +1,29 @@
 import { FC } from "react";
 
+import { Alert } from "@mantine/core";
+import { IconExclamationCircle } from "@tabler/icons-react";
+
 import { Book } from "@/components/book/book";
+import { ApiSearchBook } from "@/api/types";
 
 import classes from "./book-catalog.module.css";
 
 interface BookCatalogProps {
-  n?: number;
+  data: ApiSearchBook[];
 }
 
-export const BookCatalog: FC<BookCatalogProps> = ({ n = 9 }) => {
+export const BookCatalog: FC<BookCatalogProps> = ({ data }) => {
+  if (!data.length) {
+    return (
+      <Alert color="orange" title="No books found" icon={<IconExclamationCircle />} maw="24rem" />
+    );
+  }
+
   return (
     <div className={classes.list}>
-      {Array(n)
-        .fill(0)
-        .map((_, i) => (
-          <Book key={i} />
-        ))}
+      {data.map((book) => (
+        <Book key={book.id} data={book} />
+      ))}
     </div>
   );
 };
