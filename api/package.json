@@ -2,7 +2,7 @@
   "name": "lab-assignment-4-group_18",
   "version": "1.0.0",
   "description": "Express.Js API",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "jest"
   },
