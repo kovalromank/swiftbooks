@@ -1,8 +1,9 @@
 .image {
   width: 9.375rem;
   height: 9.375rem;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+  border: 1px solid var(--mantine-color-gray-2);
 }
 
 .author {
@@ -27,11 +28,16 @@
   font-weight: 400;
   line-height: normal;
   margin-top: 0.44rem;
-  margin-bottom: 0.44rem;
+}
+
+.button {
+  margin-top: 0.44rem;
 }
 
 .container {
   display: flex;
+  max-width: 24rem;
+  width: 24rem;
 }
 
 .details {
