@@ -28,14 +28,18 @@ exports.search = async (req, res) => {
         const { author, field, title, offset = 0, limit = 40 } = req.body; //i am assuming field means genre of book
 
         let query = '';
-        if (title) query += `${title}`;
-        if (title) query += `+intitle:${title}`;
+        if (title) query += `${title}+intitle:${title}`;
         if (author) query += `+inauthor:${author}`;
 
         if (query === '' && field) query += `+subject:${field}`; //field kind of breaks search so only include it if its a sole search term
         query = query.trim();
 
         let page_offset = offset * limit;
+
+        // Default query for fiction books if no parameters are provided
+        if (query === '') {
+            query = '+subject:fiction';
+        }
 
         // Fetch data from Google Books API
         const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=en&maxResults=${limit}&startIndex=${page_offset}&filter=ebooks&key=${process.env.GOOGLE_API_KEY}`); //remove filter if we want later (suipposed to find only books that are for sale or free)
