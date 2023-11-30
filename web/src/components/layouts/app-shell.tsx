@@ -6,6 +6,7 @@ import Image from "next/image";
 
 import { CartMenu } from "@/components/cart/cart-menu";
 import { AccountMenu } from "@/components/account/account-menu";
+import { HeaderLinks } from "@/components/layouts/header-links";
 
 import logo from "@/images/logo.png";
 
@@ -15,17 +16,21 @@ export const AppShellLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <AppShell header={{ height: 60 }}>
       <AppShell.Header className={classes.header}>
-        <Image src={logo} alt="Swift Books logo" width={40} height={40} />
-        <Title order={3} className={classes.title}>
-          Swift <span>Books</span>
-        </Title>
+        <div className={classes.headerInner}>
+          <div className={classes.headerBranding}>
+            <Image src={logo} alt="Swift Books logo" width={40} height={40} />
+            <Title order={3} className={classes.title}>
+              Swift <span>Books</span>
+            </Title>
+          </div>
 
-        <div className={classes.spacer}></div>
+          <HeaderLinks />
 
-        <div className={classes.headerActions}>
-          <CartMenu />
+          <div className={classes.headerActions}>
+            <CartMenu />
 
-          <AccountMenu />
+            <AccountMenu />
+          </div>
         </div>
       </AppShell.Header>
 
