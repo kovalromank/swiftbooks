@@ -18,10 +18,13 @@
   flex-grow: 1;
 }
 
-.headerButtonLast {
-  margin-left: 1.25rem;
-}
-
 .container {
   padding: 3.75rem;
+}
+
+.headerActions {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: 1.25rem;
 }

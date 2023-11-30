@@ -1,11 +1,11 @@
 "use client";
 
 import { FC, ReactNode } from "react";
-import { ActionIcon, AppShell, Title } from "@mantine/core";
+import { AppShell, Title } from "@mantine/core";
 import Image from "next/image";
-import { IconUser } from "@tabler/icons-react";
 
 import { CartMenu } from "@/components/cart/cart-menu";
+import { AccountMenu } from "@/components/account/account-menu";
 
 import logo from "@/images/logo.png";
 
@@ -22,16 +22,11 @@ export const AppShellLayout: FC<{ children: ReactNode }> = ({ children }) => {
 
         <div className={classes.spacer}></div>
 
-        <CartMenu />
+        <div className={classes.headerActions}>
+          <CartMenu />
 
-        <ActionIcon
-          size="2.5rem"
-          variant="subtle"
-          color="black"
-          className={classes.headerButtonLast}
-        >
-          <IconUser size="2.5rem" />
-        </ActionIcon>
+          <AccountMenu />
+        </div>
       </AppShell.Header>
 
       <AppShell.Main>
