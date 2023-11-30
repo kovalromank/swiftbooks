@@ -9,6 +9,6 @@ describe("BookList", () => {
     expect(screen.getByText("Great reads 1")).toBeInTheDocument();
     expect(screen.getByText("Books: 5")).toBeInTheDocument();
     expect(screen.getByText("Pages: 1204")).toBeInTheDocument();
-    expect(screen.getByRole("button")).toHaveTextContent(/view/i);
+    expect(screen.getByRole("link")).toHaveTextContent(/view/i);
   });
 });
