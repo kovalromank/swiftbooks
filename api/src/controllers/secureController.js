@@ -1,5 +1,6 @@
 const booklistModel = require('../models/booklistModel');
 const userModel = require('../models/userModel');
+const openController = require('./openController');
 
 
 //BOOKLIST STUFF
@@ -400,13 +401,19 @@ exports.checkout = async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
 
-        const cart_details = await booklistModel.get_cart(user_id);
-
-        const { total_price, first_name, last_name, email, phone, address, country, province, city, postal_code } = req.body; 
+        //cart details expect list of object containing cart info ie [{book_id: 1, quantity: 5, price: 53.2}, ...]
+        //I would store price in cart db table but it can change so makes sense to send front frontend
+        const { cart_details, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code } = req.body; 
 
         const order_id = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code);
 
-        return res.status(200).json();
+        cart_details.forEach(async function(item, index) {
+            await booklistModel.add_book_to_order(order_id, item.book_id, item.quantity, item.price);
+        });
+
+        await booklistModel.clear_cart(user_id); //empty cart on successful checkout
+
+        return res.status(200).json({order_id: order_id});
         
     } catch (error) {
         return res.status(500).json({message: 'Failed to get cart'});

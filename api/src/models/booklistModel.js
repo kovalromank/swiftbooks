@@ -271,10 +271,10 @@ const create_order = async (user_id, total_price, first_name, last_name, email, 
 const add_book_to_order = async (order_id, book_id, quantity, price) => {
     const result = await pool.query(
         `INSERT INTO order_items 
-        (user_id, book_id, quantity, added_at, updated_at) 
-        VALUES ($1, $2, $3, NOW(), NOW()) 
+        (order_id, book_id, quantity, unit_price) 
+        VALUES ($1, $2, $3, $4) 
         RETURNING id`,
-        [user_id, book_id, quantity]
+        [order_id, book_id, quantity, price]
     );
     return result.rows[0].id;
 };
@@ -283,5 +283,5 @@ const add_book_to_order = async (order_id, book_id, quantity, price) => {
 module.exports = { 
     toggle_hide_review, update_booklist_name, add_review, get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, 
     does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist, is_book_in_cart, update_book_quantity,
-    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order
+    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order, add_book_to_order
 };
