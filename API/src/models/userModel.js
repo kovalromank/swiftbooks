@@ -75,10 +75,9 @@ const isManager = async (id) => {
 
 
 const userExists = async (username) => {
-    username = username.toLowerCase();
     const query = `
         SELECT * FROM users
-        WHERE username = $1
+        WHERE LOWER(username) = LOWER($1)
     `;
     const result = await pool.query(query, [username]);
 

@@ -392,3 +392,23 @@ exports.get_cart = async (req, res) => {
         return res.status(500).json({message: 'Failed to get cart'});
     }
 };
+
+
+
+exports.checkout = async (req, res) => { 
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const cart_details = await booklistModel.get_cart(user_id);
+
+        const { total_price, first_name, last_name, email, phone, address, country, province, city, postal_code } = req.body; 
+
+        const order_id = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code)
+
+        return res.status(200).json();
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to get cart'});
+    }
+};

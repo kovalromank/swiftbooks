@@ -165,7 +165,7 @@ const add_review = async (user_id, list_id, stars, text_content) => {
 
 
 const update_booklist_name = async (list_id, name) => {
-    await pool.query( 
+    const result = await pool.query( 
         `UPDATE booklists 
             SET updated_at = NOW(),
                 list_name = $2
@@ -178,7 +178,7 @@ const update_booklist_name = async (list_id, name) => {
 
 
 const toggle_hide_review = async (review_id) => {
-    await pool.query( 
+    const result = await pool.query( 
         `UPDATE booklists_reviews 
             SET updated_at = NOW(),
                 hidden = NOT hidden
@@ -190,7 +190,7 @@ const toggle_hide_review = async (review_id) => {
 
 
 const is_book_in_cart = async (user_id, book_id) => {
-    await pool.query( 
+    const result = await pool.query( 
         `SELECT * FROM carts
         WHERE user_id = $1 and book_id = $2`,
         [user_id, book_id]
@@ -200,7 +200,7 @@ const is_book_in_cart = async (user_id, book_id) => {
 
 
 const update_book_quantity = async (user_id, book_id, quantity) => {
-    await pool.query( 
+    const result = await pool.query( 
         `UPDATE carts 
             SET updated_at = NOW(),
                 quantity = $3
@@ -212,7 +212,7 @@ const update_book_quantity = async (user_id, book_id, quantity) => {
 
 
 const add_book_to_cart = async (user_id, book_id, quantity) => {
-    await pool.query(
+    const result = await pool.query(
         `INSERT INTO carts 
         (user_id, book_id, quantity, added_at, updated_at) 
         VALUES ($1, $2, $3, NOW(), NOW()) 
@@ -247,7 +247,7 @@ const clear_cart = async (user_id) => {
 }
 
 const get_cart = async (user_id) => {
-    await pool.query( 
+    const result = await pool.query( 
         `SELECT * FROM carts
         WHERE user_id = $1`,
         [user_id]
@@ -256,8 +256,32 @@ const get_cart = async (user_id) => {
 };
 
 
+const create_order = async (user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code) => {
+    const result = await pool.query(
+        `INSERT INTO orders 
+        (user_id, price, first_name, last_name, email, phone, address, country, province, city, postal_code) 
+        VALUES ($1, $2, $3, $4, $5, %6, $7, $8, $9, $10, $11, NOW()) 
+        RETURNING id`,
+        [user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code]
+    );
+    return result.rows[0];
+};
+
+
+const add_book_to_order = async (order_id, book_id, quantity, price) => {
+    const result = await pool.query(
+        `INSERT INTO order_items 
+        (user_id, book_id, quantity, added_at, updated_at) 
+        VALUES ($1, $2, $3, NOW(), NOW()) 
+        RETURNING id`,
+        [user_id, book_id, quantity]
+    );
+    return result.rows[0].id;
+};
+
+
 module.exports = { 
     toggle_hide_review, update_booklist_name, add_review, get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, 
     does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist, is_book_in_cart, update_book_quantity,
-    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart
+    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order
 };
