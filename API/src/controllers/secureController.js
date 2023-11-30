@@ -347,7 +347,7 @@ exports.add_book_to_cart = async (req, res) => { //endpoint can be used for addi
     }
 };
 
-exports.delete_book_from_cart = async (req, res) => { //endpoint can be used for adding book initially or updating quantity in cart
+exports.delete_book_from_cart = async (req, res) => { 
     try {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
@@ -360,5 +360,20 @@ exports.delete_book_from_cart = async (req, res) => { //endpoint can be used for
         
     } catch (error) {
         return res.status(500).json({message: 'Failed to delete book from cart'});
+    }
+};
+
+
+exports.clear_cart = async (req, res) => { 
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        await booklistModel.clear_cart(user_id);
+
+        return res.status(200).json({message: 'cleared cart'});
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to clear cart'});
     }
 };
