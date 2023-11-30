@@ -154,7 +154,6 @@ exports.add_book_to_booklist = async (req, res) => {
         return res.status(200).json({message: 'Added book to list.'});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to add book to booklist'});
     }
 };
@@ -276,7 +275,6 @@ exports.update_booklist_name = async (req, res) => {
         return res.status(200).json({message: 'updated booklist.'});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to update booklist'});
     }
 };
@@ -306,7 +304,10 @@ exports.toggle_hide_review = async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
 
-        if (!userModel.isAdmin(user_id) || !userModel.isManager(user_id)) {
+        let is_admin = await userModel.isAdmin(user_id);
+        let is_manager = await userModel.isManager(user_id);
+
+        if (!is_admin && !is_manager) {
             return res.status(401).json({message: 'Only manager or admin can do this.'});
         }
 
@@ -317,7 +318,6 @@ exports.toggle_hide_review = async (req, res) => {
         return res.status(200).json({message: 'Changed review hidden status.'});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to update review status'});
     }
 };
@@ -333,18 +333,32 @@ exports.add_book_to_cart = async (req, res) => { //endpoint can be used for addi
 
         const { book_id, quantity } = req.body; 
 
-        if (booklistModel.is_book_in_cart(user_id, book_id)) {
+        if (await booklistModel.is_book_in_cart(user_id, book_id)) {
             await booklistModel.update_book_quantity(user_id, book_id, quantity);
         } else {
             await booklistModel.add_book_to_cart(user_id, book_id, quantity);
         }
 
-        await booklistModel.toggle_hide_review(review_id);
-
-        return res.status(200).json({message: 'Changed review hidden status.'});
+        return res.status(200).json({message: 'updated cart'});
         
     } catch (error) {
         console.log(error)
-        return res.status(500).json({message: 'Failed to update review status'});
+        return res.status(500).json({message: 'Failed to update cart'});
+    }
+};
+
+exports.delete_book_from_cart = async (req, res) => { //endpoint can be used for adding book initially or updating quantity in cart
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const { book_id } = req.body; 
+
+        await booklistModel.delete_book_from_cart(user_id, cart_id);
+
+        return res.status(200).json({message: 'deleted book from cart'});
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to delete book from cart'});
     }
 };

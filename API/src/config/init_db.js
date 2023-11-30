@@ -64,6 +64,7 @@ const initDB = async () => {
             book_id TEXT REFERENCES books(id) ON DELETE CASCADE,
             quantity INT NOT NULL,
             added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (user_id, book_id)
         );
     `;

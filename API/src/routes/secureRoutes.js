@@ -23,7 +23,7 @@ router.put('/toggle-hide-review', verifyToken, secureController.toggle_hide_revi
 
 //cart and checkout
 router.post('/add-book-to-cart', verifyToken, secureController.add_book_to_cart); //no test cases yet
-//remove book from cart
+router.delete('/delete-book-from-cart', verifyToken, secureController.delete_book_from_cart); //no test cases yet
 //clear cart
 //get cart details
 

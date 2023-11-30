@@ -189,7 +189,54 @@ const toggle_hide_review = async (review_id) => {
 };
 
 
+const is_book_in_cart = async (user_id, book_id) => {
+    await pool.query( //update updated time for list
+        `SELECT * FROM carts
+        WHERE user_id = $1 and book_id = $2`,
+        [user_id, book_id]
+    );
+    return result.rows.length > 0;
+};
+
+
+const update_book_quantity = async (user_id, book_id, quantity) => {
+    await pool.query( //update updated time for list
+        `UPDATE carts 
+            SET updated_at = NOW(),
+                quantity = $3
+            WHERE user_id = $1 and book_id = $2`,
+        [user_id, book_id, quantity]
+    );
+    return result.rows[0];
+};
+
+
+const add_book_to_cart = async (user_id, book_id, quantity) => {
+    await pool.query( //update updated time for list
+        `INSERT INTO carts 
+        (user_id, book_id, quantity, added_at, updated_at) 
+        VALUES ($1, $2, $3, NOW(), NOW()) 
+        RETURNING id`,
+        [user_id, book_id, quantity]
+    );
+    return result.rows[0];
+};
+
+
+const delete_book_from_cart = async (user_id, booklist_id) => {
+    const query = `
+        DELETE FROM booklists
+        WHERE created_by_id = $1 AND id = $2
+        RETURNING *; // This line will return the deleted rows
+    `;
+    const result = await pool.query(query, [user_id, booklist_id]);
+
+    return result.rows; // Contains the rows that were deleted
+}
+
+
 module.exports = { 
     toggle_hide_review, update_booklist_name, add_review, get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, 
-    does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist 
+    does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist, is_book_in_cart, update_book_quantity,
+    add_book_to_cart, delete_book_from_cart, 
 };
