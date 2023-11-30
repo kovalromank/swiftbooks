@@ -13,6 +13,8 @@ router.delete('/delete-book-from-list', verifyToken, secureController.delete_boo
 router.get('/get-booklist-books', verifyToken, secureController.get_book_ids_from_list);
 router.post('/add-review', verifyToken, secureController.add_review_to_list); // no test cases
 router.put('/update-booklist-name', verifyToken, secureController.update_booklist_name); // no test cases
+router.put('/update-booklist-publicity', verifyToken, secureController.update_booklist_publicity); // no test cases
+router.get('/get-reviews-for-list', verifyToken, secureController.get_reviews_for_list); // no test cases
 
 //auth user info
 router.get('/get-user-details', verifyToken, secureController.get_user_details); //no test cases yet

@@ -1,6 +1,14 @@
 const pool = require('../config/db');
 const jwt = require('jsonwebtoken');
 
+
+/**
+ * Creates a new user in the database.
+ * @param {string} username - The username for the new user.
+ * @param {string} email - The email address for the new user.
+ * @param {string} hashedPassword - The hashed password for the new user.
+ * @returns {Object} The new user's information including the user ID.
+ */
 const createUser = async (username, email, hashedPassword) => {
     const result = await pool.query(
         'INSERT INTO users (username, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id', 
@@ -10,6 +18,11 @@ const createUser = async (username, email, hashedPassword) => {
 };
 
 
+/**
+ * Finds a user in the database by their email.
+ * @param {string} email - The email address to search for.
+ * @returns {Object} The found user's information.
+ */
 const findUserByEmail = async (email) => {
     const result = await pool.query(
         'SELECT * FROM users WHERE email = $1', 
@@ -19,6 +32,11 @@ const findUserByEmail = async (email) => {
 };
 
 
+/**
+ * Retrieves a username from the database based on user ID.
+ * @param {string} id - The ID of the user.
+ * @returns {string} The username of the user.
+ */
 const getUsernameFromId = async (id) => {
     const result = await pool.query(
         'SELECT * FROM users WHERE id = $1', 
@@ -28,6 +46,11 @@ const getUsernameFromId = async (id) => {
 };
 
 
+/**
+ * Decodes a JWT token to extract the user ID.
+ * @param {string} token - The JWT token to decode.
+ * @returns {string|null} The user ID if the token is valid, null otherwise.
+ */
 const getUserIdFromToken = (token) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -42,6 +65,11 @@ const getUserIdFromToken = (token) => {
 };
 
 
+/**
+ * Retrieves user details from the database based on user ID.
+ * @param {string} id - The ID of the user.
+ * @returns {Object} The user details excluding the password.
+ */
 const getUserDetails = async (id) => {
     const result = await pool.query(
         'SELECT * FROM users WHERE id = $1', 
@@ -52,6 +80,11 @@ const getUserDetails = async (id) => {
 };
 
 
+/**
+ * Checks if a user is an admin.
+ * @param {string} id - The ID of the user.
+ * @returns {boolean} True if the user is an admin, false otherwise.
+ */
 const isAdmin = async (id) => {
     const query = `
         SELECT * FROM users
@@ -63,6 +96,11 @@ const isAdmin = async (id) => {
 }
 
 
+/**
+ * Checks if a user is a manager.
+ * @param {string} id - The ID of the user.
+ * @returns {boolean} True if the user is a manager, false otherwise.
+ */
 const isManager = async (id) => {
     const query = `
         SELECT * FROM users
@@ -74,6 +112,11 @@ const isManager = async (id) => {
 }
 
 
+/**
+ * Checks if a username already exists in the database.
+ * @param {string} username - The username to check.
+ * @returns {boolean} True if the username exists, false otherwise.
+ */
 const userExists = async (username) => {
     const query = `
         SELECT * FROM users
@@ -85,6 +128,10 @@ const userExists = async (username) => {
 }
 
 
+/**
+ * Retrieves a list of all users from the database.
+ * @returns {Array} An array of user objects.
+ */
 const getUsers = async () => {
     const query = `
         SELECT * FROM users
@@ -96,7 +143,12 @@ const getUsers = async () => {
 }
 
 
-
+/**
+ * Changes the status of a user in the database.
+ * @param {string} user_id - The ID of the user.
+ * @param {string} status_string - The new status to set.
+ * @returns {Object} The updated user information.
+ */
 const changeUserStatus = async (user_id, status_string) => {
     const query = `
         UPDATE users
@@ -110,6 +162,12 @@ const changeUserStatus = async (user_id, status_string) => {
 };
 
 
+/**
+ * Changes the active state of a user in the database.
+ * @param {string} user_id - The ID of the user.
+ * @param {boolean} active - The new active state to set.
+ * @returns {Object} The updated user information.
+ */
 const changeUserActive = async (user_id, active) => {
     const query = `
         UPDATE users

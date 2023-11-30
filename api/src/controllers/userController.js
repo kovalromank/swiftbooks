@@ -2,6 +2,19 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 
+
+/**
+ * Handles the registration of a new user.
+ * It first extracts the username, email, and password from the request body.
+ * It checks if the username already exists using the userModel's userExists method.
+ * If the username exists, it responds with a 401 status and an error message.
+ * If the username is unique, it hashes the password, creates a new user,
+ * generates a JWT token, and responds with a 201 status and the token.
+ * 
+ * @param {Object} req - The Express request object containing user data
+ * @param {Object} res - The Express response object for sending responses
+ * @returns {Promise} - The asynchronous operation of registering a user
+ */
 exports.register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -21,6 +34,19 @@ exports.register = async (req, res) => {
     }
 };
 
+/**
+ * Handles user login.
+ * It extracts the email and password from the request body and 
+ * finds the user by email using the userModel's findUserByEmail method.
+ * If the user doesn't exist or the password doesn't match, 
+ * it responds with a 401 status and an error message.
+ * If the credentials are valid and the user's account is active, 
+ * it generates a JWT token and responds with the token and success message.
+ * 
+ * @param {Object} req - The Express request object containing user credentials
+ * @param {Object} res - The Express response object for sending responses
+ * @returns {Promise} - The asynchronous operation of user login
+ */
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
