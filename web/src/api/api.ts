@@ -1,6 +1,6 @@
 import { keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
 
-import { ApiInfoBook, ApiSearchBook, ApiSearchBookInput } from "./types";
+import { ApiBookId, ApiBookList, ApiInfoBook, ApiSearchBook, ApiSearchBookInput } from "./types";
 
 export const client = new QueryClient();
 
@@ -34,11 +34,30 @@ const doFetch = (input: RequestInfo, init?: RequestInit) =>
     return res.json();
   });
 
+export const useBookListBookIds = (id: number) =>
+  useQuery<ApiBookId[]>({
+    retry: false,
+    queryKey: ["bookListBookIds", id],
+    queryFn: () => doFetch(`http://localhost:3001/api/open/list-book-ids?list_id=${id}`),
+  });
+
+export const useRecentBookLists = () =>
+  useQuery<ApiBookList[]>({
+    retry: false,
+    queryKey: ["recentBookLists"],
+    queryFn: () => doFetch("http://localhost:3001/api/open/recent-public-booklists"),
+  });
+
 export const useBook = (id: string) =>
   useQuery<ApiInfoBook>({
     retry: false,
     queryKey: ["book", id],
     queryFn: () => doFetch(`http://localhost:3001/api/open/book-info-from-id?id=${id}`),
+    refetchInterval: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchIntervalInBackground: false,
   });
 
 export const useBookSearch = ({ title, author, field }: ApiSearchBookInput) =>
