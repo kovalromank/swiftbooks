@@ -26,8 +26,8 @@ router.put('/toggle-hide-review', verifyToken, secureController.toggle_hide_revi
 router.post('/add-book-to-cart', verifyToken, secureController.add_book_to_cart); 
 router.delete('/delete-book-from-cart', verifyToken, secureController.delete_book_from_cart); 
 router.delete('/clear-cart', verifyToken, secureController.clear_cart); 
-router.get('/get-cart', verifyToken, secureController.get_cart); //no test cases yet
-router.post('/checkout', verifyToken, secureController.checkout); //no test cases yet
+router.get('/get-cart', verifyToken, secureController.get_cart); 
+router.post('/checkout', verifyToken, secureController.checkout); 
 
 
 module.exports = router;

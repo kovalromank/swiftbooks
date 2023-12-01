@@ -767,16 +767,102 @@ describe('Delete book from cart', () => {
 });*/
 
 
-describe('Delete book from cart', () => {
+/*
+describe('Clear cart', () => {
 
-    it('Fail no book id provided', async () => {  
+    it('Clear logged in users cart', async () => {  
 
         const response = await request(app)
             .delete('/api/secure/clear-cart')
+            .set('Authorization', `Bearer ${manager_token}`);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/cleared cart/i));
+    });
+
+
+});*/
+
+
+/*
+describe('Get users cart', () => {
+
+    it('Return logged in users cart items', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-cart')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(200);
+    });
+
+
+});*/
+
+
+describe('Checkout Process', () => {
+
+    it('Fail cart details array is empty', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/checkout')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                cart_details: [],
+                total_price: 500,
+                first_name: 'test',
+                last_name: 'last',
+                email: 'email@email.com',
+                phone: '5190001111',
+                address: '555 western road floor 5 unit 6',
+                country: 'Canada',
+                province: 'Ontario',
+                city: 'London',
+                postal_code: 'G5G6H3'
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.missingFields).toEqual(expect.stringMatching(/cart_details/i));
+    });
+
+    it('Fail all data missing', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/checkout')
             .set('Authorization', `Bearer ${token}`);
 
         expect(response.statusCode).toBe(401);
-        expect(response.body.message).toEqual(expect.stringMatching(/book id not/i));
+        expect(response.body.missingFields).toEqual(expect.stringMatching(/total_price, first_name, last_name, email, phone, address, country, province, city, postal_code, cart_details/i));
+    });
+
+
+    it('Successful checkout', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/checkout')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                cart_details: [
+                    {book_id: 'A29JAAAAMAAJ', quantity: 1, price: 50.0},
+                    {book_id: 'Yz8Fnw0PlEQC', quantity: 1, price: 50.0},
+                    {book_id: 'f280CwAAQBAJ', quantity: 1, price: 200.0},
+                    {book_id: 'fFIXAAAAYAAJ', quantity: 4, price: 175.0},
+                    {book_id: 'vtMyAQAAMAAJ', quantity: 1, price: 25.0},
+                ],
+                total_price: 500,
+                first_name: 'test',
+                last_name: 'last',
+                email: 'email@email.com',
+                phone: '5190001111',
+                address: '555 western road floor 5 unit 6',
+                country: 'Canada',
+                province: 'Ontario',
+                city: 'London',
+                postal_code: 'G5G6H3'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.order_id).toEqual(3);
     });
 
 

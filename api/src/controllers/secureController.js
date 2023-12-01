@@ -597,11 +597,32 @@ exports.checkout = async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
 
+        const requiredFields = ['total_price', 'first_name', 'last_name', 'email', 'phone', 'address', 'country', 'province', 'city', 'postal_code'];
+        let missingFields = "";
+
+        //missing fields except cart_details
+        requiredFields.forEach(field => {
+            if (!req.body[field]) {
+                missingFields += field + ", ";
+            }
+        });
+
+        //check if cart_details is present and not empty
+        if (!req.body.cart_details || req.body.cart_details.length === 0) {
+            missingFields += "cart_details, ";
+        }
+
+        // If there are missing fields, return 401 status with the list of missing fields
+        if (missingFields.length > 0) {
+            return res.status(401).json({ error: "Missing fields", missingFields: missingFields });
+        }
+
         //cart details expect list of object containing cart info ie [{book_id: 1, quantity: 5, price: 53.2}, ...]
         //I would store price in cart db table but it can change so makes sense to send front frontend
         const { cart_details, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code } = req.body; 
 
-        const order_id = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code);
+        const order = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code);
+        const order_id = order.id;
 
         cart_details.forEach(async function(item, index) {
             await booklistModel.add_book_to_order(order_id, item.book_id, item.quantity, item.price);
@@ -612,6 +633,7 @@ exports.checkout = async (req, res) => {
         return res.status(200).json({order_id: order_id});
         
     } catch (error) {
+        console.log(error)
         return res.status(500).json({message: 'Failed to get cart'});
     }
 };
