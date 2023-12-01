@@ -1,40 +1,51 @@
 import { FC } from "react";
-import Image from "next/image";
 import cx from "clsx";
 
-import bookCover1 from "@/images/book-cover-1.jpeg";
-import bookCover2 from "@/images/book-cover-2.jpeg";
-import bookCover3 from "@/images/book-cover-3.jpeg";
+import { ApiInfoBook } from "@/api/types";
 
 import classes from "./book-list-thumb.module.css";
 
-export const BookListThumb: FC = () => {
+export interface BookListThumbProps {
+  books: ApiInfoBook[];
+}
+
+export const BookListThumb: FC<BookListThumbProps> = ({ books }) => {
+  const images = books
+    .map((book) => book.thumbnail || book.fullImage!)
+    .filter((image) => Boolean(image));
+
   return (
-    <div style={{ display: "flex" }}>
-      <div style={{ display: "inline-block" }}>
-        <Image
-          src={bookCover1}
-          alt="Book cover"
-          width={150}
-          height={150}
-          className={cx(classes.image, classes.imageLarge)}
-        />
+    <div className={classes.container}>
+      <div className={classes.column}>
+        {images.length > 0 ? (
+          <img
+            src={images[0]}
+            alt="Book cover"
+            width={150}
+            height={150}
+            className={cx(classes.image, classes.imageLarge)}
+          />
+        ) : null}
       </div>
-      <div style={{ display: "inline-block" }}>
-        <Image
-          src={bookCover2}
-          alt="Book cover"
-          width={75}
-          height={75}
-          className={cx(classes.image, classes.imageSmall)}
-        />
-        <Image
-          src={bookCover3}
-          alt="Book cover"
-          width={75}
-          height={75}
-          className={cx(classes.image, classes.imageSmall)}
-        />
+      <div className={classes.column}>
+        {images.length > 1 ? (
+          <img
+            src={images[1]}
+            alt="Book cover"
+            width={75}
+            height={75}
+            className={cx(classes.image, classes.imageSmall)}
+          />
+        ) : null}
+        {images.length > 2 ? (
+          <img
+            src={images[2]}
+            alt="Book cover"
+            width={75}
+            height={75}
+            className={cx(classes.image, classes.imageSmall)}
+          />
+        ) : null}
       </div>
     </div>
   );
