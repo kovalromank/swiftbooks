@@ -1,6 +1,7 @@
-import { Button, Select, Title } from "@mantine/core";
+import { Anchor, Button, Select, Title } from "@mantine/core";
 import { FC, useMemo } from "react";
 import cx from "clsx";
+import Link from "next/link";
 
 import { ApiBook } from "@/api/types";
 
@@ -29,23 +30,25 @@ export const Book: FC<BookProps> = ({ variant = "default", data }) => {
   return (
     <div className={cx(classes.container, { [classes.cart]: variant === "cart" })}>
       {data.thumbnail ? (
-        <div>
+        <Anchor component={Link} href={`/books/view/${data.id}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={data.thumbnail}
             alt="Book cover 1"
-            width={150}
-            height={150}
+            width="150"
+            height="150"
             className={classes.image}
           />
-        </div>
+        </Anchor>
       ) : null}
       <div className={classes.details}>
         {data.authors?.length ? <div className={classes.author}>{data.authors[0]}</div> : null}
         {data.title ? (
-          <Title order={4} className={classes.title}>
-            {data.title}
-          </Title>
+          <Anchor c="black" component={Link} href={`/books/view/${data.id}`}>
+            <Title order={4} className={classes.title}>
+              {data.title}
+            </Title>
+          </Anchor>
         ) : null}
         {variant === "cart" ? (
           <div className={classes.quantityContainer}>
