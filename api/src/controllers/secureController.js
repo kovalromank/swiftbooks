@@ -40,14 +40,14 @@ exports.create_booklist = async (req, res) => { //currently allows for multiple 
             return res.status(403).json({message: 'Too many lists already. Maximum number of lists already exist.'})
         }
 
-        const { list_name, is_public = false } = req.body;
+        const { list_name, description = "", is_public = false } = req.body;
 
         if (!list_name) {
             return res.status(401).json({message: 'missing list name'})
         }
 
         let username = await userModel.getUsernameFromId(user_id);
-        await booklistModel.create_booklist_db(user_id, username, list_name, is_public);
+        await booklistModel.create_booklist_db(user_id, username, list_name, is_public, description);
 
         return res.status(200).json({message: 'Booklist created.'});
     } catch (error) {
@@ -202,14 +202,27 @@ exports.delete_book_from_booklist = async (req, res) => {
 
         const { list_id, book_id } = req.body; //expect the list_id and the book_object returned from open endpoints book from id or book search
 
+        if (!list_id) {
+            return res.status(401).json({message: 'missing list id'});
+        }
+
+        if (!book_id) {
+            return res.status(401).json({message: 'missing book id'});
+        }
+
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
         if (!is_user_list) {
             return res.status(401).json({message: 'Tried removing book from list that user does not own.'});
         }
 
+        let book_in_booklist = await booklistModel.is_book_in_list(list_id, book_id);
+        if (!book_in_booklist) {
+            return res.status(401).json({message: 'book is not in list'})
+        }
+
         await booklistModel.delete_book_from_booklist(list_id, book_id);
 
-        return res.status(200).json({message: 'Added book to list.'});
+        return res.status(200).json({message: 'book removed'});
         
     } catch (error) {
         return res.status(500).json({message: 'Failed to remove book from booklist'});
@@ -242,7 +255,7 @@ exports.get_book_ids_from_list = async (req, res) => {
         const { list_id } = req.query;
 
         if (!list_id) {
-            return res.status(400).json({message: 'list id not provided'});  
+            return res.status(401).json({message: 'list id not provided'});  
         }
 
         let is_list_public = await booklistModel.is_list_public(list_id);
@@ -254,43 +267,12 @@ exports.get_book_ids_from_list = async (req, res) => {
         }
 
         const list_data = await booklistModel.get_list_data(list_id);
-
         return res.status(200).json(list_data);       
     } catch (error) {
         return res.status(500).json({message: 'Failed to open list.'});   
     }
 };
 
-
-/**
- * Adds a review to a book list.
- * 
- * This function allows a user to add a review to a book list. It first verifies the user's
- * identity through a token, checks if the targeted list is public, and then adds the review.
- *
- * @param {Object} req - The request object containing headers (authorization token) and body (list_id, stars, text_content).
- * @param {Object} res - The response object used to send back a JSON response.
- */
-exports.add_review_to_list = async (req, res) => {
-    try {
-        const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
-
-        const { list_id, stars, text_content } = req.body;
-
-
-        let is_list_public = await booklistModel.is_list_public(list_id);
-        if (!is_list_public) {
-            return res.status(401).json({message: 'Tried adding comment to private list.'});  
-        }
-
-        await booklistModel.add_review(user_id, list_id, stars, text_content);
-
-               
-    } catch (error) {
-        return res.status(500).json({message: 'Failed to open list.'});   
-    }
-};
 
 
 /**
@@ -308,6 +290,14 @@ exports.update_booklist_name = async (req, res) => {
         let user_id = userModel.getUserIdFromToken(token);
 
         const { list_id, name } = req.body;
+
+        if (!list_id) {
+            return res.status(401).json({message: 'list id not provided'})
+        }
+
+        if (!name) {
+            return res.status(401).json({message: 'name not provided'})
+        }
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
         if (!is_user_list) {
@@ -377,6 +367,37 @@ exports.get_reviews_for_list = async (req, res) => {
         const reviews = await booklistModel.get_reviews(list_id);
 
         return res.status(200).json(reviews);       
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to open list.'});   
+    }
+};
+
+
+/**
+ * Adds a review to a book list.
+ * 
+ * This function allows a user to add a review to a book list. It first verifies the user's
+ * identity through a token, checks if the targeted list is public, and then adds the review.
+ *
+ * @param {Object} req - The request object containing headers (authorization token) and body (list_id, stars, text_content).
+ * @param {Object} res - The response object used to send back a JSON response.
+ */
+ exports.add_review_to_list = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        const { list_id, stars, text_content } = req.body;
+
+
+        let is_list_public = await booklistModel.is_list_public(list_id);
+        if (!is_list_public) {
+            return res.status(401).json({message: 'Tried adding comment to private list.'});  
+        }
+
+        await booklistModel.add_review(user_id, list_id, stars, text_content);
+
+               
     } catch (error) {
         return res.status(500).json({message: 'Failed to open list.'});   
     }

@@ -49,10 +49,10 @@ const num_booklists_by_user = async (user_id) => {
  * @param {boolean} is_public - Indicates if the booklist is public or private.
  * @return {Promise<object>} A promise that resolves to the created booklist object.
  */
-const create_booklist_db = async (user_id, username, list_name, is_public) => {
+const create_booklist_db = async (user_id, username, list_name, is_public, description) => {
     const result = await pool.query(
-        'INSERT INTO booklists (list_name, is_public, created_by_id, created_by_username, created_at, updated_at) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id', 
-        [list_name, is_public, user_id, username]
+        'INSERT INTO booklists (list_name, is_public, created_by_id, created_by_username, description, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id', 
+        [list_name, is_public, user_id, username, description]
     );
     return result.rows[0];
 };

@@ -6,21 +6,19 @@ const { initDB, resetDbTables, fillDbWithTestData } = require("./config/init_db"
 
 //Handle command line args
 //Not for production REMOVE
-process.argv.forEach((val, index, array) => {
-    (async () => {
-        if (val === "--init-db") {
-            await initDB();
-        }
-
-        if (val === "--reset-db") {
+const processArgs = process.argv.slice(2); // Skip the first two elements ('node' and 'path/to/your/script')
+async function handleDatabaseOperations() {
+    for (let arg of processArgs) {
+        if (arg === "--reset-db") {
             await resetDbTables();
-        }
-
-        if (val === "--fill-tables") {
+        } else if (arg === "--init-db") {
+            await initDB();
+        } else if (arg === "--fill-tables") {
             await fillDbWithTestData();
         }
-    })();
-});
+    }
+}
+handleDatabaseOperations();
 
 
 

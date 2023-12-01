@@ -31,6 +31,7 @@ const initDB = async () => {
             is_public BOOLEAN DEFAULT FALSE,
             created_by_id INT REFERENCES users(id) ON DELETE CASCADE,
             created_by_username VARCHAR(50) NOT NULL,
+            description TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -174,12 +175,13 @@ const fillDbWithTestData = async () => {
 
         // Insert data into the 'booklists' table
         const insertBooklists = `
-            INSERT INTO booklists (list_name, is_public, created_by_id, created_by_username)
+            INSERT INTO booklists (list_name, is_public, created_by_id, created_by_username, description)
             VALUES 
-                ('private list', false, 3, 'active_user'),
-                ('public list 1', true, 3, 'active_user'),
-                ('public list 2', true, 3, 'active_user'),
-                ('public list 3', true, 2, 'manager');
+                ('private list', false, 3, 'active_user', 'this is a description of my booklist'),
+                ('public list 1', true, 3, 'active_user', 'this is a description of my booklist'),
+                ('public list 2', true, 3, 'active_user', 'this is a description of my booklist'),
+                ('public list 3', true, 2, 'manager', 'this is a description of my booklist'),
+                ('private list 2', false, 2, 'manager', 'this is a description of my booklist');
         `;
         await pool.query(insertBooklists);
 
