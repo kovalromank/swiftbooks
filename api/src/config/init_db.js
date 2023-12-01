@@ -31,6 +31,7 @@ const initDB = async () => {
             is_public BOOLEAN DEFAULT FALSE,
             created_by_id INT REFERENCES users(id) ON DELETE CASCADE,
             created_by_username VARCHAR(50) NOT NULL,
+            description TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -54,7 +55,8 @@ const initDB = async () => {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             content TEXT,
             stars INT NOT NULL,
-            hidden BOOLEAN NOT NULL
+            hidden BOOLEAN NOT NULL,
+            username VARCHAR(100) NOT NULL
         );
     `;
 
@@ -174,12 +176,13 @@ const fillDbWithTestData = async () => {
 
         // Insert data into the 'booklists' table
         const insertBooklists = `
-            INSERT INTO booklists (list_name, is_public, created_by_id, created_by_username)
+            INSERT INTO booklists (list_name, is_public, created_by_id, created_by_username, description)
             VALUES 
-                ('private list', false, 3, 'active_user'),
-                ('public list 1', true, 3, 'active_user'),
-                ('public list 2', true, 3, 'active_user'),
-                ('public list 3', true, 2, 'manager');
+                ('private list', false, 3, 'active_user', 'this is a description of my booklist'),
+                ('public list 1', true, 3, 'active_user', 'this is a description of my booklist'),
+                ('public list 2', true, 3, 'active_user', 'this is a description of my booklist'),
+                ('public list 3', true, 2, 'manager', 'this is a description of my booklist'),
+                ('private list 2', false, 2, 'manager', 'this is a description of my booklist');
         `;
         await pool.query(insertBooklists);
 
@@ -209,15 +212,14 @@ const fillDbWithTestData = async () => {
 
         // Insert data into the 'booklists_reviews' table
         const insertBooklistReviews = `
-            INSERT INTO booklists_reviews (booklist_id, user_id, content, stars, hidden)
+            INSERT INTO booklists_reviews (booklist_id, user_id, content, stars, hidden, username)
             VALUES 
-                (2, 2, 'Cool list', 5, false),
-                (2, 3, 'i like this', 3, true),
+                (2, 2, 'Cool list', 5, false, 'manager'),
+                (2, 3, 'i like this', 3, true, 'active_user'),
 
-                (3, 4, 'Great booklist!', 5, false),
-                (3, 4, 'medicore', 2, false),
+                (3, 4, 'Great booklist!', 5, false, 'deactivated_user'),
 
-                (4, 3, 'i hate this list', 1, false);
+                (4, 3, 'i hate this list', 1, false, 'active_user');
         `;
         await pool.query(insertBooklistReviews);
 

@@ -37,7 +37,24 @@ beforeAll(async () => {
 describe('Create Booklist', () => {
 
     //test successful booklist create
-    it('create new booklist', async () => {  
+    it('create new booklist with description', async () => {  
+
+        // test
+        const response = await request(app)
+            .post('/api/secure/create-booklist')
+            .set('Authorization', `Bearer ${token}`) 
+            .send({
+                list_name: 'My new list with description and is_public!',
+                is_public: true,
+                description: "MY NEW DESCRIPTION!"
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/created/i));
+    });
+
+
+    it('create new booklist without description and without is_public', async () => {  
 
         // test
         const response = await request(app)
@@ -45,7 +62,6 @@ describe('Create Booklist', () => {
             .set('Authorization', `Bearer ${token}`) 
             .send({
                 list_name: 'My new list!',
-                is_public: true
             });
 
         expect(response.statusCode).toBe(200);
@@ -216,3 +232,273 @@ describe('Add book to booklist', () => {
 
 
 });*/
+
+/*
+describe('Delete book from booklist', () => {
+
+    it('Fail due to missing list_id param', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-list')
+            .set('Authorization', `Bearer ${token}`) 
+            .send({
+                book_id: 've0BAAAAQAAJ'
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/missing list/i));
+    });
+
+    it('Fail due to missing book_id param', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-list')
+            .set('Authorization', `Bearer ${token}`) 
+            .send({
+                list_id: 3
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/missing book/i));
+    });
+
+
+    it('Fail due to not owning list', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-list')
+            .set('Authorization', `Bearer ${token}`) 
+            .send({
+                list_id: 4,
+                book_id: 've0BAAAAQAAJ'
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/does not own/i));
+    });
+
+
+    it('Fail due to book id not being in the list', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-list')
+            .set('Authorization', `Bearer ${token}`) 
+            .send({
+                list_id: 3,
+                book_id: 'fakeid'
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/not in list/i));
+    });
+
+
+    it('Succcessfully remove book', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-list')
+            .set('Authorization', `Bearer ${token}`) 
+            .send({
+                list_id: 3,
+                book_id: 've0BAAAAQAAJ'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/book removed/i));
+    });
+
+});*/
+
+
+/*
+describe('Get booklist books', () => {
+
+    it('Fail due to missing list_id param', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-booklist-books')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
+    });
+
+
+    it('Fail due to accessing private list user does not own', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-booklist-books')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                list_id: 5
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/private list that isnt owned by user/i));
+    });
+
+    it('Successfully get public list not owned by use', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-booklist-books')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                list_id: 4
+            });
+
+        expect(response.statusCode).toBe(200);
+    });
+
+    it('Successfully get private list owned by use', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-booklist-books')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                list_id: 1
+            });
+
+        expect(response.statusCode).toBe(200);
+    });
+
+});*/
+
+
+/*
+describe('Update booklist name', () => {
+
+    it('Fail due to missing list_id param', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/update-booklist-name')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                name: "NEW NAME!"
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
+    });
+
+
+    it('Fail due to missing name param', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/update-booklist-name')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 3
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/name not/i));
+    });
+
+
+    it('Fail due to user not owning list', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/update-booklist-name')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 4,
+                name: "NEW NAME!"
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/user does not own/i));
+    });
+
+
+    it('Fail due to id does not exist (Expects same error as not owning)', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/update-booklist-name')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 999999,
+                name: "NEW NAME!"
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/user does not own/i));
+    });
+
+
+    it('Successfully update list name', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/update-booklist-name')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 3,
+                name: "NEW NAME!"
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/updated/i));
+    });
+
+
+});*/
+
+
+/*
+describe('Update booklist publicity', () => {
+
+    it('Fail due to missing list_id param', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/update-booklist-publicity')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
+    });
+
+
+    it('Fail due to not owning list', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/update-booklist-publicity')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 4
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/does not own/i));
+    });
+
+
+    it('Successfully change publicity', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/update-booklist-publicity')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 3
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/updated/i));
+    });
+
+
+});*/
+
+
+describe('Add review to list', () => {
+
+    it('Fail due to missing list_id param', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-reviews-for-list')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
+    });
+
+
+});

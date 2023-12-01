@@ -1,5 +1,7 @@
 const axios = require('axios');
 const booklistModel = require('../models/booklistModel');
+const jwt = require('jsonwebtoken');
+const userModel = require('../models/userModel');
 
 
 /**
@@ -213,3 +215,51 @@ exports.get_book_ids_from_list = async (req, res) => {
 };
 
 
+/** 
+ * This async function acts as a route handler. It extracts the
+ * `list_id` from the request body, uses it to fetch reviews by calling `get_reviews`, and
+ * sends the results back in the HTTP response. If an error occurs, it sends a 500 status code
+ * with an error message.
+ *
+ * @param {Request} req - The request object, expected to contain `list_id` in the body.
+ * @param {Response} res - The response object.
+ * @returns {Promise<Response>} A promise that resolves to the response object.
+ */
+ exports.get_reviews_for_list = async (req, res) => {
+    try {
+        let return_hidden = false;
+
+        const { list_id } = req.query;
+        
+        if (!list_id) {
+            return res.status(401).json({message: 'list id not provided'}); 
+        }
+
+        const token = req.headers.authorization?.split(' ')[1];
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                req.user = decoded;
+                let user_id = await userModel.getUserIdFromToken(token);
+                let user_details = await userModel.getUserDetails(user_id);
+
+                if (user_details.status === 'manager' || user_details.status === 'admin') {
+                    return_hidden = true;
+                }
+            } catch (error) {console.log(error)} //user not logged in
+        }
+
+        let reviews = await booklistModel.get_reviews(list_id);
+
+        // Filter out hidden reviews if return_hidden is false
+        if (!return_hidden) {
+            reviews = reviews.filter(review => !review.hidden);
+        }
+
+        console.log(reviews)
+
+        return res.status(200).json(reviews);       
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to open list.'});   
+    }
+};
