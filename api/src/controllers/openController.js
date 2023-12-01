@@ -195,15 +195,21 @@ exports.get_book_ids_from_list = async (req, res) => {
     try {
         const { list_id } = req.query;
 
-        let is_list_public = booklistModel.is_list_public(list_id);
-        if (!is_list_public) {
-            res.status(401).json({message: 'Tried accessing private list that isnt owned by user.'});  
+        if (!list_id) {
+            return res.status(400).json({message: 'no list id provided'}); 
         }
 
-        const list_data = booklistModel.get_list_data(list_id);
+        let is_list_public = await booklistModel.is_list_public(list_id);
+        if (!is_list_public) {
+            return res.status(401).json({message: 'Tried accessing private list that isnt owned by user.'});  
+        }
+
+        const list_data = await booklistModel.get_list_data(list_id);
 
         return res.status(200).json(list_data);       
     } catch (error) {
         return res.status(500).json({message: 'Failed to open list.'});   
     }
 };
+
+
