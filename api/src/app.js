@@ -6,18 +6,20 @@ const { initDB, resetDbTables, fillDbWithTestData } = require("./config/init_db"
 
 //Handle command line args
 //Not for production REMOVE
-process.argv.forEach(function (val, index, array) {
-    if (val === "--init-db") {
-        initDB();
-    }
+process.argv.forEach((val, index, array) => {
+    (async () => {
+        if (val === "--init-db") {
+            await initDB();
+        }
 
-    if (val === "--reset-db") {
-        resetDbTables();
-    }
+        if (val === "--reset-db") {
+            await resetDbTables();
+        }
 
-    if (val === "--fill-tables") {
-        fillDbWithTestData();
-    }
+        if (val === "--fill-tables") {
+            await fillDbWithTestData();
+        }
+    })();
 });
 
 

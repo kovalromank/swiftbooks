@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken');
  */
 const createUser = async (username, email, hashedPassword) => {
     const result = await pool.query(
-        'INSERT INTO users (username, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id', 
+        'INSERT INTO users (username, email, password, active, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id', 
         [username, email, hashedPassword, true, 'user']
     );
     return result.rows[0];
@@ -129,6 +129,23 @@ const userExists = async (username) => {
 
 
 /**
+ * Check if email already exists.
+ * @param {string} email - The email address to search for.
+ * @returns {boolean} True if email exists and false otherwise
+ */
+ const emailExists = async (email) => {
+    const query = `
+        SELECT * FROM users
+        WHERE LOWER(email) = LOWER($1)
+    `;
+    const result = await pool.query(query, [email]);
+
+    return result.rows.length > 0;
+};
+
+
+
+/**
  * Retrieves a list of all users from the database.
  * @returns {Array} An array of user objects.
  */
@@ -181,4 +198,4 @@ const changeUserActive = async (user_id, active) => {
 };
 
 
-module.exports = { createUser, findUserByEmail, getUserIdFromToken, getUsernameFromId, getUserDetails, isAdmin, isManager, userExists, getUsers, changeUserStatus, changeUserActive };
+module.exports = { emailExists, createUser, findUserByEmail, getUserIdFromToken, getUsernameFromId, getUserDetails, isAdmin, isManager, userExists, getUsers, changeUserStatus, changeUserActive };

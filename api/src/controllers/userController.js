@@ -19,8 +19,26 @@ exports.register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
-        if (userModel.userExists(username)) {
+        // Check for missing parameters
+        if (!username || !email || !password) {
+            let missingParams = [];
+            if (!username) missingParams.push('username');
+            if (!email) missingParams.push('email');
+            if (!password) missingParams.push('password');
+            
+            return res.status(400).json({ 
+                message: `Missing required parameters: ${missingParams.join(', ')}` 
+            });
+        }
+
+        let userExists = await userModel.userExists(username);
+        if (userExists) {
             return res.status(401).json({ message: 'Username already exists.' });
+        }
+
+        let emailExists = await userModel.emailExists(email);
+        if (emailExists) {
+            return res.status(401).json({ message: 'Email already exists.' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -50,6 +68,15 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        if (!email) {
+            return res.status(401).json({ message: 'missing email' })
+        }
+
+        if (!password) {
+            return res.status(401).json({ message: 'missing password' })
+        }
+
         const user = await userModel.findUserByEmail(email);
 
         if (!user || !await bcrypt.compare(password, user.password)) {
