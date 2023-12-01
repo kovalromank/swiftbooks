@@ -1,14 +1,52 @@
 import { keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
 
-import { ApiSearchBook, ApiSearchBookInput } from "./types";
+import { ApiInfoBook, ApiSearchBook, ApiSearchBookInput } from "./types";
 
 export const client = new QueryClient();
 
-export const useBookSearch = ({ title, author, field }: ApiSearchBookInput) => {
-  return useQuery<ApiSearchBook[]>({
+class ServerError extends Error {
+  name = "ServerError";
+
+  constructor(object: unknown) {
+    let message = "Server error";
+
+    if (typeof object === "object") {
+      if ((object as any)?.message) {
+        message = (object as any).message;
+      }
+    }
+
+    super(message);
+  }
+}
+
+const doFetch = (input: RequestInfo, init?: RequestInit) =>
+  fetch(input, init).then(async (res) => {
+    if (!res.ok) {
+      let data;
+      try {
+        data = await res.json();
+      } catch (error) {}
+
+      throw new ServerError(data);
+    }
+
+    return res.json();
+  });
+
+export const useBook = (id: string) =>
+  useQuery<ApiInfoBook>({
+    retry: false,
+    queryKey: ["book", id],
+    queryFn: () => doFetch(`http://localhost:3001/api/open/book-info-from-id?id=${id}`),
+  });
+
+export const useBookSearch = ({ title, author, field }: ApiSearchBookInput) =>
+  useQuery<ApiSearchBook[]>({
+    retry: false,
     placeholderData: keepPreviousData,
     queryKey: ["bookSearch", title, author, field],
-    queryFn: async () => {
+    queryFn: () => {
       const params = new URLSearchParams();
 
       if (title) {
@@ -25,11 +63,6 @@ export const useBookSearch = ({ title, author, field }: ApiSearchBookInput) => {
 
       const query = params.toString();
 
-      const res = await fetch(`http://localhost:3001/api/open/search?${query}`, {
-        method: "GET",
-      });
-
-      return await res.json();
+      return doFetch(`http://localhost:3001/api/open/search?${query}`);
     },
   });
-};
