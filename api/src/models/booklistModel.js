@@ -277,13 +277,13 @@ const get_list_data = async (list_id) => {
  * @param {string} text_content - The text content of the review.
  * @return {Promise<object>} A promise that resolves to the added review object.
  */
-const add_review = async (user_id, list_id, stars, text_content) => {
+const add_review = async (user_id, list_id, stars, text_content, username) => {
     const result = await pool.query(
         `INSERT INTO booklist_reviews 
-            (booklist_id, user_id, added_at, updated_at, content, stars, hidden) 
-            VALUES ($1, $2, NOW(), NOW(), $3, $4, $5) 
+            (booklist_id, user_id, added_at, updated_at, content, stars, hidden, username) 
+            VALUES ($1, $2, NOW(), NOW(), $3, $4, $5, $6) 
             RETURNING id`, 
-        [list_id, user_id, text_content, stars, false]
+        [list_id, user_id, text_content, stars, false, username]
     );
 
     return result.rows; 

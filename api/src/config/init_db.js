@@ -55,7 +55,8 @@ const initDB = async () => {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             content TEXT,
             stars INT NOT NULL,
-            hidden BOOLEAN NOT NULL
+            hidden BOOLEAN NOT NULL,
+            username VARCHAR(100) NOT NULL
         );
     `;
 
@@ -211,15 +212,14 @@ const fillDbWithTestData = async () => {
 
         // Insert data into the 'booklists_reviews' table
         const insertBooklistReviews = `
-            INSERT INTO booklists_reviews (booklist_id, user_id, content, stars, hidden)
+            INSERT INTO booklists_reviews (booklist_id, user_id, content, stars, hidden, username)
             VALUES 
-                (2, 2, 'Cool list', 5, false),
-                (2, 3, 'i like this', 3, true),
+                (2, 2, 'Cool list', 5, false, 'manager'),
+                (2, 3, 'i like this', 3, true, 'active_user'),
 
-                (3, 4, 'Great booklist!', 5, false),
-                (3, 4, 'medicore', 2, false),
+                (3, 4, 'Great booklist!', 5, false, 'deactivated_user'),
 
-                (4, 3, 'i hate this list', 1, false);
+                (4, 3, 'i hate this list', 1, false, 'active_user');
         `;
         await pool.query(insertBooklistReviews);
 

@@ -33,7 +33,7 @@ const openController = require('./openController');
 exports.create_booklist = async (req, res) => { //currently allows for multiple lists with same name can be changed
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
         let num_lists = await booklistModel.num_booklists_by_user(user_id);
 
         if (num_lists >= 20) {
@@ -73,7 +73,7 @@ exports.create_booklist = async (req, res) => { //currently allows for multiple 
 exports.get_user_booklists = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
 
         let my_lists = await booklistModel.get_booklists(user_id);
 
@@ -106,7 +106,7 @@ exports.get_user_booklists = async (req, res) => {
 exports.delete_user_booklist = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
 
         const { list_id } = req.body;
 
@@ -144,7 +144,7 @@ exports.delete_user_booklist = async (req, res) => {
 exports.add_book_to_booklist = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
 
         const { list_id, book_id } = req.body; //expect google book id
 
@@ -198,7 +198,7 @@ exports.add_book_to_booklist = async (req, res) => {
 exports.delete_book_from_booklist = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
 
         const { list_id, book_id } = req.body; //expect the list_id and the book_object returned from open endpoints book from id or book search
 
@@ -250,7 +250,7 @@ exports.delete_book_from_booklist = async (req, res) => {
 exports.get_book_ids_from_list = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
 
         const { list_id } = req.query;
 
@@ -287,7 +287,7 @@ exports.get_book_ids_from_list = async (req, res) => {
 exports.update_booklist_name = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
 
         const { list_id, name } = req.body;
 
@@ -327,9 +327,13 @@ exports.update_booklist_name = async (req, res) => {
 exports.update_booklist_publicity = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
 
         const { list_id } = req.body;
+
+        if (!list_id) {
+            return res.status(401).json({message: 'list id not provided'})
+        }
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
         if (!is_user_list) {
@@ -346,32 +350,6 @@ exports.update_booklist_publicity = async (req, res) => {
 };
 
 
-/** 
- * This async function acts as a route handler. It extracts the
- * `list_id` from the request body, uses it to fetch reviews by calling `get_reviews`, and
- * sends the results back in the HTTP response. If an error occurs, it sends a 500 status code
- * with an error message.
- *
- * @param {Request} req - The request object, expected to contain `list_id` in the body.
- * @param {Response} res - The response object.
- * @returns {Promise<Response>} A promise that resolves to the response object.
- */
-exports.get_reviews_for_list = async (req, res) => {
-    try {
-        const { list_id } = req.query;
-        
-        if (!list_id) {
-            return res.status(400).json({message: 'list id not provided'}); 
-        }
-
-        const reviews = await booklistModel.get_reviews(list_id);
-
-        return res.status(200).json(reviews);       
-    } catch (error) {
-        return res.status(500).json({message: 'Failed to open list.'});   
-    }
-};
-
 
 /**
  * Adds a review to a book list.
@@ -385,7 +363,8 @@ exports.get_reviews_for_list = async (req, res) => {
  exports.add_review_to_list = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
-        let user_id = userModel.getUserIdFromToken(token);
+        let user_id = await userModel.getUserIdFromToken(token);
+        let username = await userModel.getUsernameFromId(user_id)
 
         const { list_id, stars, text_content } = req.body;
 
@@ -395,7 +374,7 @@ exports.get_reviews_for_list = async (req, res) => {
             return res.status(401).json({message: 'Tried adding comment to private list.'});  
         }
 
-        await booklistModel.add_review(user_id, list_id, stars, text_content);
+        await booklistModel.add_review(user_id, list_id, stars, text_content, username);
 
                
     } catch (error) {
