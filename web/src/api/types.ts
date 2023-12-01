@@ -31,3 +31,17 @@ export interface ApiSearchBookInput {
   offset?: number;
   limit?: number;
 }
+
+export interface ApiBookList {
+  id: number;
+  list_name: string;
+  is_public: boolean;
+  created_by_id: number;
+  created_by_username: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiBookId {
+  id: string;
+}
