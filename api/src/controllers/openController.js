@@ -225,7 +225,7 @@ exports.get_book_ids_from_list = async (req, res) => {
  * @param {Response} res - The response object.
  * @returns {Promise<Response>} A promise that resolves to the response object.
  */
- exports.get_reviews_for_list = async (req, res) => {
+exports.get_reviews_for_list = async (req, res) => {
     try {
         let return_hidden = false;
 
@@ -259,6 +259,50 @@ exports.get_book_ids_from_list = async (req, res) => {
         console.log(reviews)
 
         return res.status(200).json(reviews);       
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to open list.'});   
+    }
+};
+
+
+
+//get booklist by id
+    //return llist info if public
+    //return if belongs to user
+    //return if manager / admin
+
+exports.booklist_info_from_id = async (req, res) => {
+    try {
+        const { list_id } = req.query;
+        
+        if (!list_id) {
+            return res.status(401).json({message: 'list id not provided'}); 
+        }
+
+        const list_info = booklistModel.get_list_data(list_id);
+        const list_owner_id = list_info.created_by_id;
+        const list_status = list_info.is_public;
+
+        if (list_status) { //return public list data no matter what
+            return res.status(200).json(list_info)
+        }
+
+        const token = req.headers.authorization?.split(' ')[1];
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                req.user = decoded;
+                let user_id = await userModel.getUserIdFromToken(token);
+                let user_details = await userModel.getUserDetails(user_id);
+
+                if (user_details.status === 'manager' || user_details.status === 'admin' || user_id === list_owner_id) {
+                    return res.status(200).json(list_info); //return if user owns list or if user is admin / manager
+                }
+            } catch (error) {} //user not logged in
+        }
+
+
+        return res.status(401).json({message: 'cant access list'});       
     } catch (error) {
         return res.status(500).json({message: 'Failed to open list.'});   
     }

@@ -33,6 +33,30 @@ beforeAll(async () => {
     token = loginResponse.body.token; // Store the token from the login response
 });
 
+let manager_token;
+beforeAll(async () => {
+    const loginResponse = await request(app)
+        .post('/api/auth/login')
+        .send({
+            email: 'user2@example.com',
+            password: 'password'
+        });
+
+    manager_token = loginResponse.body.token; // Store the token from the login response
+});
+
+let admin_token;
+beforeAll(async () => {
+    const loginResponse = await request(app)
+        .post('/api/auth/login')
+        .send({
+            email: 'user1@example.com',
+            password: 'password'
+        });
+
+    admin_token = loginResponse.body.token; // Store the token from the login response
+});
+
 /*
 describe('Create Booklist', () => {
 
@@ -488,16 +512,271 @@ describe('Update booklist publicity', () => {
 });*/
 
 
+/*
 describe('Add review to list', () => {
 
     it('Fail due to missing list_id param', async () => {  
 
         const response = await request(app)
-            .get('/api/secure/get-reviews-for-list')
-            .set('Authorization', `Bearer ${token}`);
+            .post('/api/secure/add-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                stars: 4
+            });
 
         expect(response.statusCode).toBe(401);
         expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
+    });
+
+
+    it('Fail due to missing stars param', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 4
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/stars not/i));
+    });
+
+
+    it('Fail due to list being private / not exists', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 5,
+                stars: 5
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/private list/i));
+    });
+
+
+    it('Successfully add review', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 4,
+                stars: 5,
+                text_content: 'very cool list'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/added review/i));
+    });
+
+
+});*/
+
+
+/*
+describe('Get user details', () => {
+
+    it('Succeesfully return details for logged in user', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-user-details')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(200);
+    });
+
+
+});*/
+
+
+
+//MANAGER / ADMIN ROUTES
+
+/*
+describe('Toggle hide review', () => {
+
+    it('Fail user not admin / manager', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/toggle-hide-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                review_id: 1
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/only manager or admin/i));
+    });
+
+
+    it('Fail review_id not provided', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/toggle-hide-review')
+            .set('Authorization', `Bearer ${manager_token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/review id not/i));
+    });
+
+
+    it('Success manager hides', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/toggle-hide-review')
+            .set('Authorization', `Bearer ${manager_token}`)
+            .send({
+                review_id: 1
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/changed review hidden status/i));
+    });
+
+
+    it('Success admin hides', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/toggle-hide-review')
+            .set('Authorization', `Bearer ${admin_token}`)
+            .send({
+                review_id: 1
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/changed review hidden status/i));
+    });
+
+
+});*/
+
+
+
+//CART AND CHECKOUT
+
+/*
+describe('Add book to cart.', () => {
+
+    it('Fail book id not provided', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-book-to-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                quantity: 5
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/book id not/i));
+    });
+
+
+    it('Fail quantity not provided', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-book-to-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'ggsgsdgsd'
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/quantity not/i));
+    });
+
+
+    it('Success update cart quantity', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-book-to-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'vtMyAQAAMAAJ',
+                quantity: 10
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/updated cart/i));
+    });
+
+
+    it('Success add new item to cart', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-book-to-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'kMdaAAAAMAAJ',
+                quantity: 3
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/updated cart/i));
+    });
+
+
+});*/
+
+
+/*
+describe('Delete book from cart', () => {
+
+    it('Fail no book id provided', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-cart')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/book id not/i));
+    });
+
+
+    it('Try deleting book not in cart (nothing happens expect status 200)', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'fake_id'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/deleted book/i));
+    });
+
+
+    it('Successfully delete book in cart', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'A29JAAAAMAAJ'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/deleted book/i));
+    });
+
+
+});*/
+
+
+describe('Delete book from cart', () => {
+
+    it('Fail no book id provided', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/clear-cart')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/book id not/i));
     });
 
 

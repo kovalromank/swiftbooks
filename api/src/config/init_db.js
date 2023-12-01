@@ -234,7 +234,9 @@ const fillDbWithTestData = async () => {
                 (3, 'f280CwAAQBAJ', 1),
 
 
-                (2, 'kMdaAAAAMAAJ', 2);
+                (2, 'kMdaAAAAMAAJ', 2),
+                (2, 'f280CwAAQBAJ', 5),
+                (2, 'A29JAAAAMAAJ', 7);
         `;
         await pool.query(insertCarts);
 

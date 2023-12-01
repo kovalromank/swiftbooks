@@ -13,19 +13,19 @@ router.delete('/delete-book-from-list', verifyToken, secureController.delete_boo
 router.get('/get-booklist-books', verifyToken, secureController.get_book_ids_from_list); 
 router.put('/update-booklist-name', verifyToken, secureController.update_booklist_name); 
 router.put('/update-booklist-publicity', verifyToken, secureController.update_booklist_publicity); 
-router.post('/add-review', verifyToken, secureController.add_review_to_list); // no test cases
+router.post('/add-review', verifyToken, secureController.add_review_to_list); 
 
 //auth user info
-router.get('/get-user-details', verifyToken, secureController.get_user_details); //no test cases yet
+router.get('/get-user-details', verifyToken, secureController.get_user_details); 
 
 //manage / admin review hiding
-router.put('/toggle-hide-review', verifyToken, secureController.toggle_hide_review); //no test cases yet
+router.put('/toggle-hide-review', verifyToken, secureController.toggle_hide_review); 
 
 
 //cart and checkout
-router.post('/add-book-to-cart', verifyToken, secureController.add_book_to_cart); //no test cases yet
-router.delete('/delete-book-from-cart', verifyToken, secureController.delete_book_from_cart); //no test cases yet
-router.delete('/clear-cart', verifyToken, secureController.clear_cart); //no test cases yet
+router.post('/add-book-to-cart', verifyToken, secureController.add_book_to_cart); 
+router.delete('/delete-book-from-cart', verifyToken, secureController.delete_book_from_cart); 
+router.delete('/clear-cart', verifyToken, secureController.clear_cart); 
 router.get('/get-cart', verifyToken, secureController.get_cart); //no test cases yet
 router.post('/checkout', verifyToken, secureController.checkout); //no test cases yet
 
