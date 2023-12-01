@@ -30,7 +30,7 @@ const openController = require('./openController');
  * 
  * @returns {Promise} - The promise resulting from the asynchronous operation.
  */
-exports.create_booklist = async (req, res) => {
+exports.create_booklist = async (req, res) => { //currently allows for multiple lists with same name can be changed
     try {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
@@ -41,6 +41,10 @@ exports.create_booklist = async (req, res) => {
         }
 
         const { list_name, is_public = false } = req.body;
+
+        if (!list_name) {
+            return res.status(401).json({message: 'missing list name'})
+        }
 
         let username = await userModel.getUsernameFromId(user_id);
         await booklistModel.create_booklist_db(user_id, username, list_name, is_public);
@@ -106,6 +110,10 @@ exports.delete_user_booklist = async (req, res) => {
 
         const { list_id } = req.body;
 
+        if (!list_id) {
+            return res.status(401).json({message: 'missing list id'})
+        }
+
         await booklistModel.delete_booklist(user_id, list_id);
 
         return res.status(200).json({message: 'Booklist deleted.'});
@@ -140,6 +148,14 @@ exports.add_book_to_booklist = async (req, res) => {
 
         const { list_id, book_id } = req.body; //expect google book id
 
+        if (!list_id) {
+            return res.status(401).json({message: 'missing list id'})
+        }
+
+        if (!book_id) {
+            return res.status(401).json({message: 'missing book id'})
+        }
+
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
         if (!is_user_list) {
             return res.status(401).json({message: 'Tried adding book to list that user does not own.'});
@@ -150,11 +166,17 @@ exports.add_book_to_booklist = async (req, res) => {
             await booklistModel.add_book(book_id);
         }
 
+        let book_in_booklist = await booklistModel.is_book_in_list(list_id, book_id);
+        if (book_in_booklist) {
+            return res.status(401).json({message: 'book already exists in list.'})
+        }
+
         await booklistModel.add_book_to_booklist(list_id, book_id);
 
         return res.status(200).json({message: 'Added book to list.'});
         
     } catch (error) {
+        console.log(error)
         return res.status(500).json({message: 'Failed to add book to booklist'});
     }
 };

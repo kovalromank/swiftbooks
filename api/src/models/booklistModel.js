@@ -78,6 +78,24 @@ const get_booklists = async (user_id) => {
 
 
 /**
+ * Checks if book already in a booklist
+ * Return true if it is and false otherwise
+ *
+ * @param {number} list_id - The ID of the booklist.
+ * @param {number} book_id - The ID of the book.
+ * @return {Promise<Array>} A promise that resolves to true or false
+ */
+const is_book_in_list = async (list_id, book_id) => {
+    const query = `
+        SELECT 1 FROM booklists_books
+        WHERE booklist_id = $1 AND book_id = $2
+    `;
+    const result = await pool.query(query, [list_id, book_id]);
+    return result.rows.length > 0;
+}
+
+
+/**
  * Asynchronously deletes a booklist from the database.
  * Deletes the booklist based on the provided user ID and booklist ID.
  * Returns the deleted booklist object.
@@ -170,8 +188,7 @@ const add_book_to_booklist = async (list_id, book_id) => {
     const result = await pool.query(
         `INSERT INTO booklists_books 
             (booklist_id, book_id, added_at) 
-            VALUES ($1, $2, NOW()) 
-            RETURNING id`, 
+            VALUES ($1, $2, NOW())`, 
         [list_id, book_id]
     );
     await pool.query( 
@@ -520,5 +537,5 @@ const add_book_to_order = async (order_id, book_id, quantity, price) => {
 module.exports = { 
     toggle_hide_review, update_booklist_name, add_review, get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, 
     does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist, is_book_in_cart, update_book_quantity,
-    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order, add_book_to_order, update_booklist_publicity, get_reviews
+    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order, add_book_to_order, update_booklist_publicity, get_reviews, is_book_in_list
 };
