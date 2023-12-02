@@ -247,6 +247,25 @@ const is_list_public = async (list_id) => {
 
 
 /**
+ * Queries the booklists table, filtering by list ID 
+ * Returns booklist object if found and null otherwise
+ *
+ * @param {number} list_id - The ID of the booklist.
+ * @return {Promise<boolean>} A promise that resolves to an object containing list info
+ */
+ const get_list_info = async (list_id) => {
+    const query = `
+        SELECT * FROM booklists
+        WHERE id = $1
+    `;
+    const result = await pool.query(query, [list_id]);
+
+    return result.rows[0];
+}
+
+
+
+/**
  * Asynchronously retrieves all books in a specific booklist.
  * Performs a join between the books and booklists_books tables, filtering by the booklist ID.
  * Returns an array of book objects.
@@ -535,5 +554,5 @@ const add_book_to_order = async (order_id, book_id, quantity, price) => {
 module.exports = { 
     toggle_hide_review, update_booklist_name, add_review, get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, 
     does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist, is_book_in_cart, update_book_quantity,
-    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order, add_book_to_order, update_booklist_publicity, get_reviews, is_book_in_list
+    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order, add_book_to_order, update_booklist_publicity, get_reviews, is_book_in_list, get_list_info
 };

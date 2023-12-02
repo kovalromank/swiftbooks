@@ -21,11 +21,8 @@ const userModel = require('../models/userModel');
  * The function constructs a query string based on these parameters and calls the Google Books API.
  * It then processes the API response, filtering and mapping the results to a summarized format, 
  * and sends this list back in the response. If an error occurs, it sends a 500 status code with an error message.
- * 
- * Note: The 'field' parameter is only used if it's the sole search term, as it can interfere with other search parameters.
  */
 exports.search = async (req, res) => {
-    //offset expects 0 / null, or number of times user presses load more
     try {
         const { author, field, title, offset = 0, limit = 40 } = req.query; //i am assuming field means genre of book
 
@@ -120,7 +117,14 @@ exports.book_info_from_id = async (req, res) => {
         }
 
         // Fetch data from Google Books API
-        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
+        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`).catch(error => {
+            return null
+        });
+
+        if (!response) {
+            return res.status(404).json({ message: 'Book ID not found' });
+        }
+
         const book = response.data;
 
         // Send back a summarized list of books
@@ -163,7 +167,6 @@ exports.book_info_from_id = async (req, res) => {
 exports.recent_public_booklists = async (req, res) => {
     try {
         const recent_lists = await booklistModel.ten_most_recent_public_lists();
-
         return res.status(200).json(recent_lists);       
     } catch (error) {
         return res.status(500).json({message: 'Failed to get ten most recent lists.'});   
@@ -201,38 +204,13 @@ exports.get_book_ids_from_list = async (req, res) => {
             return res.status(400).json({message: 'no list id provided'}); 
         }
 
-        let is_list_public = await booklistModel.is_list_public(list_id);
-        if (!is_list_public) {
-            return res.status(401).json({message: 'Tried accessing private list that isnt owned by user.'});  
-        }
-
         const list_data = await booklistModel.get_list_data(list_id);
+        const list_info = await booklistModel.get_list_info(list_id);
+        const list_owner_id = list_info.created_by_id;
+        const list_status = list_info.is_public;
 
-        return res.status(200).json(list_data);       
-    } catch (error) {
-        return res.status(500).json({message: 'Failed to open list.'});   
-    }
-};
-
-
-/** 
- * This async function acts as a route handler. It extracts the
- * `list_id` from the request body, uses it to fetch reviews by calling `get_reviews`, and
- * sends the results back in the HTTP response. If an error occurs, it sends a 500 status code
- * with an error message.
- *
- * @param {Request} req - The request object, expected to contain `list_id` in the body.
- * @param {Response} res - The response object.
- * @returns {Promise<Response>} A promise that resolves to the response object.
- */
-exports.get_reviews_for_list = async (req, res) => {
-    try {
-        let return_hidden = false;
-
-        const { list_id } = req.query;
-        
-        if (!list_id) {
-            return res.status(401).json({message: 'list id not provided'}); 
+        if (list_status) { //return public list data no matter what
+            return res.status(200).json(list_data)
         }
 
         const token = req.headers.authorization?.split(' ')[1];
@@ -243,27 +221,18 @@ exports.get_reviews_for_list = async (req, res) => {
                 let user_id = await userModel.getUserIdFromToken(token);
                 let user_details = await userModel.getUserDetails(user_id);
 
-                if (user_details.status === 'manager' || user_details.status === 'admin') {
-                    return_hidden = true;
+                if (user_details.status === 'manager' || user_details.status === 'admin' || user_id === list_owner_id) {
+                    return res.status(200).json(list_data); //return if user owns list or if user is admin / manager
                 }
-            } catch (error) {console.log(error)} //user not logged in
+            } catch (error) {} //user not logged in 
         }
 
-        let reviews = await booklistModel.get_reviews(list_id);
 
-        // Filter out hidden reviews if return_hidden is false
-        if (!return_hidden) {
-            reviews = reviews.filter(review => !review.hidden);
-        }
-
-        console.log(reviews)
-
-        return res.status(200).json(reviews);       
+        return res.status(401).json({message: 'cant access list'});        
     } catch (error) {
         return res.status(500).json({message: 'Failed to open list.'});   
     }
 };
-
 
 
 //get booklist by id
@@ -276,10 +245,10 @@ exports.booklist_info_from_id = async (req, res) => {
         const { list_id } = req.query;
         
         if (!list_id) {
-            return res.status(401).json({message: 'list id not provided'}); 
+            return res.status(400).json({message: 'list id not provided'}); 
         }
 
-        const list_info = booklistModel.get_list_data(list_id);
+        const list_info = await booklistModel.get_list_info(list_id); 
         const list_owner_id = list_info.created_by_id;
         const list_status = list_info.is_public;
 
@@ -303,6 +272,57 @@ exports.booklist_info_from_id = async (req, res) => {
 
 
         return res.status(401).json({message: 'cant access list'});       
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to open list.'});   
+    }
+};
+    
+
+
+
+/** 
+ * This async function acts as a route handler. It extracts the
+ * `list_id` from the request body, uses it to fetch reviews by calling `get_reviews`, and
+ * sends the results back in the HTTP response. If an error occurs, it sends a 500 status code
+ * with an error message.
+ *
+ * @param {Request} req - The request object, expected to contain `list_id` in the body.
+ * @param {Response} res - The response object.
+ * @returns {Promise<Response>} A promise that resolves to the response object.
+ */
+exports.get_reviews_for_list = async (req, res) => {
+    try {
+        let return_hidden = false;
+
+        const { list_id } = req.query;
+        
+        if (!list_id) {
+            return res.status(400).json({message: 'list id not provided'}); 
+        }
+
+        const token = req.headers.authorization?.split(' ')[1];
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                req.user = decoded;
+                let user_id = await userModel.getUserIdFromToken(token);
+                let user_details = await userModel.getUserDetails(user_id);
+
+                if (user_details.status === 'manager' || user_details.status === 'admin') {
+                    return_hidden = true;
+                }
+            } catch (error) {} //user not logged in
+        }
+
+        let reviews = await booklistModel.get_reviews(list_id);
+
+        // Filter out hidden reviews if return_hidden is false
+        if (!return_hidden) {
+            reviews = reviews.filter(review => !review.hidden);
+        }
+
+
+        return res.status(200).json(reviews);       
     } catch (error) {
         return res.status(500).json({message: 'Failed to open list.'});   
     }

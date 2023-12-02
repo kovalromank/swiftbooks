@@ -70,11 +70,11 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
 
         if (!email) {
-            return res.status(401).json({ message: 'missing email' })
+            return res.status(400).json({ message: 'missing email' })
         }
 
         if (!password) {
-            return res.status(401).json({ message: 'missing password' })
+            return res.status(400).json({ message: 'missing password' })
         }
 
         const user = await userModel.findUserByEmail(email);

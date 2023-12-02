@@ -17,7 +17,7 @@ const userModel = require('../models/userModel');
 exports.get_users = async (req, res) => {
     try {
         const user_details = await userModel.getUsers();
-        
+
         return res.status(200).json(user_details);
     } catch (error) {
         return res.status(500).json({message: 'Failed to get user details.'});
@@ -41,6 +41,14 @@ exports.get_users = async (req, res) => {
 exports.change_user_status = async (req, res) => {
     try {
         const { user_id, status_string } = req.body; //expects status string of either 'user' (change back to regular user) or 'manager' to set as manager status
+
+        if (!user_id) {
+            return res.status(400).json({message: 'user id not provided'})
+        }
+
+        if (!status_string) {
+            return res.status(400).json({message: 'status string not provided'})
+        }
 
         await userModel.changeUserStatus(user_id, status_string);
         
@@ -67,6 +75,14 @@ exports.change_user_status = async (req, res) => {
 exports.change_user_active = async (req, res) => {
     try {
         const { user_id, active } = req.body; // active expects bool 
+
+        if (!user_id) {
+            return res.status(400).json({message: 'user id not provided'})
+        }
+
+        if (active == null) {
+            return res.status(400).json({message: 'active not provided'})
+        }
 
         await userModel.changeUserActive(user_id, active);
         
