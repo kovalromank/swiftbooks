@@ -57,7 +57,7 @@ beforeAll(async () => {
     admin_token = loginResponse.body.token; // Store the token from the login response
 });
 
-/*
+
 describe('Create Booklist', () => {
 
     //test successful booklist create
@@ -104,15 +104,15 @@ describe('Create Booklist', () => {
                 is_public: true
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/missing/i));
     });
 
 
-});*/
+});
 
 
-/*
+
 describe('Get User Booklists', () => {
 
     //test successful get
@@ -126,10 +126,10 @@ describe('Get User Booklists', () => {
         expect(response.statusCode).toBe(200);
     });
 
-});*/
+});
 
 
-/*
+
 describe('Delete a booklist', () => {
 
     //test successful booklist delete
@@ -155,15 +155,15 @@ describe('Delete a booklist', () => {
             .delete('/api/secure/delete-user-booklist')
             .set('Authorization', `Bearer ${token}`);
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/missing/i));
     });
 
 
-});*/
+});
 
 
-/*
+
 describe('Add book to booklist', () => {
 
 
@@ -192,7 +192,7 @@ describe('Add book to booklist', () => {
                 book_id: 've0BAAAAQAAJ' //existing book in db but not in list
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(403);
         expect(response.body.message).toEqual(expect.stringMatching(/already exists/i));
     });
 
@@ -236,7 +236,7 @@ describe('Add book to booklist', () => {
                 list_id: 4,
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/missing book id/i));
     });
 
@@ -250,14 +250,14 @@ describe('Add book to booklist', () => {
                 book_id: 'doesntmatter',
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/missing list id/i));
     });
 
 
-});*/
+});
 
-/*
+
 describe('Delete book from booklist', () => {
 
     it('Fail due to missing list_id param', async () => {  
@@ -269,7 +269,7 @@ describe('Delete book from booklist', () => {
                 book_id: 've0BAAAAQAAJ'
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/missing list/i));
     });
 
@@ -282,7 +282,7 @@ describe('Delete book from booklist', () => {
                 list_id: 3
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/missing book/i));
     });
 
@@ -312,7 +312,7 @@ describe('Delete book from booklist', () => {
                 book_id: 'fakeid'
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(403);
         expect(response.body.message).toEqual(expect.stringMatching(/not in list/i));
     });
 
@@ -331,10 +331,10 @@ describe('Delete book from booklist', () => {
         expect(response.body.message).toEqual(expect.stringMatching(/book removed/i));
     });
 
-});*/
+});
 
 
-/*
+
 describe('Get booklist books', () => {
 
     it('Fail due to missing list_id param', async () => {  
@@ -343,7 +343,7 @@ describe('Get booklist books', () => {
             .get('/api/secure/get-booklist-books')
             .set('Authorization', `Bearer ${token}`);
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
     });
 
@@ -385,10 +385,10 @@ describe('Get booklist books', () => {
         expect(response.statusCode).toBe(200);
     });
 
-});*/
+});
 
 
-/*
+
 describe('Update booklist name', () => {
 
     it('Fail due to missing list_id param', async () => {  
@@ -400,7 +400,7 @@ describe('Update booklist name', () => {
                 name: "NEW NAME!"
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
     });
 
@@ -414,7 +414,7 @@ describe('Update booklist name', () => {
                 list_id: 3
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/name not/i));
     });
 
@@ -464,10 +464,10 @@ describe('Update booklist name', () => {
     });
 
 
-});*/
+});
 
 
-/*
+
 describe('Update booklist publicity', () => {
 
     it('Fail due to missing list_id param', async () => {  
@@ -476,7 +476,7 @@ describe('Update booklist publicity', () => {
             .put('/api/secure/update-booklist-publicity')
             .set('Authorization', `Bearer ${token}`);
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
     });
 
@@ -509,10 +509,10 @@ describe('Update booklist publicity', () => {
     });
 
 
-});*/
+});
 
 
-/*
+
 describe('Add review to list', () => {
 
     it('Fail due to missing list_id param', async () => {  
@@ -524,7 +524,7 @@ describe('Add review to list', () => {
                 stars: 4
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
     });
 
@@ -538,7 +538,7 @@ describe('Add review to list', () => {
                 list_id: 4
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/stars not/i));
     });
 
@@ -574,10 +574,10 @@ describe('Add review to list', () => {
     });
 
 
-});*/
+});
 
 
-/*
+
 describe('Get user details', () => {
 
     it('Succeesfully return details for logged in user', async () => {  
@@ -590,13 +590,13 @@ describe('Get user details', () => {
     });
 
 
-});*/
+});
 
 
 
 //MANAGER / ADMIN ROUTES
 
-/*
+
 describe('Toggle hide review', () => {
 
     it('Fail user not admin / manager', async () => {  
@@ -619,7 +619,7 @@ describe('Toggle hide review', () => {
             .put('/api/secure/toggle-hide-review')
             .set('Authorization', `Bearer ${manager_token}`);
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/review id not/i));
     });
 
@@ -652,13 +652,13 @@ describe('Toggle hide review', () => {
     });
 
 
-});*/
+});
 
 
 
 //CART AND CHECKOUT
 
-/*
+
 describe('Add book to cart.', () => {
 
     it('Fail book id not provided', async () => {  
@@ -670,7 +670,7 @@ describe('Add book to cart.', () => {
                 quantity: 5
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/book id not/i));
     });
 
@@ -684,7 +684,7 @@ describe('Add book to cart.', () => {
                 book_id: 'ggsgsdgsd'
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/quantity not/i));
     });
 
@@ -719,10 +719,10 @@ describe('Add book to cart.', () => {
     });
 
 
-});*/
+});
 
 
-/*
+
 describe('Delete book from cart', () => {
 
     it('Fail no book id provided', async () => {  
@@ -731,7 +731,7 @@ describe('Delete book from cart', () => {
             .delete('/api/secure/delete-book-from-cart')
             .set('Authorization', `Bearer ${token}`);
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/book id not/i));
     });
 
@@ -764,10 +764,10 @@ describe('Delete book from cart', () => {
     });
 
 
-});*/
+});
 
 
-/*
+
 describe('Clear cart', () => {
 
     it('Clear logged in users cart', async () => {  
@@ -781,10 +781,10 @@ describe('Clear cart', () => {
     });
 
 
-});*/
+});
 
 
-/*
+
 describe('Get users cart', () => {
 
     it('Return logged in users cart items', async () => {  
@@ -797,7 +797,7 @@ describe('Get users cart', () => {
     });
 
 
-});*/
+});
 
 
 describe('Checkout Process', () => {
@@ -821,7 +821,7 @@ describe('Checkout Process', () => {
                 postal_code: 'G5G6H3'
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.missingFields).toEqual(expect.stringMatching(/cart_details/i));
     });
 
@@ -831,7 +831,7 @@ describe('Checkout Process', () => {
             .post('/api/secure/checkout')
             .set('Authorization', `Bearer ${token}`);
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.missingFields).toEqual(expect.stringMatching(/total_price, first_name, last_name, email, phone, address, country, province, city, postal_code, cart_details/i));
     });
 

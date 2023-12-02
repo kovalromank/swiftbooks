@@ -43,7 +43,7 @@ exports.create_booklist = async (req, res) => { //currently allows for multiple 
         const { list_name, description = "", is_public = false } = req.body;
 
         if (!list_name) {
-            return res.status(401).json({message: 'missing list name'})
+            return res.status(400).json({message: 'missing list name'})
         }
 
         let username = await userModel.getUsernameFromId(user_id);
@@ -111,7 +111,7 @@ exports.delete_user_booklist = async (req, res) => {
         const { list_id } = req.body;
 
         if (!list_id) {
-            return res.status(401).json({message: 'missing list id'})
+            return res.status(400).json({message: 'missing list id'})
         }
 
         await booklistModel.delete_booklist(user_id, list_id);
@@ -149,11 +149,11 @@ exports.add_book_to_booklist = async (req, res) => {
         const { list_id, book_id } = req.body; //expect google book id
 
         if (!list_id) {
-            return res.status(401).json({message: 'missing list id'})
+            return res.status(400).json({message: 'missing list id'})
         }
 
         if (!book_id) {
-            return res.status(401).json({message: 'missing book id'})
+            return res.status(400).json({message: 'missing book id'})
         }
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
@@ -168,7 +168,7 @@ exports.add_book_to_booklist = async (req, res) => {
 
         let book_in_booklist = await booklistModel.is_book_in_list(list_id, book_id);
         if (book_in_booklist) {
-            return res.status(401).json({message: 'book already exists in list.'})
+            return res.status(403).json({message: 'book already exists in list.'})
         }
 
         await booklistModel.add_book_to_booklist(list_id, book_id);
@@ -176,7 +176,6 @@ exports.add_book_to_booklist = async (req, res) => {
         return res.status(200).json({message: 'Added book to list.'});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to add book to booklist'});
     }
 };
@@ -203,11 +202,11 @@ exports.delete_book_from_booklist = async (req, res) => {
         const { list_id, book_id } = req.body; //expect the list_id and the book_object returned from open endpoints book from id or book search
 
         if (!list_id) {
-            return res.status(401).json({message: 'missing list id'});
+            return res.status(400).json({message: 'missing list id'});
         }
 
         if (!book_id) {
-            return res.status(401).json({message: 'missing book id'});
+            return res.status(400).json({message: 'missing book id'});
         }
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
@@ -217,7 +216,7 @@ exports.delete_book_from_booklist = async (req, res) => {
 
         let book_in_booklist = await booklistModel.is_book_in_list(list_id, book_id);
         if (!book_in_booklist) {
-            return res.status(401).json({message: 'book is not in list'})
+            return res.status(403).json({message: 'book is not in list'})
         }
 
         await booklistModel.delete_book_from_booklist(list_id, book_id);
@@ -255,7 +254,7 @@ exports.get_book_ids_from_list = async (req, res) => {
         const { list_id } = req.query;
 
         if (!list_id) {
-            return res.status(401).json({message: 'list id not provided'});  
+            return res.status(400).json({message: 'list id not provided'});  
         }
 
         let is_list_public = await booklistModel.is_list_public(list_id);
@@ -292,11 +291,11 @@ exports.update_booklist_name = async (req, res) => {
         const { list_id, name } = req.body;
 
         if (!list_id) {
-            return res.status(401).json({message: 'list id not provided'})
+            return res.status(400).json({message: 'list id not provided'})
         }
 
         if (!name) {
-            return res.status(401).json({message: 'name not provided'})
+            return res.status(400).json({message: 'name not provided'})
         }
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
@@ -332,7 +331,7 @@ exports.update_booklist_publicity = async (req, res) => {
         const { list_id } = req.body;
 
         if (!list_id) {
-            return res.status(401).json({message: 'list id not provided'})
+            return res.status(400).json({message: 'list id not provided'})
         }
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
@@ -369,11 +368,11 @@ exports.update_booklist_publicity = async (req, res) => {
         const { list_id, stars, text_content = "" } = req.body;
 
         if (!list_id) {
-            return res.status(401).json({message: 'list id not provided'});
+            return res.status(400).json({message: 'list id not provided'});
         }
 
         if (!stars) {
-            return res.status(401).json({message: 'stars not provided'});
+            return res.status(400).json({message: 'stars not provided'});
         }
 
         let is_list_public = await booklistModel.is_list_public(list_id);
@@ -443,7 +442,7 @@ exports.toggle_hide_review = async (req, res) => {
         const { review_id } = req.body; 
 
         if (!review_id) {
-            return res.status(401).json({message: 'review id not provided'});
+            return res.status(400).json({message: 'review id not provided'});
         }
 
         await booklistModel.toggle_hide_review(review_id);
@@ -477,11 +476,11 @@ exports.add_book_to_cart = async (req, res) => { //endpoint can be used for addi
         const { book_id, quantity } = req.body; 
 
         if (!book_id) {
-            return res.status(401).json({message: 'book id not provided'});
+            return res.status(400).json({message: 'book id not provided'});
         }
 
         if (!quantity) {
-            return res.status(401).json({message: 'quantity not provided'});
+            return res.status(400).json({message: 'quantity not provided'});
         }
 
         let book_exists = await booklistModel.does_book_exist(book_id);
@@ -520,7 +519,7 @@ exports.delete_book_from_cart = async (req, res) => {
         const { book_id } = req.body; 
 
         if (!book_id) {
-            return res.status(401).json({message: 'book id not provided'})
+            return res.status(400).json({message: 'book id not provided'})
         }
 
         await booklistModel.delete_book_from_cart(user_id, book_id);
@@ -614,7 +613,7 @@ exports.checkout = async (req, res) => {
 
         // If there are missing fields, return 401 status with the list of missing fields
         if (missingFields.length > 0) {
-            return res.status(401).json({ error: "Missing fields", missingFields: missingFields });
+            return res.status(400).json({ error: "Missing fields", missingFields: missingFields });
         }
 
         //cart details expect list of object containing cart info ie [{book_id: 1, quantity: 5, price: 53.2}, ...]
@@ -633,7 +632,6 @@ exports.checkout = async (req, res) => {
         return res.status(200).json({order_id: order_id});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to get cart'});
     }
 };

@@ -40,7 +40,7 @@ const verifyToken = (req, res, next) => {
  * @param {object} res - The response object from Express.
  * @param {function} next - The next middleware function in the Express stack.
  */
-const verifyAdmin = (req, res, next) => {
+const verifyAdmin = async (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1]; // Bearer Token
 
     if (!token) {
@@ -54,8 +54,8 @@ const verifyAdmin = (req, res, next) => {
         return res.status(401).json({ message: 'Invalid Token' });
     }
 
-    let user_id = userModel.getUserIdFromToken(token);
-    if (userModel.isAdmin(user_id)) {
+    let user_id = await userModel.getUserIdFromToken(token);
+    if (await userModel.isAdmin(user_id)) {
         return next();
     }
 

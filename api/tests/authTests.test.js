@@ -116,7 +116,7 @@ describe('User Login', () => {
                 password: 'validpassword'
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/missing email/i));
     });
 
@@ -131,7 +131,7 @@ describe('User Login', () => {
                 email: 'validuser@example.com'
             });
 
-        expect(response.statusCode).toBe(401);
+        expect(response.statusCode).toBe(400);
         expect(response.body.message).toEqual(expect.stringMatching(/missing password/i));
     });
 
