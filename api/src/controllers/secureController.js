@@ -366,8 +366,15 @@ exports.update_booklist_publicity = async (req, res) => {
         let user_id = await userModel.getUserIdFromToken(token);
         let username = await userModel.getUsernameFromId(user_id)
 
-        const { list_id, stars, text_content } = req.body;
+        const { list_id, stars, text_content = "" } = req.body;
 
+        if (!list_id) {
+            return res.status(401).json({message: 'list id not provided'});
+        }
+
+        if (!stars) {
+            return res.status(401).json({message: 'stars not provided'});
+        }
 
         let is_list_public = await booklistModel.is_list_public(list_id);
         if (!is_list_public) {
@@ -376,7 +383,7 @@ exports.update_booklist_publicity = async (req, res) => {
 
         await booklistModel.add_review(user_id, list_id, stars, text_content, username);
 
-               
+        return res.status(200).json({message: 'added review'})
     } catch (error) {
         return res.status(500).json({message: 'Failed to open list.'});   
     }
@@ -401,7 +408,7 @@ exports.get_user_details = async (req, res) => {
         let user_id = userModel.getUserIdFromToken(token);
 
         const user_details = await userModel.getUserDetails(user_id);
-        
+
         return res.status(200).json(user_details);
     } catch (error) {
         return res.status(500).json();
@@ -435,6 +442,10 @@ exports.toggle_hide_review = async (req, res) => {
 
         const { review_id } = req.body; 
 
+        if (!review_id) {
+            return res.status(401).json({message: 'review id not provided'});
+        }
+
         await booklistModel.toggle_hide_review(review_id);
 
         return res.status(200).json({message: 'Changed review hidden status.'});
@@ -465,6 +476,19 @@ exports.add_book_to_cart = async (req, res) => { //endpoint can be used for addi
 
         const { book_id, quantity } = req.body; 
 
+        if (!book_id) {
+            return res.status(401).json({message: 'book id not provided'});
+        }
+
+        if (!quantity) {
+            return res.status(401).json({message: 'quantity not provided'});
+        }
+
+        let book_exists = await booklistModel.does_book_exist(book_id);
+        if (!book_exists) {
+            await booklistModel.add_book(book_id);
+        }
+
         if (await booklistModel.is_book_in_cart(user_id, book_id)) {
             await booklistModel.update_book_quantity(user_id, book_id, quantity);
         } else {
@@ -474,7 +498,6 @@ exports.add_book_to_cart = async (req, res) => { //endpoint can be used for addi
         return res.status(200).json({message: 'updated cart'});
         
     } catch (error) {
-        console.log(error)
         return res.status(500).json({message: 'Failed to update cart'});
     }
 };
@@ -496,7 +519,11 @@ exports.delete_book_from_cart = async (req, res) => {
 
         const { book_id } = req.body; 
 
-        await booklistModel.delete_book_from_cart(user_id, cart_id);
+        if (!book_id) {
+            return res.status(401).json({message: 'book id not provided'})
+        }
+
+        await booklistModel.delete_book_from_cart(user_id, book_id);
 
         return res.status(200).json({message: 'deleted book from cart'});
         
@@ -570,11 +597,32 @@ exports.checkout = async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = userModel.getUserIdFromToken(token);
 
+        const requiredFields = ['total_price', 'first_name', 'last_name', 'email', 'phone', 'address', 'country', 'province', 'city', 'postal_code'];
+        let missingFields = "";
+
+        //missing fields except cart_details
+        requiredFields.forEach(field => {
+            if (!req.body[field]) {
+                missingFields += field + ", ";
+            }
+        });
+
+        //check if cart_details is present and not empty
+        if (!req.body.cart_details || req.body.cart_details.length === 0) {
+            missingFields += "cart_details, ";
+        }
+
+        // If there are missing fields, return 401 status with the list of missing fields
+        if (missingFields.length > 0) {
+            return res.status(401).json({ error: "Missing fields", missingFields: missingFields });
+        }
+
         //cart details expect list of object containing cart info ie [{book_id: 1, quantity: 5, price: 53.2}, ...]
         //I would store price in cart db table but it can change so makes sense to send front frontend
         const { cart_details, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code } = req.body; 
 
-        const order_id = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code);
+        const order = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code);
+        const order_id = order.id;
 
         cart_details.forEach(async function(item, index) {
             await booklistModel.add_book_to_order(order_id, item.book_id, item.quantity, item.price);
@@ -585,6 +633,7 @@ exports.checkout = async (req, res) => {
         return res.status(200).json({order_id: order_id});
         
     } catch (error) {
+        console.log(error)
         return res.status(500).json({message: 'Failed to get cart'});
     }
 };

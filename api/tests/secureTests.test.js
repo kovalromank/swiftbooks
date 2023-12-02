@@ -33,6 +33,30 @@ beforeAll(async () => {
     token = loginResponse.body.token; // Store the token from the login response
 });
 
+let manager_token;
+beforeAll(async () => {
+    const loginResponse = await request(app)
+        .post('/api/auth/login')
+        .send({
+            email: 'user2@example.com',
+            password: 'password'
+        });
+
+    manager_token = loginResponse.body.token; // Store the token from the login response
+});
+
+let admin_token;
+beforeAll(async () => {
+    const loginResponse = await request(app)
+        .post('/api/auth/login')
+        .send({
+            email: 'user1@example.com',
+            password: 'password'
+        });
+
+    admin_token = loginResponse.body.token; // Store the token from the login response
+});
+
 /*
 describe('Create Booklist', () => {
 
@@ -488,16 +512,357 @@ describe('Update booklist publicity', () => {
 });*/
 
 
+/*
 describe('Add review to list', () => {
 
     it('Fail due to missing list_id param', async () => {  
 
         const response = await request(app)
-            .get('/api/secure/get-reviews-for-list')
-            .set('Authorization', `Bearer ${token}`);
+            .post('/api/secure/add-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                stars: 4
+            });
 
         expect(response.statusCode).toBe(401);
         expect(response.body.message).toEqual(expect.stringMatching(/list id not/i));
+    });
+
+
+    it('Fail due to missing stars param', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 4
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/stars not/i));
+    });
+
+
+    it('Fail due to list being private / not exists', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 5,
+                stars: 5
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/private list/i));
+    });
+
+
+    it('Successfully add review', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                list_id: 4,
+                stars: 5,
+                text_content: 'very cool list'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/added review/i));
+    });
+
+
+});*/
+
+
+/*
+describe('Get user details', () => {
+
+    it('Succeesfully return details for logged in user', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-user-details')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(200);
+    });
+
+
+});*/
+
+
+
+//MANAGER / ADMIN ROUTES
+
+/*
+describe('Toggle hide review', () => {
+
+    it('Fail user not admin / manager', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/toggle-hide-review')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                review_id: 1
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/only manager or admin/i));
+    });
+
+
+    it('Fail review_id not provided', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/toggle-hide-review')
+            .set('Authorization', `Bearer ${manager_token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/review id not/i));
+    });
+
+
+    it('Success manager hides', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/toggle-hide-review')
+            .set('Authorization', `Bearer ${manager_token}`)
+            .send({
+                review_id: 1
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/changed review hidden status/i));
+    });
+
+
+    it('Success admin hides', async () => {  
+
+        const response = await request(app)
+            .put('/api/secure/toggle-hide-review')
+            .set('Authorization', `Bearer ${admin_token}`)
+            .send({
+                review_id: 1
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/changed review hidden status/i));
+    });
+
+
+});*/
+
+
+
+//CART AND CHECKOUT
+
+/*
+describe('Add book to cart.', () => {
+
+    it('Fail book id not provided', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-book-to-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                quantity: 5
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/book id not/i));
+    });
+
+
+    it('Fail quantity not provided', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-book-to-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'ggsgsdgsd'
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/quantity not/i));
+    });
+
+
+    it('Success update cart quantity', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-book-to-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'vtMyAQAAMAAJ',
+                quantity: 10
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/updated cart/i));
+    });
+
+
+    it('Success add new item to cart', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/add-book-to-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'kMdaAAAAMAAJ',
+                quantity: 3
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/updated cart/i));
+    });
+
+
+});*/
+
+
+/*
+describe('Delete book from cart', () => {
+
+    it('Fail no book id provided', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-cart')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toEqual(expect.stringMatching(/book id not/i));
+    });
+
+
+    it('Try deleting book not in cart (nothing happens expect status 200)', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'fake_id'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/deleted book/i));
+    });
+
+
+    it('Successfully delete book in cart', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/delete-book-from-cart')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                book_id: 'A29JAAAAMAAJ'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/deleted book/i));
+    });
+
+
+});*/
+
+
+/*
+describe('Clear cart', () => {
+
+    it('Clear logged in users cart', async () => {  
+
+        const response = await request(app)
+            .delete('/api/secure/clear-cart')
+            .set('Authorization', `Bearer ${manager_token}`);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toEqual(expect.stringMatching(/cleared cart/i));
+    });
+
+
+});*/
+
+
+/*
+describe('Get users cart', () => {
+
+    it('Return logged in users cart items', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-cart')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(200);
+    });
+
+
+});*/
+
+
+describe('Checkout Process', () => {
+
+    it('Fail cart details array is empty', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/checkout')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                cart_details: [],
+                total_price: 500,
+                first_name: 'test',
+                last_name: 'last',
+                email: 'email@email.com',
+                phone: '5190001111',
+                address: '555 western road floor 5 unit 6',
+                country: 'Canada',
+                province: 'Ontario',
+                city: 'London',
+                postal_code: 'G5G6H3'
+            });
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.missingFields).toEqual(expect.stringMatching(/cart_details/i));
+    });
+
+    it('Fail all data missing', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/checkout')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.missingFields).toEqual(expect.stringMatching(/total_price, first_name, last_name, email, phone, address, country, province, city, postal_code, cart_details/i));
+    });
+
+
+    it('Successful checkout', async () => {  
+
+        const response = await request(app)
+            .post('/api/secure/checkout')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                cart_details: [
+                    {book_id: 'A29JAAAAMAAJ', quantity: 1, price: 50.0},
+                    {book_id: 'Yz8Fnw0PlEQC', quantity: 1, price: 50.0},
+                    {book_id: 'f280CwAAQBAJ', quantity: 1, price: 200.0},
+                    {book_id: 'fFIXAAAAYAAJ', quantity: 4, price: 175.0},
+                    {book_id: 'vtMyAQAAMAAJ', quantity: 1, price: 25.0},
+                ],
+                total_price: 500,
+                first_name: 'test',
+                last_name: 'last',
+                email: 'email@email.com',
+                phone: '5190001111',
+                address: '555 western road floor 5 unit 6',
+                country: 'Canada',
+                province: 'Ontario',
+                city: 'London',
+                postal_code: 'G5G6H3'
+            });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.order_id).toEqual(3);
     });
 
 

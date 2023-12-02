@@ -279,7 +279,7 @@ const get_list_data = async (list_id) => {
  */
 const add_review = async (user_id, list_id, stars, text_content, username) => {
     const result = await pool.query(
-        `INSERT INTO booklist_reviews 
+        `INSERT INTO booklists_reviews 
             (booklist_id, user_id, added_at, updated_at, content, stars, hidden, username) 
             VALUES ($1, $2, NOW(), NOW(), $3, $4, $5, $6) 
             RETURNING id`, 
@@ -424,8 +424,7 @@ const add_book_to_cart = async (user_id, book_id, quantity) => {
     const result = await pool.query(
         `INSERT INTO carts 
         (user_id, book_id, quantity, added_at, updated_at) 
-        VALUES ($1, $2, $3, NOW(), NOW()) 
-        RETURNING id`,
+        VALUES ($1, $2, $3, NOW(), NOW())`,
         [user_id, book_id, quantity]
     );
     return result.rows[0];
@@ -504,8 +503,8 @@ const get_cart = async (user_id) => {
 const create_order = async (user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code) => {
     const result = await pool.query(
         `INSERT INTO orders 
-        (user_id, price, first_name, last_name, email, phone, address, country, province, city, postal_code) 
-        VALUES ($1, $2, $3, $4, $5, %6, $7, $8, $9, $10, $11, NOW()) 
+        (user_id, price, first_name, last_name, email, phone, address, country, province, city, postal_code, added_at) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()) 
         RETURNING id`,
         [user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code]
     );
@@ -526,11 +525,10 @@ const add_book_to_order = async (order_id, book_id, quantity, price) => {
     const result = await pool.query(
         `INSERT INTO order_items 
         (order_id, book_id, quantity, unit_price) 
-        VALUES ($1, $2, $3, $4) 
-        RETURNING id`,
+        VALUES ($1, $2, $3, $4)`,
         [order_id, book_id, quantity, price]
     );
-    return result.rows[0].id;
+    return;
 };
 
 
