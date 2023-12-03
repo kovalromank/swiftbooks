@@ -6,8 +6,10 @@ import { IconShoppingBag } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 
 import { Cart } from "./cart";
+import { useCart } from "@/api/api";
 
 import classes from "./cart-menu.module.css";
+import { useAuth } from "@/components/auth/auth-context";
 
 export const CartMenu: FC<ActionIconProps> = ({ size, ...rest }) => {
   const [opened, setOpened] = useState(false);
@@ -15,6 +17,9 @@ export const CartMenu: FC<ActionIconProps> = ({ size, ...rest }) => {
 
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`, false);
+
+  const auth = useAuth();
+  const { data: cartItems } = useCart(auth.status.isAuthenticated);
 
   const onCartClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     const { x, y, width, height } = event.currentTarget.getBoundingClientRect();
@@ -25,12 +30,13 @@ export const CartMenu: FC<ActionIconProps> = ({ size, ...rest }) => {
   return (
     <>
       <Indicator
-        label={3}
+        label={cartItems?.length ?? 0}
         size="1rem"
         offset={3}
         color="violet"
         variant="light"
         className={classes.indicator}
+        disabled={!cartItems}
       >
         <ActionIcon
           size={size || "2.5rem"}
