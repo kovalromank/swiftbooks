@@ -867,3 +867,99 @@ describe('Checkout Process', () => {
 
 
 });
+
+
+
+describe('Get public booklists.', () => {
+
+    it('Success no params means default sort by updated_at descending', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-public-booklists')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(response.statusCode).toBe(200);
+    });
+
+    it('Fail since limit is less than 1', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-public-booklists')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                limit: 0
+            });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body.message).toEqual(expect.stringMatching(/provide positive limit/i));
+    });
+
+
+    it('Fail since invalid sort', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-public-booklists')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                sort: 'invalid'
+            });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body.message).toEqual(expect.stringMatching(/invalid or missing 'sort' param/i));
+    });
+
+
+    it('Fail since invalid sort type', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-public-booklists')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                sort_type: 'invalid'
+            });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body.message).toEqual(expect.stringMatching(/invalid or missing 'sort_type' param/i));
+    });
+
+
+    it('Success limit = 1', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-public-booklists')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                limit: 1
+            });
+
+        expect(response.statusCode).toBe(200);
+    });
+
+
+    it('Success sort by updated_at asc', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-public-booklists')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                sort_type: 'asc'
+            });
+
+        expect(response.statusCode).toBe(200);
+    });
+
+
+    it('Success sort by list_name asc', async () => {  
+
+        const response = await request(app)
+            .get('/api/secure/get-public-booklists')
+            .set('Authorization', `Bearer ${token}`)
+            .query({
+                sort: 'list_name',
+                sort_type: 'asc'
+            });
+
+        expect(response.statusCode).toBe(200);
+    });
+
+});

@@ -14,6 +14,7 @@ router.get('/get-booklist-books', verifyToken, secureController.get_book_ids_fro
 router.put('/update-booklist-name', verifyToken, secureController.update_booklist_name); 
 router.put('/update-booklist-publicity', verifyToken, secureController.update_booklist_publicity); 
 router.post('/add-review', verifyToken, secureController.add_review_to_list); 
+router.get('/get-public-booklists', verifyToken, secureController.get_public_booklists); 
 
 //auth user info
 router.get('/get-user-details', verifyToken, secureController.get_user_details); 
