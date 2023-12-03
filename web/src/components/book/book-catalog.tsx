@@ -4,12 +4,12 @@ import { Alert } from "@mantine/core";
 import { IconExclamationCircle } from "@tabler/icons-react";
 
 import { Book } from "@/components/book/book";
-import { ApiSearchBook } from "@/api/types";
+import { ApiBook } from "@/api/types";
 
 import classes from "./book-catalog.module.css";
 
 interface BookCatalogProps {
-  data: ApiSearchBook[];
+  data: ApiBook[];
 }
 
 export const BookCatalog: FC<BookCatalogProps> = ({ data }) => {

@@ -35,6 +35,7 @@ export interface ApiSearchBookInput {
 export interface ApiBookList {
   id: number;
   list_name: string;
+  description: string | null;
   is_public: boolean;
   created_by_id: number;
   created_by_username: string;
@@ -44,4 +45,16 @@ export interface ApiBookList {
 
 export interface ApiBookId {
   id: string;
+}
+
+export interface ApiReview {
+  id: number;
+  booklist_id: number;
+  user_id: number;
+  added_at: string;
+  updated_at: string;
+  content: string;
+  stars: number;
+  hidden: boolean;
+  username: string;
 }

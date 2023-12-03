@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useState, MouseEvent, useCallback } from "react";
-import { ActionIcon, ActionIconProps, Modal, useMantineTheme } from "@mantine/core";
+import { ActionIcon, ActionIconProps, Indicator, Modal, useMantineTheme } from "@mantine/core";
 import { IconShoppingBag } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 
@@ -24,15 +24,24 @@ export const CartMenu: FC<ActionIconProps> = ({ size, ...rest }) => {
 
   return (
     <>
-      <ActionIcon
-        size={size || "2.5rem"}
-        variant="subtle"
-        color="black"
-        onClick={onCartClick}
-        {...rest}
+      <Indicator
+        label={3}
+        size="1rem"
+        offset={3}
+        color="violet"
+        variant="light"
+        className={classes.indicator}
       >
-        <IconShoppingBag size="2.5rem" />
-      </ActionIcon>
+        <ActionIcon
+          size={size || "2.5rem"}
+          variant="subtle"
+          color="black"
+          onClick={onCartClick}
+          {...rest}
+        >
+          <IconShoppingBag size="2.5rem" />
+        </ActionIcon>
+      </Indicator>
       <Modal
         padding="1.25rem"
         trapFocus
