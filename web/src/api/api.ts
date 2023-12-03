@@ -7,13 +7,18 @@ import {
 } from "@tanstack/react-query";
 
 import {
+  ApiAddCartBookInput,
   ApiBookId,
   ApiBookList,
+  ApiCartItem,
+  ApiCheckout,
+  ApiCheckoutInput,
   ApiInfoBook,
   ApiLogin,
   ApiLoginInput,
   ApiRegister,
   ApiRegisterInput,
+  ApiRemoveCartBookInput,
   ApiReview,
   ApiSearchBook,
   ApiSearchBookInput,
@@ -96,6 +101,95 @@ export const useRegisterMutation = () =>
       await client.resetQueries({ queryKey: ["currentUser"] });
     },
   });
+
+export const useRemoveCartBookMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiRemoveCartBookInput) =>
+      doPost<ApiRegister>("http://localhost:3001/api/secure/delete-book-from-cart", {
+        method: "DELETE",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
+export const useAddCartBookMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiAddCartBookInput) =>
+      doPost<ApiRegister>("http://localhost:3001/api/secure/add-book-to-cart", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
+export const useCheckoutMutation = () =>
+  useMutation({
+    mutationKey: ["checkout"],
+    mutationFn: (input: ApiCheckoutInput) =>
+      doPost<ApiCheckout>("http://localhost:3001/api/secure/checkout", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
+export const useCart = (enabled?: boolean) =>
+  useQuery<ApiCartItem[]>({
+    retry: false,
+    enabled,
+    queryKey: ["cart"],
+    queryFn: () => doFetch(`http://localhost:3001/api/secure/get-cart`),
+  });
+
+export const useCartBooks = (
+  enabled?: boolean,
+): { data: undefined; isSuccess: false } | { data: ApiInfoBook[]; isSuccess: true } => {
+  const { data: cartItems } = useCart(enabled);
+  const responses = useQueries({
+    queries:
+      enabled !== false
+        ? cartItems
+          ? cartItems.map(({ book_id }) => getBookQueryOptions(book_id))
+          : []
+        : [],
+  });
+
+  if (!cartItems || responses.some((response) => !response.data)) {
+    return { data: undefined, isSuccess: false };
+  }
+
+  return {
+    data: responses.map((response) => response.data!),
+    isSuccess: true,
+  };
+};
+
+export const useCartTotal = (enabled?: boolean): { data: number | undefined } => {
+  const { data: cartItems } = useCart(enabled);
+  const { data: books } = useCartBooks(enabled);
+
+  if (!books || !cartItems) {
+    return { data: undefined };
+  }
+
+  const total =
+    books
+      ?.filter((book) => book.price != null)
+      .reduce(
+        (acc, book) =>
+          acc +
+          (book.price ?? 0) * (cartItems?.find((item) => item.book_id === book.id)?.quantity ?? 0),
+        0,
+      ) || 0;
+
+  return { data: total };
+};
 
 export const useUsers = () =>
   useQuery<ApiUser[]>({

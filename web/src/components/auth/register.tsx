@@ -2,18 +2,12 @@
 
 import { FC } from "react";
 import { PasswordInput, TextInput } from "@mantine/core";
-import * as yup from "yup";
 
 import { AuthBox } from "@/components/auth/auth-box";
 import { useFormik } from "formik";
 import { useRegisterMutation } from "@/api/api";
 import { useAuth } from "@/components/auth/auth-context";
-
-const validationSchema = yup.object({
-  email: yup.string().email("Invalid email address").required("Email is required"),
-  username: yup.string().required("Username is required"),
-  password: yup.string().required("Password is required"),
-});
+import { schema } from "@shared/validation/register";
 
 export const Register: FC = () => {
   const { mutate, isPending } = useRegisterMutation();
@@ -21,7 +15,7 @@ export const Register: FC = () => {
 
   const formik = useFormik({
     initialValues: { email: "", username: "", password: "" },
-    validationSchema,
+    validationSchema: schema,
     onSubmit(values) {
       mutate(
         { email: values.email, username: values.username, password: values.password },

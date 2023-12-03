@@ -3,16 +3,11 @@
 import { FC } from "react";
 import { PasswordInput, TextInput } from "@mantine/core";
 import { useFormik } from "formik";
-import * as yup from "yup";
 
 import { AuthBox } from "@/components/auth/auth-box";
 import { useLoginMutation } from "@/api/api";
 import { useAuth } from "@/components/auth/auth-context";
-
-const validationSchema = yup.object({
-  email: yup.string().email("Invalid email address").required("Email is required"),
-  password: yup.string().required("Password is required"),
-});
+import { schema } from "@shared/validation/login";
 
 export const Login: FC = () => {
   const { mutate, isPending } = useLoginMutation();
@@ -20,7 +15,7 @@ export const Login: FC = () => {
 
   const formik = useFormik({
     initialValues: { email: "user1@example.com", password: "password" },
-    validationSchema,
+    validationSchema: schema,
     onSubmit(values) {
       mutate(
         { email: values.email, password: values.password },

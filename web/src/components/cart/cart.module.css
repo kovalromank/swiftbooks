@@ -6,6 +6,13 @@
   overflow: visible;
 }
 
+.empty {
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
 .spacer {
   flex-grow: 1;
 }

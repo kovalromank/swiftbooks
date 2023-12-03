@@ -1,8 +1,9 @@
 .image {
   width: 5rem;
   height: 5rem;
-  object-fit: cover;
   display: block;
+  border: 1px solid var(--mantine-color-gray-2);
+  object-fit: contain;
 }
 
 .author {

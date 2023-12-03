@@ -2,13 +2,15 @@
 
 import { FC, useMemo } from "react";
 import DOMPurify from "dompurify";
-import { Alert, Badge, Button, TypographyStylesProvider } from "@mantine/core";
+import { Alert, Badge, TypographyStylesProvider } from "@mantine/core";
 import { IconExclamationCircle } from "@tabler/icons-react";
 import { useDocumentTitle } from "@mantine/hooks";
 
 import { useBook } from "@/api/api";
 import { Header } from "@/components/header";
 import { Infos } from "@/components/infos";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { useCurrencyFormat } from "@/utils";
 
 import classes from "./book-view.module.css";
 
@@ -28,15 +30,7 @@ export interface BookViewProps {
 export const BookView: FC<BookViewProps> = ({ id }) => {
   const { data, isLoading, isSuccess } = useBook(id);
 
-  const format = useMemo(
-    () =>
-      new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 2,
-      }),
-    [],
-  );
+  const currencyFormat = useCurrencyFormat();
 
   useDocumentTitle(data?.title ? `${data.title} | Swift Books` : "");
 
@@ -89,12 +83,10 @@ export const BookView: FC<BookViewProps> = ({ id }) => {
           />
 
           {data.price != null ? (
-            <div className={classes.price}>{format.format(data.price)}</div>
+            <div className={classes.price}>{currencyFormat.format(data.price)}</div>
           ) : null}
           <div>
-            <Button variant="light" color="violet">
-              ADD TO CART
-            </Button>
+            <AddToCartButton id={data.id} size="sm" />
           </div>
         </div>
       </div>
