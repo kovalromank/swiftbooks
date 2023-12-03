@@ -89,3 +89,38 @@ export interface ApiUser {
   created_at: string;
   updated_at: string;
 }
+
+export interface ApiAddCartBookInput {
+  book_id: string;
+  quantity: number;
+}
+
+export interface ApiRemoveCartBookInput {
+  book_id: string;
+}
+
+export interface ApiCartItem {
+  user_id: number;
+  book_id: string;
+  quantity: number;
+  added_at: string;
+  updated_at: string;
+}
+
+export interface ApiCheckoutInput {
+  total_price: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  country: string;
+  province: string;
+  city: string;
+  postal_code: string;
+  cart_details: { book_id: string; quantity: number; price: number }[];
+}
+
+export interface ApiCheckout {
+  order_id: number;
+}
