@@ -635,3 +635,56 @@ exports.checkout = async (req, res) => {
         return res.status(500).json({message: 'Failed to get cart'});
     }
 };
+
+
+
+/**
+ * Handles the retrieval of all public booklists from the database.
+ * 
+ * It first extracts the user ID from the authorization token in the request headers.
+ * It then validates the query parameters 'sort', 'sort_type', and 'limit' provided in the request. 
+ * The 'sort' parameter can be one of 'updated_at', 'created_at', 'id', 'list_name', or 'created_by_username', 
+ * and is used to determine the sorting field of the booklists.
+ * The 'sort_type' parameter dictates the order of sorting and can be either 'asc' (ascending) or 'desc' (descending).
+ * The 'limit' parameter is an optional integer that limits the number of booklists returned.
+ * If any of these parameters are invalid, the function responds with a 400 status code and an error message.
+ *
+ * Upon successful validation, it calls the `booklistModel.get_public_booklists` method with these parameters 
+ * to fetch the booklists. The retrieved list data is then sent back in the response with a 200 status code.
+ * If an error occurs during this process, a 500 status code is returned with an error message.
+ *
+ * @param {Object} req - The request object, containing headers (including the authorization token) and query parameters.
+ * @param {Object} res - The response object, used to send back the booklist data in JSON format or an error message.
+ */
+ exports.get_public_booklists = async (req, res) => { 
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        let user_id = userModel.getUserIdFromToken(token);
+
+        // sort can be a string of either updated_at, created_at, id, list_name, created_by_username
+        // sort_type expects either 'asc' or 'desc'
+        const { sort = 'updated_at', sort_type = 'desc', limit = null } = req.query      
+
+
+        const validSorts = ['updated_at', 'created_at', 'id', 'list_name', 'created_by_username'];
+        if (!sort || !validSorts.includes(sort)) {
+            return res.status(400).json({ message: "Invalid or missing 'sort' parameter." });
+        }
+
+        // Validate 'sort_type'
+        if (!sort_type || !['asc', 'desc'].includes(sort_type)) {
+            return res.status(400).json({ message: "Invalid or missing 'sort_type' parameter." });
+        }
+
+        if (limit && limit <= 0) {
+            return res.status(400).json({ message: "Provide positive limit." });
+        }
+
+        const list_data = await booklistModel.get_public_booklists(sort, sort_type, limit);
+        console.log(list_data)
+        return res.status(200).json(list_data);
+        
+    } catch (error) {
+        return res.status(500).json({message: 'Failed to get cart'});
+    }
+};

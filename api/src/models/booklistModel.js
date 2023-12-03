@@ -551,8 +551,34 @@ const add_book_to_order = async (order_id, book_id, quantity, price) => {
 };
 
 
+
+/**
+ * Retrieves public booklists based on conditions
+ * 
+ * @param {string} sort - the column to sort by
+ * @param {string} sort_type - 'asc' or 'desc'
+ * @param {number|null} limit - number of booklists to return (or null for all)
+ * @returns {Promise<number>} - A promise that resolves to the ID of the newly added item.
+ */
+const get_public_booklists = async (sort, sort_type, limit) => {
+    let query = `SELECT * FROM booklists WHERE is_public = TRUE`;
+
+    //Append ORDER BY clause with sort and sort_type
+    query += ` ORDER BY ${sort} ${sort_type}`;
+
+    //if limit is provided and valid
+    if (limit) {
+        query += ` LIMIT ${limit}`;
+    }
+
+    const result = await pool.query(query);
+    return result.rows;
+}
+
+
 module.exports = { 
     toggle_hide_review, update_booklist_name, add_review, get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, 
     does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist, is_book_in_cart, update_book_quantity,
-    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order, add_book_to_order, update_booklist_publicity, get_reviews, is_book_in_list, get_list_info
+    add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order, add_book_to_order, update_booklist_publicity, get_reviews, is_book_in_list, get_list_info,
+    get_public_booklists
 };
