@@ -331,6 +331,27 @@ const update_booklist_name = async (list_id, name) => {
 
 
 /**
+ * Asynchronously updates the description of a booklist.
+ * Updates the description of a specific booklist and its last updated timestamp.
+ * Returns the updated booklist object.
+ *
+ * @param {number} list_id - The ID of the booklist to be updated.
+ * @param {string} description - The new description for the booklist.
+ * @return {Promise<object>} A promise that resolves to the updated booklist object.
+ */
+ const update_booklist_description = async (list_id, description) => {
+    const result = await pool.query( 
+        `UPDATE booklists 
+            SET updated_at = NOW(),
+                description = $2
+            WHERE id = $1`,
+        [list_id, description]
+    );
+    return result.rows[0];
+};
+
+
+/**
  * Toggles the publicity status of a specific booklist in the database.
  * 
  * This function updates the 'is_public' field of a booklist by setting it to its opposite value.
@@ -339,13 +360,13 @@ const update_booklist_name = async (list_id, name) => {
  * @param {number} list_id - The ID of the booklist to update.
  * @returns {Promise<Object>} A promise that resolves to the updated row from the 'booklists' table.
  */
-const update_booklist_publicity = async (list_id) => {
+const update_booklist_publicity = async (list_id, publicity) => {
     const result = await pool.query( 
         `UPDATE booklists
             SET updated_at = NOW(),
-                is_public = NOT is_public
+                is_public = $2
             WHERE id = $1`,
-        [list_id]
+        [list_id, publicity]
     );
     return result.rows[0];
 };
@@ -580,5 +601,5 @@ module.exports = {
     toggle_hide_review, update_booklist_name, add_review, get_list_data, is_list_public, delete_book_from_booklist, add_book_to_booklist, add_book, does_book_exist, 
     does_user_own_list, ten_most_recent_public_lists, num_booklists_by_user, create_booklist_db, get_booklists, delete_booklist, is_book_in_cart, update_book_quantity,
     add_book_to_cart, delete_book_from_cart, clear_cart, get_cart, create_order, add_book_to_order, update_booklist_publicity, get_reviews, is_book_in_list, get_list_info,
-    get_public_booklists
+    get_public_booklists, update_booklist_description
 };

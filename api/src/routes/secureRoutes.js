@@ -11,8 +11,7 @@ router.delete('/delete-user-booklist', verifyToken, secureController.delete_user
 router.post('/add-book-to-list', verifyToken, secureController.add_book_to_booklist);
 router.delete('/delete-book-from-list', verifyToken, secureController.delete_book_from_booklist); 
 router.get('/get-booklist-books', verifyToken, secureController.get_book_ids_from_list); 
-router.put('/update-booklist-name', verifyToken, secureController.update_booklist_name); 
-router.put('/update-booklist-publicity', verifyToken, secureController.update_booklist_publicity); 
+router.put('/update-booklist', verifyToken, secureController.update_booklist); 
 router.post('/add-review', verifyToken, secureController.add_review_to_list); 
 router.get('/get-public-booklists', verifyToken, secureController.get_public_booklists); 
 
