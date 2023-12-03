@@ -4,18 +4,7 @@
   font-weight: 400;
   line-height: normal;
   margin-top: 0.25rem;
-}
-
-.details {
-  font-size: 0.625rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  margin-top: 0.13rem;
-}
-
-.creator,
-.details {
+  margin-bottom: 1.25rem;
   color: var(--mantine-color-gray-6);
 }
 
