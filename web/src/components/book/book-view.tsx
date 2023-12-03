@@ -2,7 +2,7 @@
 
 import { FC, useMemo } from "react";
 import DOMPurify from "dompurify";
-import { Alert, Badge, Button } from "@mantine/core";
+import { Alert, Badge, Button, TypographyStylesProvider } from "@mantine/core";
 import { IconExclamationCircle } from "@tabler/icons-react";
 import { useDocumentTitle } from "@mantine/hooks";
 
@@ -100,7 +100,9 @@ export const BookView: FC<BookViewProps> = ({ id }) => {
       </div>
       <div className={classes.descriptionContainer}>
         {data.subtitle ? <div className={classes.description}>{data.subtitle}</div> : null}
-        {data.description ? <Description content={data.description} /> : null}
+        <TypographyStylesProvider m={0} p={0}>
+          {data.description ? <Description content={data.description} /> : null}
+        </TypographyStylesProvider>
       </div>
     </div>
   );

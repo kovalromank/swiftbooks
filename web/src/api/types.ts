@@ -58,3 +58,23 @@ export interface ApiReview {
   hidden: boolean;
   username: string;
 }
+
+export interface ApiLoginInput {
+  email: string;
+  password: string;
+}
+
+export interface ApiLogin {
+  message: string;
+  token: string;
+}
+
+export interface ApiUser {
+  id: number;
+  username: string;
+  email: string;
+  active: boolean;
+  status: "admin" | "manager" | "user";
+  created_at: string;
+  updated_at: string;
+}
