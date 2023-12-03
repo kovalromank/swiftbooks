@@ -38,10 +38,11 @@
   display: flex;
   max-width: 24rem;
   width: 24rem;
+  gap: 1.25rem;
 }
 
 .details {
-  margin-left: 1.25rem;
+  flex-grow: 1;
 }
 
 .quantityContainer {

@@ -4,6 +4,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["@mantine/core", "@mantine/hooks"],
   },
+  transpilePackages: ["shared"],
 };
 
 module.exports = nextConfig;

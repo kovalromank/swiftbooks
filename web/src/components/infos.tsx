@@ -1,6 +1,8 @@
-import { FC, ReactNode, useMemo } from "react";
+import { FC, ReactNode } from "react";
 import { DateTime } from "luxon";
 import cx from "clsx";
+
+import { useNumberFormat } from "@/utils";
 
 import classes from "./infos.module.css";
 
@@ -35,7 +37,7 @@ export const Infos: FC<InfosProps> = ({ infos, size = "default" }) => {
     type === "tags" ? Array.isArray(value) && value.length : value != null,
   );
 
-  const numberFormat = useMemo(() => new Intl.NumberFormat(), []);
+  const numberFormat = useNumberFormat();
 
   return (
     <div className={cx(classes.infoContainer, { [classes.sm]: size === "sm" })}>
