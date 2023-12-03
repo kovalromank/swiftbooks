@@ -1,12 +1,21 @@
-import { keepPreviousData, QueryClient, useQueries, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  QueryClient,
+  useMutation,
+  useQueries,
+  useQuery,
+} from "@tanstack/react-query";
 
 import {
   ApiBookId,
   ApiBookList,
   ApiInfoBook,
+  ApiLogin,
+  ApiLoginInput,
   ApiReview,
   ApiSearchBook,
   ApiSearchBookInput,
+  ApiUser,
 } from "./types";
 
 export const client = new QueryClient();
@@ -27,8 +36,29 @@ class ServerError extends Error {
   }
 }
 
-const doFetch = <T>(input: RequestInfo, init?: RequestInit): Promise<T> =>
-  fetch(input, init).then(async (res) => {
+const tokenKey = "com.swiftbooks.token";
+
+export const getToken = () => window.localStorage.getItem(tokenKey);
+
+export const setToken = (token: string) => window.localStorage.setItem(tokenKey, token);
+
+export const removeToken = () => window.localStorage.removeItem(tokenKey);
+
+const getHeaders = (): Record<string, string> => {
+  const token = getToken();
+
+  if (!token) {
+    return {};
+  }
+
+  return { Authorization: `Bearer ${token}` };
+};
+
+const doPost = <T>(input: RequestInfo, { headers, ...rest }: RequestInit = {}): Promise<T> =>
+  doFetch(input, { headers: { "content-type": "application/json", ...headers }, ...rest });
+
+const doFetch = <T>(input: RequestInfo, { headers, ...rest }: RequestInit = {}): Promise<T> =>
+  fetch(input, { headers: { ...getHeaders(), ...headers }, ...rest }).then(async (res) => {
     if (!res.ok) {
       let data;
       try {
@@ -39,6 +69,33 @@ const doFetch = <T>(input: RequestInfo, init?: RequestInit): Promise<T> =>
     }
 
     return res.json();
+  });
+
+export const useLoginMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiLoginInput) =>
+      doPost<ApiLogin>("http://localhost:3001/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: async (_data, _input) => {
+      await client.resetQueries({ queryKey: ["currentUser"] });
+    },
+  });
+
+export const useUsers = () =>
+  useQuery<ApiUser[]>({
+    retry: false,
+    queryKey: ["users"],
+    queryFn: () => doFetch(`http://localhost:3001/api/admin/get-users`),
+  });
+
+export const useCurrentUser = (enabled?: boolean) =>
+  useQuery<ApiUser>({
+    retry: false,
+    queryKey: ["currentUser"],
+    queryFn: () => doFetch(`http://localhost:3001/api/secure/get-user-details`),
+    enabled,
   });
 
 export const useBookListReviews = (id: number) =>
