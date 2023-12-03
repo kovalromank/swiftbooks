@@ -7,6 +7,7 @@ import {
   Button,
   CloseButton,
   ActionIconProps,
+  Title,
 } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
 
@@ -43,7 +44,9 @@ export const AccountMenu: FC<ActionIconProps> = (props) => {
           <div className={classes.container}>
             <div>
               <div className={classes.nameRow}>
-                <div className={classes.name}>Stacy Bob</div>
+                <Title order={3} className={classes.name}>
+                  Stacy Bob
+                </Title>
                 <CloseButton onClick={() => setOpened(false)} />
               </div>
               <div className={classes.email}>stacyb@acme.com</div>
