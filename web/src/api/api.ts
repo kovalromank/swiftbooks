@@ -12,6 +12,8 @@ import {
   ApiInfoBook,
   ApiLogin,
   ApiLoginInput,
+  ApiRegister,
+  ApiRegisterInput,
   ApiReview,
   ApiSearchBook,
   ApiSearchBookInput,
@@ -75,6 +77,18 @@ export const useLoginMutation = () =>
   useMutation({
     mutationFn: (input: ApiLoginInput) =>
       doPost<ApiLogin>("http://localhost:3001/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: async (_data, _input) => {
+      await client.resetQueries({ queryKey: ["currentUser"] });
+    },
+  });
+
+export const useRegisterMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiRegisterInput) =>
+      doPost<ApiRegister>("http://localhost:3001/api/auth/register", {
         method: "POST",
         body: JSON.stringify(input),
       }),

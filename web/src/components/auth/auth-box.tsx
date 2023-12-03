@@ -1,11 +1,13 @@
 import { FC, FormEvent, ReactNode } from "react";
-import { Button, Card } from "@mantine/core";
-import { IconBrandGoogleFilled } from "@tabler/icons-react";
+import { Anchor, Button, Card } from "@mantine/core";
+import { IconArrowRight, IconBrandGoogleFilled } from "@tabler/icons-react";
 
 import { Header } from "@/components/header";
 import { Hr } from "@/components/hr";
 
 import classes from "./login.module.css";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export interface AuthBoxProps {
   variant?: "login" | "register";
@@ -22,6 +24,8 @@ export const AuthBox: FC<AuthBoxProps> = ({
   onSubmit,
   onReset,
 }) => {
+  const params = useSearchParams();
+
   return (
     <Card shadow="sm" padding="md" radius="md" withBorder className={classes.container}>
       <Header>{variant === "register" ? "Register" : "Login"}</Header>
@@ -30,6 +34,27 @@ export const AuthBox: FC<AuthBoxProps> = ({
         <Button type="submit" variant="filled" loading={loading}>
           {variant === "register" ? "REGISTER" : "LOGIN"}
         </Button>
+        {variant === "login" ? (
+          <Anchor
+            component={Link}
+            c="violet"
+            href={`/register${params.size ? "?" + params.toString() : ""}`}
+            replace
+            className={classes.register}
+          >
+            Create an account <IconArrowRight size="1.25rem" />
+          </Anchor>
+        ) : (
+          <Anchor
+            component={Link}
+            c="violet"
+            href={`/login${params.size ? "?" + params.toString() : ""}`}
+            replace
+            className={classes.register}
+          >
+            Already have an account?
+          </Anchor>
+        )}
         <Hr />
         <Button
           variant="outline"
