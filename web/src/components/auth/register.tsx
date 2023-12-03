@@ -2,16 +2,70 @@
 
 import { FC } from "react";
 import { PasswordInput, TextInput } from "@mantine/core";
+import * as yup from "yup";
 
 import { AuthBox } from "@/components/auth/auth-box";
+import { useFormik } from "formik";
+import { useRegisterMutation } from "@/api/api";
+import { useAuth } from "@/components/auth/auth-context";
 
-export const Register: FC = ({}) => {
+const validationSchema = yup.object({
+  email: yup.string().email("Invalid email address").required("Email is required"),
+  username: yup.string().required("Username is required"),
+  password: yup.string().required("Password is required"),
+});
+
+export const Register: FC = () => {
+  const { mutate, isPending } = useRegisterMutation();
+  const auth = useAuth();
+
+  const formik = useFormik({
+    initialValues: { email: "", username: "", password: "" },
+    validationSchema,
+    onSubmit(values) {
+      mutate(
+        { email: values.email, username: values.username, password: values.password },
+        {
+          onSuccess: (data) => {
+            auth.login(data.token);
+          },
+        },
+      );
+    },
+  });
+
   return (
-    <AuthBox variant="register">
-      <TextInput placeholder="First name" variant="filled" size="md" />
-      <TextInput placeholder="Last name" variant="filled" size="md" />
-      <TextInput placeholder="Username" variant="filled" size="md" />
-      <PasswordInput placeholder="Password" variant="filled" size="md" />
+    <AuthBox variant="register" loading={isPending} onSubmit={formik.handleSubmit}>
+      <TextInput
+        placeholder="Email"
+        variant="filled"
+        size="md"
+        name="email"
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.email && formik.errors.email}
+      />
+      <TextInput
+        placeholder="Username"
+        variant="filled"
+        size="md"
+        name="username"
+        value={formik.values.username}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.username && formik.errors.username}
+      />
+      <PasswordInput
+        placeholder="Password"
+        variant="filled"
+        size="md"
+        name="password"
+        value={formik.values.password}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.password && formik.errors.password}
+      />
     </AuthBox>
   );
 };

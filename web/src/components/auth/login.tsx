@@ -14,7 +14,7 @@ const validationSchema = yup.object({
   password: yup.string().required("Password is required"),
 });
 
-export const Login: FC = ({}) => {
+export const Login: FC = () => {
   const { mutate, isPending } = useLoginMutation();
   const auth = useAuth();
 
