@@ -32,6 +32,7 @@ export const AccountMenu: FC<ActionIconProps> = (props) => {
       auth.logout();
       await client.resetQueries({ queryKey: ["currentUser"] });
       await client.resetQueries({ queryKey: ["cart"] });
+      await client.resetQueries({ queryKey: ["userBookLists"] });
     }, 150);
   }, [auth]);
 
