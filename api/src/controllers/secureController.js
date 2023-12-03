@@ -275,27 +275,27 @@ exports.get_book_ids_from_list = async (req, res) => {
 
 
 /**
- * Updates the name of a book list.
+ * Updates a booklist.
  * 
- * This function allows a user to update the name of their book list. It verifies the user's
- * identity and checks if the user owns the book list before updating the name.
+ * This function allows a user to update the name, publicity and description of their book list. It verifies the user's
+ * identity and checks if the user owns the book list before updating the details.
  *
  * @param {Object} req - The request object containing headers (authorization token) and body (list_id, name).
  * @param {Object} res - The response object used to send back a JSON response.
  */
-exports.update_booklist_name = async (req, res) => {
+ exports.update_booklist = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
         let user_id = await userModel.getUserIdFromToken(token);
 
-        const { list_id, name } = req.body;
+        const { list_id, name = null, publicity = null, description = null } = req.body;
 
         if (!list_id) {
             return res.status(400).json({message: 'list id not provided'})
         }
 
-        if (!name) {
-            return res.status(400).json({message: 'name not provided'})
+        if (!(name || publicity || description)) {
+            return res.status(400).json({message: 'atleast one param has to be provided'})
         }
 
         let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
@@ -303,8 +303,10 @@ exports.update_booklist_name = async (req, res) => {
             return res.status(401).json({message: 'Tried adding book to list that user does not own.'});
         }
 
-        await booklistModel.update_booklist_name(list_id, name);
-
+        if (name) await booklistModel.update_booklist_name(list_id, name);
+        if (publicity) await booklistModel.update_booklist_publicity(list_id, publicity);
+        if (description) await booklistModel.update_booklist_description(list_id, description);
+        
         return res.status(200).json({message: 'updated booklist.'});
         
     } catch (error) {
@@ -313,40 +315,6 @@ exports.update_booklist_name = async (req, res) => {
 };
 
 
-/**
- * This handler extracts the authorization token from the request header, retrieves the user ID
- * associated with the token, and checks if the user owns the list they are trying to update.
- * If the user owns the list, it calls 'update_booklist_publicity' to toggle the list's public status.
- * The function handles any errors that may occur during the process and sends appropriate HTTP responses.
- *
- * @param {Object} req - request object, containing the list_id in the body and the user token in headers.
- * @param {Object} res - response object used to send back HTTP responses.
- * @returns {Promise<Response>} response object with status code and message.
- */
-exports.update_booklist_publicity = async (req, res) => {
-    try {
-        const token = req.headers.authorization?.split(' ')[1];
-        let user_id = await userModel.getUserIdFromToken(token);
-
-        const { list_id } = req.body;
-
-        if (!list_id) {
-            return res.status(400).json({message: 'list id not provided'})
-        }
-
-        let is_user_list = await booklistModel.does_user_own_list(user_id, list_id);
-        if (!is_user_list) {
-            return res.status(401).json({message: 'user does not own list.'});
-        }
-
-        await booklistModel.update_booklist_publicity(list_id);
-
-        return res.status(200).json({message: 'updated booklist.'});
-        
-    } catch (error) {
-        return res.status(500).json({message: 'Failed to update booklist'});
-    }
-};
 
 
 
@@ -681,7 +649,7 @@ exports.checkout = async (req, res) => {
         }
 
         const list_data = await booklistModel.get_public_booklists(sort, sort_type, limit);
-        console.log(list_data)
+
         return res.status(200).json(list_data);
         
     } catch (error) {
