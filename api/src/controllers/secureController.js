@@ -294,7 +294,7 @@ exports.get_book_ids_from_list = async (req, res) => {
             return res.status(400).json({message: 'list id not provided'})
         }
 
-        if (!(name || publicity || description)) {
+        if (!(name != null || publicity != null || description != null)) {
             return res.status(400).json({message: 'atleast one param has to be provided'})
         }
 
@@ -304,8 +304,8 @@ exports.get_book_ids_from_list = async (req, res) => {
         }
 
         if (name) await booklistModel.update_booklist_name(list_id, name);
-        if (publicity) await booklistModel.update_booklist_publicity(list_id, publicity);
-        if (description) await booklistModel.update_booklist_description(list_id, description);
+        if (publicity != null) await booklistModel.update_booklist_publicity(list_id, publicity);
+        if (description != null) await booklistModel.update_booklist_description(list_id, description);
         
         return res.status(200).json({message: 'updated booklist.'});
         
