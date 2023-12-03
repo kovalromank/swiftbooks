@@ -294,7 +294,7 @@ exports.get_book_ids_from_list = async (req, res) => {
             return res.status(400).json({message: 'list id not provided'})
         }
 
-        if (!(name || publicity || description)) {
+        if (!(name || publicity != null || description)) {
             return res.status(400).json({message: 'atleast one param has to be provided'})
         }
 
