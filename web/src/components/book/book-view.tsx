@@ -1,13 +1,14 @@
 "use client";
 
-import { FC, ReactNode, useMemo } from "react";
+import { FC, useMemo } from "react";
 import DOMPurify from "dompurify";
-import { Alert, Button } from "@mantine/core";
+import { Alert, Badge, Button } from "@mantine/core";
 import { IconExclamationCircle } from "@tabler/icons-react";
+import { useDocumentTitle } from "@mantine/hooks";
 
 import { useBook } from "@/api/api";
-import { ApiInfoBook } from "@/api/types";
 import { Header } from "@/components/header";
+import { Infos } from "@/components/infos";
 
 import classes from "./book-view.module.css";
 
@@ -20,25 +21,24 @@ const Description: FC<DescriptionProps> = ({ content }) => {
   return <div className={classes.description} dangerouslySetInnerHTML={{ __html: html }}></div>;
 };
 
-interface Info {
-  get(data: ApiInfoBook): ReactNode;
-
-  label: ReactNode;
-}
-
-const infos: Info[] = [
-  { label: "Publisher", get: (data) => data.publisher },
-  { label: "Published", get: (data) => data.published_date },
-  { label: "Pages", get: (data) => data.numPages },
-  { label: "Categories", get: (data) => data.categories?.join(", ") },
-];
-
 export interface BookViewProps {
   id: string;
 }
 
 export const BookView: FC<BookViewProps> = ({ id }) => {
   const { data, isLoading, isSuccess } = useBook(id);
+
+  const format = useMemo(
+    () =>
+      new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+      }),
+    [],
+  );
+
+  useDocumentTitle(data?.title ? `${data.title} | Swift Books` : "");
 
   if (!isLoading && !isSuccess) {
     return (
@@ -54,7 +54,6 @@ export const BookView: FC<BookViewProps> = ({ id }) => {
     <div className={classes.container}>
       <div className={classes.detailsRow}>
         <div className={classes.imageContainer}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             width="300"
             height="300"
@@ -65,27 +64,33 @@ export const BookView: FC<BookViewProps> = ({ id }) => {
         </div>
         <div className={classes.detailsSections}>
           <div>
-            {data.title ? <Header noMargin>The Psychology of Money</Header> : null}
+            {data.title ? <Header noMargin>{data.title}</Header> : null}
             {data.authors?.length ? (
               <div className={classes.author}>{data.authors.join(",")}</div>
             ) : null}
           </div>
-          <div className={classes.infoContainer}>
-            {infos.map((info, i) => {
-              const row = info.get(data);
-              if (row == null) {
-                return null;
-              }
 
-              return (
-                <div key={i} className={classes.info}>
-                  <span>{info.label}:</span>
-                  <span>{row}</span>
-                </div>
-              );
-            })}
-          </div>
-          {data.price != null ? <div className={classes.price}>$24.99</div> : null}
+          <Infos
+            infos={[
+              { id: "publisher", label: "Publisher", value: data.publisher },
+              { id: "published", label: "Published", value: data.published_date },
+              { id: "pages", label: "Pages", value: data.numPages },
+              {
+                id: "categories",
+                label: "Categories",
+                type: "tags",
+                value: (data.categories || []).slice(0, 3).map((category) => (
+                  <Badge key={category} variant="light" color="violet" size="sm" radius="xs">
+                    {category}
+                  </Badge>
+                )),
+              },
+            ]}
+          />
+
+          {data.price != null ? (
+            <div className={classes.price}>{format.format(data.price)}</div>
+          ) : null}
           <div>
             <Button variant="light" color="violet">
               ADD TO CART
