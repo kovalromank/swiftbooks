@@ -1,13 +1,22 @@
 import { useSearchParams } from "next/navigation";
 
-import { tabs } from "./tabs";
+import { Tab } from "./tabs";
+import { useAuth } from "@/components/auth/auth-context";
 
-export const useFilterTab = () => {
+export const useFilterTab = (): Tab => {
   const params = useSearchParams();
+  const auth = useAuth();
 
-  if (!params.has("tab") || !tabs.some(({ id }) => id === params.get("tab"))) {
+  const tab = params.get("tab");
+
+  if (
+    !params.has("tab") ||
+    !tab ||
+    (tab !== "public" && tab !== "user") ||
+    (tab === "user" && !auth.status.isAuthenticated)
+  ) {
     return "public";
   }
 
-  return params.get("tab")!;
+  return tab;
 };

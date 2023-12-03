@@ -11,14 +11,22 @@ import { Hr } from "@/components/hr";
 import { FilterTabs } from "./filter-tabs";
 import { BookList } from "./book-list";
 import { useFilterTab } from "./use-filter-tab";
-import { useRecentBookLists } from "@/api/api";
+import { useRecentBookLists, useUserBookLists } from "@/api/api";
+import { useAuth } from "@/components/auth/auth-context";
 
 import classes from "./book-lists.module.css";
 
 export const BookLists: FC = () => {
   const tab = useFilterTab();
+  const auth = useAuth();
+  const recentBookListsRes = useRecentBookLists(tab === "public");
+  const userBookListRes = useUserBookLists(auth.status.isAuthenticated && tab === "user");
 
-  const { data, isLoading, isSuccess } = useRecentBookLists();
+  const {
+    data: bookLists,
+    isSuccess,
+    isLoading,
+  } = tab === "public" ? recentBookListsRes : userBookListRes;
 
   return (
     <>
@@ -37,16 +45,18 @@ export const BookLists: FC = () => {
         Browse {tab === "public" ? "public" : "your"} book lists
       </Header>
       <FilterTabs />
-      {(!isLoading && !isSuccess) || data?.length === 0 ? (
+      {(!isLoading && !isSuccess) || bookLists?.length === 0 ? (
         <Alert
           color="orange"
-          title="No public book lists found"
+          title={
+            tab === "public" ? "No public book lists found" : "No book lists found, create one"
+          }
           icon={<IconExclamationCircle />}
           maw="24rem"
         />
       ) : (
         <div className={classes.listContainer}>
-          {(data || []).map((bookList, i) => (
+          {(bookLists || []).map((bookList, i) => (
             <Fragment key={bookList.id}>
               {i ? <Hr /> : null}
               <BookList data={bookList} />

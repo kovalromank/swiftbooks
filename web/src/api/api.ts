@@ -87,6 +87,7 @@ export const useLoginMutation = () =>
       }),
     onSuccess: async (_data, _input) => {
       await client.resetQueries({ queryKey: ["currentUser"] });
+      await client.resetQueries({ queryKey: ["cart"] });
     },
   });
 
@@ -99,6 +100,7 @@ export const useRegisterMutation = () =>
       }),
     onSuccess: async (_data, _input) => {
       await client.resetQueries({ queryKey: ["currentUser"] });
+      await client.resetQueries({ queryKey: ["cart"] });
     },
   });
 
@@ -252,9 +254,18 @@ export const useBookListPageCount = (id: number): { data: number | undefined } =
   return { data: pages };
 };
 
-export const useRecentBookLists = () =>
+export const useUserBookLists = (enabled?: boolean) =>
   useQuery<ApiBookList[]>({
     retry: false,
+    enabled,
+    queryKey: ["userBookLists"],
+    queryFn: () => doFetch("http://localhost:3001/api/secure/get-user-booklists"),
+  });
+
+export const useRecentBookLists = (enabled?: boolean) =>
+  useQuery<ApiBookList[]>({
+    retry: false,
+    enabled,
     queryKey: ["recentBookLists"],
     queryFn: () => doFetch("http://localhost:3001/api/open/recent-public-booklists"),
   });
