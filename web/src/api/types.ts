@@ -69,6 +69,17 @@ export interface ApiLogin {
   token: string;
 }
 
+export interface ApiRegister {
+  message: string;
+  token: string;
+}
+
+export interface ApiRegisterInput {
+  email: string;
+  username: string;
+  password: string;
+}
+
 export interface ApiUser {
   id: number;
   username: string;
