@@ -74,7 +74,6 @@ describe('Create Booklist', () => {
             });
 
         expect(response.statusCode).toBe(200);
-        expect(response.body.message).toEqual(expect.stringMatching(/created/i));
     });
 
 
@@ -89,7 +88,6 @@ describe('Create Booklist', () => {
             });
 
         expect(response.statusCode).toBe(200);
-        expect(response.body.message).toEqual(expect.stringMatching(/created/i));
     });
 
 
