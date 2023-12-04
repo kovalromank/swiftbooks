@@ -30,9 +30,7 @@ export const AccountMenu: FC<ActionIconProps> = (props) => {
     // Delay logout to let the popover close
     setTimeout(async () => {
       auth.logout();
-      await client.resetQueries({ queryKey: ["currentUser"] });
-      await client.resetQueries({ queryKey: ["cart"] });
-      await client.resetQueries({ queryKey: ["userBookLists"] });
+      await client.resetQueries();
     }, 150);
   }, [auth]);
 
