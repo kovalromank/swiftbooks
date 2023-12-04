@@ -10,9 +10,12 @@ import {
   ApiAddCartBookInput,
   ApiBookId,
   ApiBookList,
+  ApiBookListBookInput,
+  ApiBookListId,
   ApiCartItem,
   ApiCheckout,
   ApiCheckoutInput,
+  ApiCreateBookListInput,
   ApiInfoBook,
   ApiLogin,
   ApiLoginInput,
@@ -23,12 +26,16 @@ import {
   ApiReviewInput,
   ApiSearchBook,
   ApiSearchBookInput,
+  ApiUpdateBookListInput,
   ApiUser,
+  ApiUserActiveInput,
+  ApiUserStatusInput,
 } from "./types";
+import { DateTime } from "luxon";
 
 export const client = new QueryClient();
 
-class ServerError extends Error {
+export class ServerError extends Error {
   name = "ServerError";
 
   constructor(object: unknown) {
@@ -79,6 +86,70 @@ const doFetch = <T>(input: RequestInfo, { headers, ...rest }: RequestInit = {}):
     return res.json();
   });
 
+const invalidateBookListQueries = async (id?: number, reset?: boolean) => {
+  await client.invalidateQueries({ queryKey: ["recentBookLists"] });
+  await client.invalidateQueries({ queryKey: ["publicBookLists"] });
+  await client.invalidateQueries({ queryKey: ["userBookLists"] });
+  if (id != null) {
+    reset
+      ? await client.resetQueries({ queryKey: ["bookList", id] })
+      : await client.invalidateQueries({ queryKey: ["bookList", id] });
+    reset
+      ? await client.resetQueries({ queryKey: ["bookListBookIds", id] })
+      : await client.invalidateQueries({ queryKey: ["bookListBookIds", id] });
+  }
+};
+
+export const useCreateBookListMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiCreateBookListInput) =>
+      doPost<ApiBookListId>("http://localhost:3001/api/secure/create-booklist", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: () => invalidateBookListQueries(),
+  });
+
+export const useUpdateBookListMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiUpdateBookListInput) =>
+      doPost<void>("http://localhost:3001/api/secure/update-booklist", {
+        method: "PUT",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: (_data, input) => invalidateBookListQueries(input.list_id),
+  });
+
+export const useRemoveBookListMutation = () =>
+  useMutation({
+    mutationFn: (id: number) =>
+      doPost<void>("http://localhost:3001/api/secure/delete-user-booklist", {
+        method: "DELETE",
+        body: JSON.stringify({ list_id: id }),
+      }),
+    onSuccess: (_data, input) => invalidateBookListQueries(input, true),
+  });
+
+export const useAddBookListBookMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiBookListBookInput) =>
+      doPost<void>("http://localhost:3001/api/secure/add-book-to-list", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: (_data, input) => invalidateBookListQueries(input.list_id),
+  });
+
+export const useRemoveBookListBookMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiBookListBookInput) =>
+      doPost<void>("http://localhost:3001/api/secure/delete-book-from-list", {
+        method: "DELETE",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: (_data, input) => invalidateBookListQueries(input.list_id),
+  });
+
 export const useLoginMutation = () =>
   useMutation({
     mutationFn: (input: ApiLoginInput) =>
@@ -86,7 +157,7 @@ export const useLoginMutation = () =>
         method: "POST",
         body: JSON.stringify(input),
       }),
-    onSuccess: async (_data, _input) => {
+    onSuccess: async () => {
       await client.resetQueries({ queryKey: ["currentUser"] });
       await client.resetQueries({ queryKey: ["cart"] });
     },
@@ -99,7 +170,7 @@ export const useRegisterMutation = () =>
         method: "POST",
         body: JSON.stringify(input),
       }),
-    onSuccess: async (_data, _input) => {
+    onSuccess: async () => {
       await client.resetQueries({ queryKey: ["currentUser"] });
       await client.resetQueries({ queryKey: ["cart"] });
     },
@@ -218,6 +289,30 @@ export const useCartTotal = (enabled?: boolean): { data: number | undefined } =>
   return { data: total };
 };
 
+export const useUserStatusMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiUserStatusInput) =>
+      doPost<void>("http://localhost:3001/api/admin/change-user-status", {
+        method: "PUT",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+
+export const useUserActiveMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiUserActiveInput) =>
+      doPost<void>("http://localhost:3001/api/admin/change-user-active", {
+        method: "PUT",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+
 export const useUsers = () =>
   useQuery<ApiUser[]>({
     retry: false,
@@ -237,31 +332,52 @@ export const useBookListReviews = (id: number) =>
   useQuery<ApiReview[]>({
     retry: false,
     queryKey: ["bookListReviews", id],
-    queryFn: () => doFetch(`http://localhost:3001/api/open/get-reviews-for-list?list_id=${id}`),
+    queryFn: () =>
+      doFetch<ApiReview[]>(
+        `http://localhost:3001/api/open/get-reviews-for-list?list_id=${id}`,
+      ).then((data) => data.sort((a, b) => compareDates(a.added_at, b.added_at))),
   });
+
+export const useBooks = (
+  bookIds: string[],
+  keepPreviousData?: boolean,
+): { data: ApiInfoBook[] | undefined; isSuccess: boolean; isLoading: boolean } => {
+  const responses = useQueries({
+    queries: bookIds.map((id) => getBookQueryOptions(id)),
+  });
+
+  const isLoading = responses.some((response) => response.isLoading);
+  const isSuccess = responses.every((response) => response.isSuccess);
+
+  if (!bookIds || (!keepPreviousData && !isSuccess)) {
+    return { data: undefined, isSuccess, isLoading };
+  }
+
+  return {
+    data: keepPreviousData
+      ? responses.filter((response) => response.isSuccess).map((response) => response.data!)
+      : responses.map((response) => response.data!),
+    isSuccess: responses.every((response) => response.isSuccess),
+    isLoading,
+  };
+};
 
 export const useBookListBooks = (id: number): { data: ApiInfoBook[] | undefined } => {
   const { data: bookIds } = useBookListBookIds(id);
-  const responses = useQueries({
-    queries: bookIds ? bookIds.map(({ id }) => getBookQueryOptions(id)) : [],
-  });
-
-  if (!bookIds || responses.some((response) => !response.data)) {
-    return { data: undefined };
-  }
-
-  return { data: responses.map((response) => response.data!) };
+  return useBooks(bookIds ? bookIds.map(({ id }) => id) : []);
 };
 
-export const useBookList = (id: number) =>
+export const useBookList = (id: number, enabled?: boolean) =>
   useQuery<ApiBookList>({
+    enabled,
     retry: false,
     queryKey: ["bookList", id],
     queryFn: () => doFetch(`http://localhost:3001/api/open/booklist-info-from-id?list_id=${id}`),
   });
 
-export const useBookListBookIds = (id: number) =>
+export const useBookListBookIds = (id: number, enabled?: boolean) =>
   useQuery<ApiBookId[]>({
+    enabled,
     retry: false,
     queryKey: ["bookListBookIds", id],
     queryFn: () => doFetch(`http://localhost:3001/api/open/list-book-ids?list_id=${id}`),
@@ -284,8 +400,14 @@ export const useUserBookLists = (enabled?: boolean) =>
     retry: false,
     enabled,
     queryKey: ["userBookLists"],
-    queryFn: () => doFetch("http://localhost:3001/api/secure/get-user-booklists"),
+    queryFn: () =>
+      doFetch<ApiBookList[]>("http://localhost:3001/api/secure/get-user-booklists").then((data) =>
+        data.sort((a, b) => compareDates(a.updated_at, b.updated_at)),
+      ),
   });
+
+const compareDates = (a: string, b: string) =>
+  DateTime.fromISO(b).toMillis() - DateTime.fromISO(a).toMillis();
 
 export const useRecentBookLists = (enabled?: boolean) =>
   useQuery<ApiBookList[]>({
@@ -293,6 +415,14 @@ export const useRecentBookLists = (enabled?: boolean) =>
     enabled,
     queryKey: ["recentBookLists"],
     queryFn: () => doFetch("http://localhost:3001/api/open/recent-public-booklists"),
+  });
+
+export const usePublicBookLists = (enabled?: boolean) =>
+  useQuery<ApiBookList[]>({
+    retry: false,
+    enabled,
+    queryKey: ["publicBookLists"],
+    queryFn: () => doFetch("http://localhost:3001/api/secure/get-public-booklists"),
   });
 
 const getBookQueryOptions = (id: string) =>
@@ -310,11 +440,16 @@ const getBookQueryOptions = (id: string) =>
 
 export const useBook = (id: string) => useQuery<ApiInfoBook>(getBookQueryOptions(id));
 
-export const useBookSearch = ({ title, author, field }: ApiSearchBookInput) =>
+export const useBookSearch = ({ title, author, field, limit }: ApiSearchBookInput) =>
   useQuery<ApiSearchBook[]>({
     retry: false,
+    refetchInterval: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchIntervalInBackground: false,
     placeholderData: keepPreviousData,
-    queryKey: ["bookSearch", title, author, field],
+    queryKey: ["bookSearch", title, author, field, limit],
     queryFn: () => {
       const params = new URLSearchParams();
 
@@ -328,6 +463,10 @@ export const useBookSearch = ({ title, author, field }: ApiSearchBookInput) =>
 
       if (field) {
         params.set("field", field);
+      }
+
+      if (limit) {
+        params.set("limit", String(limit));
       }
 
       const query = params.toString();
