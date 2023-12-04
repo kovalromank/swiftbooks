@@ -36,3 +36,19 @@
   font-weight: 400;
   line-height: normal;
 }
+
+.hideContainer {
+  display: flex;
+  width: 100%;
+  justify-content: end;
+  align-items: end;
+  margin-top: 0.76rem;
+}
+
+.hide {
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  gap: 0.125rem;
+}
