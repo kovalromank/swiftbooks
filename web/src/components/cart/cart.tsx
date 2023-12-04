@@ -9,6 +9,7 @@ import { Hr } from "@/components/hr";
 import { useCart, useCartBooks, useCartTotal } from "@/api/api";
 import { useAuth } from "@/components/auth/auth-context";
 import { useCurrencyFormat } from "@/utils";
+import { Empty } from "@/components/empty";
 
 import classes from "./cart.module.css";
 
@@ -27,7 +28,7 @@ export const Cart: FC<CartProps> = ({ onClose }) => {
   if (!isSuccess || !books.length) {
     return (
       <Card className={classes.container}>
-        <div className={classes.empty}>Empty shopping cart, add some books</div>
+        <Empty>Empty shopping cart, add some books</Empty>
       </Card>
     );
   }

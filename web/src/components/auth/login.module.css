@@ -15,6 +15,14 @@
   gap: 1.25rem;
 }
 
+.error {
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--mantine-color-red-8);
+}
+
 .register {
   font-size: 0.875rem;
   font-style: normal;

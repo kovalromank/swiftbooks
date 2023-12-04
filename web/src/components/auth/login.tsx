@@ -5,12 +5,12 @@ import { PasswordInput, TextInput } from "@mantine/core";
 import { useFormik } from "formik";
 
 import { AuthBox } from "@/components/auth/auth-box";
-import { useLoginMutation } from "@/api/api";
+import { ServerError, useLoginMutation } from "@/api/api";
 import { useAuth } from "@/components/auth/auth-context";
 import { schema } from "@shared/validation/login";
 
 export const Login: FC = () => {
-  const { mutate, isPending } = useLoginMutation();
+  const { mutate, isPending, isError, error } = useLoginMutation();
   const auth = useAuth();
 
   const formik = useFormik({
@@ -28,8 +28,16 @@ export const Login: FC = () => {
     },
   });
 
+  const notActive =
+    isError && error instanceof ServerError && error.message === "account not active";
+
   return (
-    <AuthBox variant="login" loading={isPending} onSubmit={formik.handleSubmit}>
+    <AuthBox
+      variant="login"
+      loading={isPending}
+      onSubmit={formik.handleSubmit}
+      error={notActive ? "Account has been deactivated" : undefined}
+    >
       <TextInput
         placeholder="Email"
         name="email"

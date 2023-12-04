@@ -32,6 +32,8 @@
 
 .container {
   display: flex;
+  max-width: 16rem;
+  width: 16rem;
 }
 
 .details {

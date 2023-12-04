@@ -10,9 +10,10 @@ import classes from "./book-small.module.css";
 export interface BookSmallProps {
   variant?: "default" | "cart";
   data: ApiBook;
+  onRemove?: () => void;
 }
 
-export const BookSmall: FC<BookSmallProps> = ({ variant = "default", data }) => {
+export const BookSmall: FC<BookSmallProps> = ({ variant = "default", data, onRemove }) => {
   const { data: cartItems } = useCart();
 
   const currencyFormat = useCurrencyFormat();
@@ -45,7 +46,7 @@ export const BookSmall: FC<BookSmallProps> = ({ variant = "default", data }) => 
             </div>
           ) : null
         ) : (
-          <Button variant="light" color="red" size="compact-xs">
+          <Button variant="light" color="red" size="compact-xs" onClick={onRemove}>
             REMOVE
           </Button>
         )}

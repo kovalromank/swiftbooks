@@ -86,14 +86,26 @@ export interface ApiRegisterInput {
   password: string;
 }
 
+export type ApiUserStatus = "admin" | "manager" | "user";
+
 export interface ApiUser {
   id: number;
   username: string;
   email: string;
   active: boolean;
-  status: "admin" | "manager" | "user";
+  status: ApiUserStatus;
   created_at: string;
   updated_at: string;
+}
+
+export interface ApiUserStatusInput {
+  user_id: number;
+  status_string: Exclude<ApiUserStatus, "admin">;
+}
+
+export interface ApiUserActiveInput {
+  user_id: number;
+  active: boolean;
 }
 
 export interface ApiAddCartBookInput {
@@ -129,4 +141,26 @@ export interface ApiCheckoutInput {
 
 export interface ApiCheckout {
   order_id: number;
+}
+
+export interface ApiCreateBookListInput {
+  list_name: string;
+  description: string;
+  is_public: boolean;
+}
+
+export interface ApiUpdateBookListInput {
+  list_id: number;
+  name: string;
+  publicity: boolean;
+  description: string;
+}
+
+export interface ApiBookListBookInput {
+  list_id: number;
+  book_id: string;
+}
+
+export interface ApiBookListId {
+  id: number;
 }

@@ -12,16 +12,12 @@
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  margin-bottom: 0.62rem;
-}
-
-.spacer {
-  flex-grow: 1;
 }
 
 .detailsContainer {
   display: flex;
   flex-direction: column;
+  gap: 0.62rem;
 }
 
 .container {
@@ -33,4 +29,20 @@
   width: fit-content;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.iconButton {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.indicator {
+  border-radius: var(--mantine-radius-md);
 }
