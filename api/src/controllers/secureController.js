@@ -47,9 +47,9 @@ exports.create_booklist = async (req, res) => { //currently allows for multiple 
         }
 
         let username = await userModel.getUsernameFromId(user_id);
-        await booklistModel.create_booklist_db(user_id, username, list_name, is_public, description);
-
-        return res.status(200).json({message: 'Booklist created.'});
+        const new_booklist_id = await booklistModel.create_booklist_db(user_id, username, list_name, is_public, description);
+        
+        return res.status(200).json(new_booklist_id);
     } catch (error) {
         return res.status(500).json({message: 'Failed to create booklist'});
     }
