@@ -1,6 +1,6 @@
 import { FC, FormEvent, ReactNode } from "react";
-import { Anchor, Button, Card } from "@mantine/core";
-import { IconArrowRight, IconBrandGoogleFilled } from "@tabler/icons-react";
+import { Alert, Anchor, Button, Card } from "@mantine/core";
+import { IconArrowRight, IconBrandGoogleFilled, IconExclamationCircle } from "@tabler/icons-react";
 
 import { Header } from "@/components/header";
 import { Hr } from "@/components/hr";
@@ -15,6 +15,7 @@ export interface AuthBoxProps {
   loading?: boolean;
   onSubmit?: (event: FormEvent<HTMLFormElement>) => void;
   onReset?: (event: FormEvent<HTMLFormElement>) => void;
+  error?: string;
 }
 
 export const AuthBox: FC<AuthBoxProps> = ({
@@ -23,6 +24,7 @@ export const AuthBox: FC<AuthBoxProps> = ({
   children,
   onSubmit,
   onReset,
+  error,
 }) => {
   const params = useSearchParams();
 
@@ -31,6 +33,9 @@ export const AuthBox: FC<AuthBoxProps> = ({
       <Header>{variant === "register" ? "Register" : "Login"}</Header>
       <form className={classes.sectionContainer} onSubmit={onSubmit} onReset={onReset}>
         <div className={classes.inputContainer}>{children}</div>
+        {error ? (
+          <Alert p="0.5rem" icon={<IconExclamationCircle />} color="red" title={error}></Alert>
+        ) : null}
         <Button type="submit" variant="filled" loading={loading}>
           {variant === "register" ? "REGISTER" : "LOGIN"}
         </Button>
