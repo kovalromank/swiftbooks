@@ -50,20 +50,20 @@ export const BookListView: FC<BookListViewProps> = ({ id }) => {
       <div className={classes.bookListContainer}>{books ? <BookCatalog data={books} /> : null}</div>
       <Header order={2}>Reviews</Header>
       <Grid gutter="1.25rem" className={classes.reviewContainer}>
-        {visibleReviews.length ? (
-          visibleReviews.map((review) => (
-            <GridCol key={review.id} span={{ base: 12, lg: 6 }}>
+        {reviews?.length ? (
+          reviews.map((review) => (
+            <GridCol key={review.id} span={{ base: 12, md: 8, lg: 6 }}>
               <Review data={review} />
             </GridCol>
           ))
         ) : (
           <GridCol>
-            <div className={classes.empty}>No reviews found for this book list</div>
+            <Empty>No reviews found for this book list</Empty>
           </GridCol>
         )}
       </Grid>
       <Header order={2}>Leave a review</Header>
-      <ReviewForm />
+      <ReviewForm listId={bookList.id} />
     </>
   );
 };
