@@ -59,6 +59,12 @@ export interface ApiReview {
   username: string;
 }
 
+export interface ApiReviewInput {
+  list_id: number;
+  stars: number;
+  text_content: string;
+}
+
 export interface ApiLoginInput {
   email: string;
   password: string;

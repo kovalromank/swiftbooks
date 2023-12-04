@@ -20,6 +20,7 @@ import {
   ApiRegisterInput,
   ApiRemoveCartBookInput,
   ApiReview,
+  ApiReviewInput,
   ApiSearchBook,
   ApiSearchBookInput,
   ApiUser,
@@ -101,6 +102,30 @@ export const useRegisterMutation = () =>
     onSuccess: async (_data, _input) => {
       await client.resetQueries({ queryKey: ["currentUser"] });
       await client.resetQueries({ queryKey: ["cart"] });
+    },
+  });
+
+export const useAddReviewMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiReviewInput) =>
+      doPost<void>("http://localhost:3001/api/secure/add-review", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: async (_data, input) => {
+      await client.invalidateQueries({ queryKey: ["bookListReviews", input.list_id] });
+    },
+  });
+
+export const useToggleReviewMutation = () =>
+  useMutation({
+    mutationFn: (id: number) =>
+      doPost<void>("http://localhost:3001/api/secure/toggle-hide-review", {
+        method: "PUT",
+        body: JSON.stringify({ review_id: id }),
+      }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["bookListReviews"] });
     },
   });
 
