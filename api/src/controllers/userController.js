@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
+const { schema: register_schema } = require("../../../shared/validation/register");
+const { schema: login_schema } = require("../../../shared/validation/login");
 
 
 /**
@@ -29,6 +31,20 @@ exports.register = async (req, res) => {
             return res.status(400).json({ 
                 message: `Missing required parameters: ${missingParams.join(', ')}` 
             });
+        }
+
+        //perform validation
+        const register_test = {email: email, username: username, password: password}
+        const is_valid = await register_schema.validate(register_test)
+            .then(function() {
+                return true;
+            })
+            .catch(function() {
+                return false;
+            });
+
+        if (!is_valid) {
+            return res.status(400).json({message: 'schema not valid'});
         }
 
         let userExists = await userModel.userExists(username);
@@ -75,6 +91,20 @@ exports.login = async (req, res) => {
 
         if (!password) {
             return res.status(400).json({ message: 'missing password' })
+        }
+
+        //perform validation
+        const login_test = {email: email, password: password}
+        const is_valid = await login_schema.validate(login_test)
+            .then(function() {
+                return true;
+            })
+            .catch(function() {
+                return false;
+            });
+
+        if (!is_valid) {
+            return res.status(400).json({message: 'schema not valid'});
         }
 
         const user = await userModel.findUserByEmail(email);

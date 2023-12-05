@@ -1,6 +1,9 @@
 const booklistModel = require('../models/booklistModel');
 const userModel = require('../models/userModel');
 const openController = require('./openController');
+const { schema: booklist_schema } = require("../../../shared/validation/book-list");
+const { schema: review_schema } = require("../../../shared/validation/review");
+const { schema: checkout_schema } = require("../../../shared/validation/checkout");
 
 
 //BOOKLIST STUFF
@@ -44,6 +47,20 @@ exports.create_booklist = async (req, res) => { //currently allows for multiple 
 
         if (!list_name) {
             return res.status(400).json({message: 'missing list name'})
+        }
+
+        //perform validation
+        const booklist_test = {name: list_name, description: description, isPublic: is_public}
+        const is_valid = await booklist_schema.validate(booklist_test)
+            .then(function() {
+                return true;
+            })
+            .catch(function() {
+                return false;
+            });
+
+        if (!is_valid) {
+            return res.status(400).json({message: 'schema not valid'});
         }
 
         let username = await userModel.getUsernameFromId(user_id);
@@ -348,6 +365,20 @@ exports.get_book_ids_from_list = async (req, res) => {
             return res.status(401).json({message: 'Tried adding comment to private list.'});  
         }
 
+        //perform validation
+        const review_test = {content: text_content, rating: stars}
+        const is_valid = await review_schema.validate(review_test)
+            .then(function() {
+                return true;
+            })
+            .catch(function() {
+                return false;
+            });
+
+        if (!is_valid) {
+            return res.status(400).json({message: 'schema not valid'});
+        }
+
         await booklistModel.add_review(user_id, list_id, stars, text_content, username);
 
         return res.status(200).json({message: 'added review'})
@@ -587,6 +618,29 @@ exports.checkout = async (req, res) => {
         //cart details expect list of object containing cart info ie [{book_id: 1, quantity: 5, price: 53.2}, ...]
         //I would store price in cart db table but it can change so makes sense to send front frontend
         const { cart_details, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code } = req.body; 
+
+
+        //perform validation
+        const checkout_test = {
+            firstName: first_name, lastName: last_name, email: email, phone: phone, address1: address, address2: address, 
+            country: country, province: province, city: city, postalCode: postal_code
+        }
+
+        const subset_schema = checkout_schema.omit(['cardName', 'cardNumber', 'cardExpiry', 'cardCvc']);
+
+        const is_valid = await subset_schema.validate(checkout_test)
+            .then(function() {
+                return true;
+            })
+            .catch(function(err) {
+                console.log(err)
+                return false;
+            });
+
+        if (!is_valid) {
+            return res.status(400).json({message: 'schema not valid'});
+        }
+
 
         const order = await booklistModel.create_order(user_id, total_price, first_name, last_name, email, phone, address, country, province, city, postal_code);
         const order_id = order.id;
