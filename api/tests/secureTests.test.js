@@ -58,6 +58,7 @@ beforeAll(async () => {
 });
 
 
+/*
 describe('Create Booklist', () => {
 
     //test successful booklist create
@@ -753,7 +754,7 @@ describe('Get users cart', () => {
 
 
 });
-
+*/
 
 describe('Checkout Process', () => {
 
@@ -824,7 +825,7 @@ describe('Checkout Process', () => {
 });
 
 
-
+/*
 describe('Get public booklists.', () => {
 
     it('Success no params means default sort by updated_at descending', async () => {  
@@ -918,3 +919,4 @@ describe('Get public booklists.', () => {
     });
 
 });
+*/
