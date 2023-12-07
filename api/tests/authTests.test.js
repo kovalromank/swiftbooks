@@ -28,6 +28,7 @@ describe('User Register', () => {
         const response = await request(app)
             .post('/api/auth/register')
             .send({
+                name: 'Bob',
                 username: 'validuser',
                 email: 'validuser@example.com',
                 password: 'validpassword'
@@ -57,6 +58,7 @@ describe('User Register', () => {
         const response = await request(app)
             .post('/api/auth/register')
             .send({
+                name: 'Bob',
                 username: 'ACTIVE_USER',
                 email: 'active_user@example.com',
                 password: 'validpassword'
@@ -74,6 +76,7 @@ describe('User Register', () => {
         const response = await request(app)
             .post('/api/auth/register')
             .send({
+                name: 'Bob',
                 username: 'new_username',
                 email: 'USER1@ExamPle.cOm',
                 password: 'validpassword'
@@ -148,7 +151,7 @@ describe('User Login', () => {
             });
 
         expect(response.statusCode).toBe(401);
-        expect(response.body.message).toEqual(expect.stringMatching(/invalid/i));
+        expect(response.body.message).toEqual(expect.stringMatching(/doesn't exist/i));
     });
 
 
