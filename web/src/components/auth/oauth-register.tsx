@@ -52,6 +52,7 @@ export const OAuthRegister: FC<OauthRegisterProps> = ({ name, email, token }) =>
           <TextInput
             placeholder="Name"
             name="name"
+            id="oauth-reigster-name"
             variant="filled"
             size="md"
             value={name}
@@ -60,6 +61,7 @@ export const OAuthRegister: FC<OauthRegisterProps> = ({ name, email, token }) =>
           <TextInput
             placeholder="Email"
             name="email"
+            id="oauth-reigster-email"
             variant="filled"
             size="md"
             value={email}
@@ -68,6 +70,7 @@ export const OAuthRegister: FC<OauthRegisterProps> = ({ name, email, token }) =>
           <TextInput
             placeholder="Username"
             name="username"
+            id="oauth-reigster-username"
             variant="filled"
             size="md"
             value={formik.values.username}

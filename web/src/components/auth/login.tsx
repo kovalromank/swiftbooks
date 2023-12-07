@@ -40,6 +40,7 @@ export const Login: FC = () => {
       <TextInput
         placeholder="Email"
         name="email"
+        id="login-email"
         variant="filled"
         size="md"
         value={formik.values.email}
@@ -50,6 +51,7 @@ export const Login: FC = () => {
       <PasswordInput
         placeholder="Password"
         name="password"
+        id="login-password"
         variant="filled"
         size="md"
         value={formik.values.password}

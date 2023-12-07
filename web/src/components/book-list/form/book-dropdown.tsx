@@ -52,6 +52,7 @@ export const BookDropdown: FC<BookDropdownProps> = ({ excludeIds = [], onSubmit 
       >
         <Combobox.Target>
           <TextInput
+            id="add-book"
             placeholder="Add book"
             rightSection={
               !isLoading && isFetching && combobox.dropdownOpened ? (
@@ -77,7 +78,7 @@ export const BookDropdown: FC<BookDropdownProps> = ({ excludeIds = [], onSubmit 
         </Combobox.Target>
 
         <Combobox.Dropdown hidden={books == null}>
-          <Combobox.Options>
+          <Combobox.Options id="add-book-options">
             {options}
             {empty && <Combobox.Empty>No results found</Combobox.Empty>}
           </Combobox.Options>

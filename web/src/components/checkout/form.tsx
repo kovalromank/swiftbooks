@@ -134,6 +134,7 @@ export const Form: FC<FormProps> = ({ onSubmit }) => {
                   placeholder={label}
                   variant="filled"
                   name={name}
+                  id={`checkout-${name}`}
                   value={formik.values[name]}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}

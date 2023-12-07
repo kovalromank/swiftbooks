@@ -53,6 +53,7 @@ export const ReviewForm: FC<ReviewFormProps> = ({ listId }) => {
               variant="filled"
               rows={5}
               name="content"
+              id="review-content"
               value={formik.values.content}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -65,6 +66,7 @@ export const ReviewForm: FC<ReviewFormProps> = ({ listId }) => {
                 count={5}
                 size="xl"
                 name="rating"
+                id="review-rating"
                 value={formik.values.rating}
                 onBlur={formik.handleBlur}
                 onChange={onRatingChange}

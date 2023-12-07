@@ -1,14 +1,18 @@
 import { render, screen } from "@/test-utils";
 import { BookList } from "./book-list";
+import { bookLists } from "@/test-utils/data/book-lists";
 
 describe("BookList", () => {
-  it("renders a book list", () => {
-    render(<BookList />);
+  const bookList = bookLists[0];
 
-    expect(screen.getByText("Stacy Bob")).toBeInTheDocument();
-    expect(screen.getByText("Great reads 1")).toBeInTheDocument();
-    expect(screen.getByText("Books: 5")).toBeInTheDocument();
-    expect(screen.getByText("Pages: 1204")).toBeInTheDocument();
-    expect(screen.getByRole("link")).toHaveTextContent(/view/i);
+  it("renders a book list", () => {
+    render(<BookList data={bookList} />);
+
+    expect(screen.getByText(bookList.list_name)).toBeInTheDocument();
+    expect(screen.getByText(bookList.created_by_username)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "VIEW" })).toHaveAttribute(
+      "href",
+      `/book-lists/view/${bookList.id}`,
+    );
   });
 });

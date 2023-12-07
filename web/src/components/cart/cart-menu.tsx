@@ -49,6 +49,7 @@ export const CartMenu: FC<ActionIconProps> = ({ size, ...rest }) => {
         </ActionIcon>
       </Indicator>
       <Modal
+        id="cart-menu"
         padding="1.25rem"
         trapFocus
         title={<span className={classes.header}>Your shopping cart</span>}

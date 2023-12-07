@@ -18,6 +18,9 @@ import { client, useCurrentUser } from "@/api/api";
 
 import classes from "./account-menu.module.css";
 
+/**
+ * `AccountMenu` represents a user account menu with login/logout functionality.
+ */
 export const AccountMenu: FC<ActionIconProps> = (props) => {
   const [opened, setOpened] = useState(false);
   const router = useRouter();
@@ -41,6 +44,7 @@ export const AccountMenu: FC<ActionIconProps> = (props) => {
 
   return (
     <Popover
+      id="account-popover"
       shadow="sm"
       radius="md"
       position="bottom-end"

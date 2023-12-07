@@ -41,6 +41,7 @@ export const Register: FC = () => {
         variant="filled"
         size="md"
         name="name"
+        id="register-name"
         value={formik.values.name}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
@@ -51,6 +52,7 @@ export const Register: FC = () => {
         variant="filled"
         size="md"
         name="email"
+        id="register-email"
         value={formik.values.email}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
@@ -61,6 +63,7 @@ export const Register: FC = () => {
         variant="filled"
         size="md"
         name="username"
+        id="register-username"
         value={formik.values.username}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
@@ -71,6 +74,7 @@ export const Register: FC = () => {
         variant="filled"
         size="md"
         name="password"
+        id="register-password"
         value={formik.values.password}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
