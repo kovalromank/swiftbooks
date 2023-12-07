@@ -34,6 +34,9 @@ services:
       - database
       - caddy
     environment:
+      GOOGLE_API_KEY: xxx
+      JWT_SECRET: xxx
+      GOOGLE_APPLICATION_CREDENTIALS: xxx
       DATABASE_URL: postgresql://postgres:pass@database:5432/swiftbooks?schema=public
     ports:
       - 3001:3001

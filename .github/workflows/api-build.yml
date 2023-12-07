@@ -29,8 +29,8 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./api
-          file: ./api/.Dockerfile
+          context: .
+          file: api.Dockerfile
           push: true
           tags: registry.digitalocean.com/swiftbooks/api:latest
           cache-from: type=registry,ref=registry.digitalocean.com/swiftbooks/api:latest
