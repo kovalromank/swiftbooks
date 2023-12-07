@@ -117,7 +117,7 @@ export const AdminGuard: FC<AdminGuardProps> = ({ children }) => {
     }
 
     if (!status.userId || !user || user.status !== "admin") {
-      router.push("/");
+      router.push("/books");
     }
   }, [router, status.isAuthenticated, status.isInitialized, status.userId, user]);
 
@@ -149,7 +149,7 @@ export const GuestGuard: FC<GuestGuardProps> = ({ children }) => {
     }
 
     if (status.isAuthenticated) {
-      const returnUrl = params.get("returnUrl") || "/";
+      const returnUrl = params.get("returnUrl") || "/books";
       router.push(returnUrl);
     }
   }, [params, router, status.isAuthenticated, status.isInitialized]);

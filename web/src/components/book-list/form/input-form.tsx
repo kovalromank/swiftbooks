@@ -41,6 +41,7 @@ export const InputForm: FC<InputFormProps> = ({ onSubmit, loading, data }) => {
           placeholder="Book list name *"
           variant="filled"
           name="name"
+          size="md"
           value={formik.values.name}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -53,6 +54,7 @@ export const InputForm: FC<InputFormProps> = ({ onSubmit, loading, data }) => {
           variant="filled"
           rows={5}
           name="description"
+          size="md"
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -65,6 +67,7 @@ export const InputForm: FC<InputFormProps> = ({ onSubmit, loading, data }) => {
             label="Public"
             labelPosition="left"
             name="isPublic"
+            size="md"
             classNames={{ label: classes.createButtonLabel }}
             checked={formik.values.isPublic}
             onChange={formik.handleChange}
