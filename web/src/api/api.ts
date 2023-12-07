@@ -19,6 +19,8 @@ import {
   ApiInfoBook,
   ApiLogin,
   ApiLoginInput,
+  ApiOAuthLoginInput,
+  ApiOAuthRegisterInput,
   ApiRegister,
   ApiRegisterInput,
   ApiRemoveCartBookInput,
@@ -37,8 +39,9 @@ export const client = new QueryClient();
 
 export class ServerError extends Error {
   name = "ServerError";
+  status = 0;
 
-  constructor(object: unknown) {
+  constructor(object: unknown, status: number) {
     let message = "Server error";
 
     if (typeof object === "object") {
@@ -48,6 +51,7 @@ export class ServerError extends Error {
     }
 
     super(message);
+    this.status = status;
   }
 }
 
@@ -80,7 +84,7 @@ const doFetch = <T>(input: RequestInfo, { headers, ...rest }: RequestInit = {}):
         data = await res.json();
       } catch (error) {}
 
-      throw new ServerError(data);
+      throw new ServerError(data, res.status);
     }
 
     return res.json();
@@ -150,6 +154,11 @@ export const useRemoveBookListBookMutation = () =>
     onSuccess: (_data, input) => invalidateBookListQueries(input.list_id),
   });
 
+const invalidateAuthQueries = async () => {
+  await client.resetQueries({ queryKey: ["currentUser"] });
+  await client.resetQueries({ queryKey: ["cart"] });
+};
+
 export const useLoginMutation = () =>
   useMutation({
     mutationFn: (input: ApiLoginInput) =>
@@ -157,10 +166,7 @@ export const useLoginMutation = () =>
         method: "POST",
         body: JSON.stringify(input),
       }),
-    onSuccess: async () => {
-      await client.resetQueries({ queryKey: ["currentUser"] });
-      await client.resetQueries({ queryKey: ["cart"] });
-    },
+    onSuccess: () => invalidateAuthQueries(),
   });
 
 export const useRegisterMutation = () =>
@@ -170,10 +176,27 @@ export const useRegisterMutation = () =>
         method: "POST",
         body: JSON.stringify(input),
       }),
-    onSuccess: async () => {
-      await client.resetQueries({ queryKey: ["currentUser"] });
-      await client.resetQueries({ queryKey: ["cart"] });
-    },
+    onSuccess: () => invalidateAuthQueries(),
+  });
+
+export const useOAuthLoginMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiOAuthLoginInput) =>
+      doPost<ApiLogin>("http://localhost:3001/api/auth/oauth-login", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: () => invalidateAuthQueries(),
+  });
+
+export const useOAuthRegisterMutation = () =>
+  useMutation({
+    mutationFn: (input: ApiOAuthRegisterInput) =>
+      doPost<ApiRegister>("http://localhost:3001/api/auth/oauth-register", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: () => invalidateAuthQueries(),
   });
 
 export const useAddReviewMutation = () =>
