@@ -1,11 +1,11 @@
 "use client";
 
-import { FC, useCallback, useMemo } from "react";
+import { FC, useCallback } from "react";
 import { Alert, Button, Grid, GridCol } from "@mantine/core";
 import { useDocumentTitle } from "@mantine/hooks";
 import { IconExclamationCircle, IconPencil, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { Header } from "@/components/header";
 import { BookCatalog } from "@/components/book/book-catalog";
@@ -31,7 +31,6 @@ export interface BookListViewProps {
 
 export const BookListView: FC<BookListViewProps> = ({ id }) => {
   const router = useRouter();
-  const pathname = usePathname();
 
   const { data: bookList } = useBookList(id);
   const { data: books } = useBookListBooks(id);
@@ -44,8 +43,6 @@ export const BookListView: FC<BookListViewProps> = ({ id }) => {
   const { mutate } = useRemoveBookListMutation();
 
   useDocumentTitle(bookList ? `${bookList.list_name} | Swift Books` : "");
-
-  const loginUrl = useMemo(() => `/login?returnUrl=${encodeURIComponent(pathname)}`, [pathname]);
 
   const canUpdate =
     auth.status.isAuthenticated &&

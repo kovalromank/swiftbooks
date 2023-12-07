@@ -14,7 +14,7 @@ export const Login: FC = () => {
   const auth = useAuth();
 
   const formik = useFormik({
-    initialValues: { email: "user1@example.com", password: "password" },
+    initialValues: { email: "", password: "" },
     validationSchema: schema,
     onSubmit(values) {
       mutate(
