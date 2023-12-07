@@ -1,11 +1,11 @@
-name: api-build
+name: web-build
 
 on:
   push:
     branches:
       - "main"
     paths:
-      - "api/**"
+      - "web/**"
 
 jobs:
   docker:
@@ -31,6 +31,6 @@ jobs:
           context: ./api
           file: ./api/.Dockerfile
           push: true
-          tags: registry.digitalocean.com/swiftbooks/api:latest
-          cache-from: type=registry,ref=registry.digitalocean.com/swiftbooks/api:latest
+          tags: registry.digitalocean.com/swiftbooks/web:latest
+          cache-from: type=registry,ref=registry.digitalocean.com/swiftbooks/web:latest
           cache-to: type=inline
