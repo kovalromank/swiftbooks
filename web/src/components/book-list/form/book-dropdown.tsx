@@ -72,6 +72,7 @@ export const BookDropdown: FC<BookDropdownProps> = ({ excludeIds = [], onSubmit 
             onFocus={() => combobox.openDropdown()}
             onBlur={() => combobox.closeDropdown()}
             className={classes.dropdown}
+            size="md"
           />
         </Combobox.Target>
 

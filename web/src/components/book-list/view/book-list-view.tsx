@@ -1,11 +1,11 @@
 "use client";
 
-import { FC, useCallback } from "react";
-import { Button, Grid, GridCol } from "@mantine/core";
+import { FC, useCallback, useMemo } from "react";
+import { Alert, Button, Grid, GridCol } from "@mantine/core";
 import { useDocumentTitle } from "@mantine/hooks";
-import { IconPencil, IconTrash } from "@tabler/icons-react";
+import { IconExclamationCircle, IconPencil, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Header } from "@/components/header";
 import { BookCatalog } from "@/components/book/book-catalog";
@@ -31,6 +31,7 @@ export interface BookListViewProps {
 
 export const BookListView: FC<BookListViewProps> = ({ id }) => {
   const router = useRouter();
+  const pathname = usePathname();
 
   const { data: bookList } = useBookList(id);
   const { data: books } = useBookListBooks(id);
@@ -43,6 +44,8 @@ export const BookListView: FC<BookListViewProps> = ({ id }) => {
   const { mutate } = useRemoveBookListMutation();
 
   useDocumentTitle(bookList ? `${bookList.list_name} | Swift Books` : "");
+
+  const loginUrl = useMemo(() => `/login?returnUrl=${encodeURIComponent(pathname)}`, [pathname]);
 
   const canUpdate =
     auth.status.isAuthenticated &&
@@ -127,7 +130,15 @@ export const BookListView: FC<BookListViewProps> = ({ id }) => {
         )}
       </Grid>
       <Header order={2}>Leave a review</Header>
-      <ReviewForm listId={bookList.id} />
+      {auth.status.isAuthenticated ? (
+        <ReviewForm listId={bookList.id} />
+      ) : (
+        <Grid>
+          <GridCol span={{ base: 12, md: 8, lg: 6 }}>
+            <Alert color="blue" icon={<IconExclamationCircle />} title="Login to leave a review" />
+          </GridCol>
+        </Grid>
+      )}
     </>
   );
 };
