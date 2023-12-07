@@ -5,6 +5,7 @@ import {
   useQueries,
   useQuery,
 } from "@tanstack/react-query";
+import { DateTime } from "luxon";
 
 import {
   ApiAddCartBookInput,
@@ -33,7 +34,6 @@ import {
   ApiUserActiveInput,
   ApiUserStatusInput,
 } from "./types";
-import { DateTime } from "luxon";
 
 export const client = new QueryClient();
 
@@ -73,11 +73,13 @@ const getHeaders = (): Record<string, string> => {
   return { Authorization: `Bearer ${token}` };
 };
 
-const doPost = <T>(input: RequestInfo, { headers, ...rest }: RequestInit = {}): Promise<T> =>
+const HOST = process.env.NEXT_PUBLIC_API_HOST ?? "";
+
+const doPost = <T>(input: string, { headers, ...rest }: RequestInit = {}): Promise<T> =>
   doFetch(input, { headers: { "content-type": "application/json", ...headers }, ...rest });
 
-const doFetch = <T>(input: RequestInfo, { headers, ...rest }: RequestInit = {}): Promise<T> =>
-  fetch(input, { headers: { ...getHeaders(), ...headers }, ...rest }).then(async (res) => {
+const doFetch = <T>(input: string, { headers, ...rest }: RequestInit = {}): Promise<T> =>
+  fetch(HOST + input, { headers: { ...getHeaders(), ...headers }, ...rest }).then(async (res) => {
     if (!res.ok) {
       let data;
       try {
@@ -107,7 +109,7 @@ const invalidateBookListQueries = async (id?: number, reset?: boolean) => {
 export const useCreateBookListMutation = () =>
   useMutation({
     mutationFn: (input: ApiCreateBookListInput) =>
-      doPost<ApiBookListId>("http://localhost:3001/api/secure/create-booklist", {
+      doPost<ApiBookListId>("/api/secure/create-booklist", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -117,7 +119,7 @@ export const useCreateBookListMutation = () =>
 export const useUpdateBookListMutation = () =>
   useMutation({
     mutationFn: (input: ApiUpdateBookListInput) =>
-      doPost<void>("http://localhost:3001/api/secure/update-booklist", {
+      doPost<void>("/api/secure/update-booklist", {
         method: "PUT",
         body: JSON.stringify(input),
       }),
@@ -127,7 +129,7 @@ export const useUpdateBookListMutation = () =>
 export const useRemoveBookListMutation = () =>
   useMutation({
     mutationFn: (id: number) =>
-      doPost<void>("http://localhost:3001/api/secure/delete-user-booklist", {
+      doPost<void>("/api/secure/delete-user-booklist", {
         method: "DELETE",
         body: JSON.stringify({ list_id: id }),
       }),
@@ -137,7 +139,7 @@ export const useRemoveBookListMutation = () =>
 export const useAddBookListBookMutation = () =>
   useMutation({
     mutationFn: (input: ApiBookListBookInput) =>
-      doPost<void>("http://localhost:3001/api/secure/add-book-to-list", {
+      doPost<void>("/api/secure/add-book-to-list", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -147,7 +149,7 @@ export const useAddBookListBookMutation = () =>
 export const useRemoveBookListBookMutation = () =>
   useMutation({
     mutationFn: (input: ApiBookListBookInput) =>
-      doPost<void>("http://localhost:3001/api/secure/delete-book-from-list", {
+      doPost<void>("/api/secure/delete-book-from-list", {
         method: "DELETE",
         body: JSON.stringify(input),
       }),
@@ -162,7 +164,7 @@ const invalidateAuthQueries = async () => {
 export const useLoginMutation = () =>
   useMutation({
     mutationFn: (input: ApiLoginInput) =>
-      doPost<ApiLogin>("http://localhost:3001/api/auth/login", {
+      doPost<ApiLogin>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -172,7 +174,7 @@ export const useLoginMutation = () =>
 export const useRegisterMutation = () =>
   useMutation({
     mutationFn: (input: ApiRegisterInput) =>
-      doPost<ApiRegister>("http://localhost:3001/api/auth/register", {
+      doPost<ApiRegister>("/api/auth/register", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -182,7 +184,7 @@ export const useRegisterMutation = () =>
 export const useOAuthLoginMutation = () =>
   useMutation({
     mutationFn: (input: ApiOAuthLoginInput) =>
-      doPost<ApiLogin>("http://localhost:3001/api/auth/oauth-login", {
+      doPost<ApiLogin>("/api/auth/oauth-login", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -192,7 +194,7 @@ export const useOAuthLoginMutation = () =>
 export const useOAuthRegisterMutation = () =>
   useMutation({
     mutationFn: (input: ApiOAuthRegisterInput) =>
-      doPost<ApiRegister>("http://localhost:3001/api/auth/oauth-register", {
+      doPost<ApiRegister>("/api/auth/oauth-register", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -202,7 +204,7 @@ export const useOAuthRegisterMutation = () =>
 export const useAddReviewMutation = () =>
   useMutation({
     mutationFn: (input: ApiReviewInput) =>
-      doPost<void>("http://localhost:3001/api/secure/add-review", {
+      doPost<void>("/api/secure/add-review", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -214,7 +216,7 @@ export const useAddReviewMutation = () =>
 export const useToggleReviewMutation = () =>
   useMutation({
     mutationFn: (id: number) =>
-      doPost<void>("http://localhost:3001/api/secure/toggle-hide-review", {
+      doPost<void>("/api/secure/toggle-hide-review", {
         method: "PUT",
         body: JSON.stringify({ review_id: id }),
       }),
@@ -226,7 +228,7 @@ export const useToggleReviewMutation = () =>
 export const useRemoveCartBookMutation = () =>
   useMutation({
     mutationFn: (input: ApiRemoveCartBookInput) =>
-      doPost<ApiRegister>("http://localhost:3001/api/secure/delete-book-from-cart", {
+      doPost<ApiRegister>("/api/secure/delete-book-from-cart", {
         method: "DELETE",
         body: JSON.stringify(input),
       }),
@@ -238,7 +240,7 @@ export const useRemoveCartBookMutation = () =>
 export const useAddCartBookMutation = () =>
   useMutation({
     mutationFn: (input: ApiAddCartBookInput) =>
-      doPost<ApiRegister>("http://localhost:3001/api/secure/add-book-to-cart", {
+      doPost<ApiRegister>("/api/secure/add-book-to-cart", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -251,7 +253,7 @@ export const useCheckoutMutation = () =>
   useMutation({
     mutationKey: ["checkout"],
     mutationFn: (input: ApiCheckoutInput) =>
-      doPost<ApiCheckout>("http://localhost:3001/api/secure/checkout", {
+      doPost<ApiCheckout>("/api/secure/checkout", {
         method: "POST",
         body: JSON.stringify(input),
       }),
@@ -265,7 +267,7 @@ export const useCart = (enabled?: boolean) =>
     retry: false,
     enabled,
     queryKey: ["cart"],
-    queryFn: () => doFetch(`http://localhost:3001/api/secure/get-cart`),
+    queryFn: () => doFetch(`/api/secure/get-cart`),
   });
 
 export const useCartBooks = (
@@ -315,7 +317,7 @@ export const useCartTotal = (enabled?: boolean): { data: number | undefined } =>
 export const useUserStatusMutation = () =>
   useMutation({
     mutationFn: (input: ApiUserStatusInput) =>
-      doPost<void>("http://localhost:3001/api/admin/change-user-status", {
+      doPost<void>("/api/admin/change-user-status", {
         method: "PUT",
         body: JSON.stringify(input),
       }),
@@ -327,7 +329,7 @@ export const useUserStatusMutation = () =>
 export const useUserActiveMutation = () =>
   useMutation({
     mutationFn: (input: ApiUserActiveInput) =>
-      doPost<void>("http://localhost:3001/api/admin/change-user-active", {
+      doPost<void>("/api/admin/change-user-active", {
         method: "PUT",
         body: JSON.stringify(input),
       }),
@@ -340,14 +342,14 @@ export const useUsers = () =>
   useQuery<ApiUser[]>({
     retry: false,
     queryKey: ["users"],
-    queryFn: () => doFetch(`http://localhost:3001/api/admin/get-users`),
+    queryFn: () => doFetch(`/api/admin/get-users`),
   });
 
 export const useCurrentUser = (enabled?: boolean) =>
   useQuery<ApiUser>({
     retry: false,
     queryKey: ["currentUser"],
-    queryFn: () => doFetch(`http://localhost:3001/api/secure/get-user-details`),
+    queryFn: () => doFetch(`/api/secure/get-user-details`),
     enabled,
   });
 
@@ -356,9 +358,9 @@ export const useBookListReviews = (id: number) =>
     retry: false,
     queryKey: ["bookListReviews", id],
     queryFn: () =>
-      doFetch<ApiReview[]>(
-        `http://localhost:3001/api/open/get-reviews-for-list?list_id=${id}`,
-      ).then((data) => data.sort((a, b) => compareDates(a.added_at, b.added_at))),
+      doFetch<ApiReview[]>(`/api/open/get-reviews-for-list?list_id=${id}`).then((data) =>
+        data.sort((a, b) => compareDates(a.added_at, b.added_at)),
+      ),
   });
 
 export const useBooks = (
@@ -395,7 +397,7 @@ export const useBookList = (id: number, enabled?: boolean) =>
     enabled,
     retry: false,
     queryKey: ["bookList", id],
-    queryFn: () => doFetch(`http://localhost:3001/api/open/booklist-info-from-id?list_id=${id}`),
+    queryFn: () => doFetch(`/api/open/booklist-info-from-id?list_id=${id}`),
   });
 
 export const useBookListBookIds = (id: number, enabled?: boolean) =>
@@ -403,7 +405,7 @@ export const useBookListBookIds = (id: number, enabled?: boolean) =>
     enabled,
     retry: false,
     queryKey: ["bookListBookIds", id],
-    queryFn: () => doFetch(`http://localhost:3001/api/open/list-book-ids?list_id=${id}`),
+    queryFn: () => doFetch(`/api/open/list-book-ids?list_id=${id}`),
   });
 
 export const useBookListPageCount = (id: number): { data: number | undefined } => {
@@ -424,7 +426,7 @@ export const useUserBookLists = (enabled?: boolean) =>
     enabled,
     queryKey: ["userBookLists"],
     queryFn: () =>
-      doFetch<ApiBookList[]>("http://localhost:3001/api/secure/get-user-booklists").then((data) =>
+      doFetch<ApiBookList[]>("/api/secure/get-user-booklists").then((data) =>
         data.sort((a, b) => compareDates(a.updated_at, b.updated_at)),
       ),
   });
@@ -437,7 +439,7 @@ export const useRecentBookLists = (enabled?: boolean) =>
     retry: false,
     enabled,
     queryKey: ["recentBookLists"],
-    queryFn: () => doFetch("http://localhost:3001/api/open/recent-public-booklists"),
+    queryFn: () => doFetch("/api/open/recent-public-booklists"),
   });
 
 export const usePublicBookLists = (enabled?: boolean) =>
@@ -445,15 +447,14 @@ export const usePublicBookLists = (enabled?: boolean) =>
     retry: false,
     enabled,
     queryKey: ["publicBookLists"],
-    queryFn: () => doFetch("http://localhost:3001/api/secure/get-public-booklists"),
+    queryFn: () => doFetch("/api/secure/get-public-booklists"),
   });
 
 const getBookQueryOptions = (id: string) =>
   ({
     retry: false,
     queryKey: ["book", id],
-    queryFn: () =>
-      doFetch<ApiInfoBook>(`http://localhost:3001/api/open/book-info-from-id?id=${id}`),
+    queryFn: () => doFetch<ApiInfoBook>(`/api/open/book-info-from-id?id=${id}`),
     refetchInterval: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
@@ -494,6 +495,6 @@ export const useBookSearch = ({ title, author, field, limit }: ApiSearchBookInpu
 
       const query = params.toString();
 
-      return doFetch(`http://localhost:3001/api/open/search?${query}`);
+      return doFetch(`/api/open/search?${query}`);
     },
   });

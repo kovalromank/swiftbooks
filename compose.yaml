@@ -1,0 +1,61 @@
+services:
+  database:
+    image: postgres:14.9
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    networks:
+      - backend
+    volumes:
+      - database_data:/var/lib/postgresql/data
+
+  caddy:
+    image: caddy:2.7
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    networks:
+      - backend
+      - frontend
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+  api:
+    image: registry.digitalocean.com/swiftbooks/api:latest
+    restart: unless-stopped
+    depends_on:
+      - database
+      - caddy
+    environment:
+      DATABASE_URL: postgresql://postgres:pass@database:5432/swiftbooks?schema=public
+    ports:
+      - 3003:3003
+    networks:
+      - backend
+
+  web:
+    image: registry.digitalocean.com/swiftbooks/web:latest
+    restart: unless-stopped
+    depends_on:
+      - api
+      - caddy
+    ports:
+      - 3002:3002
+    networks:
+      - frontend
+
+volumes:
+  database_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  frontend:
+  backend:
