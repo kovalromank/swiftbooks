@@ -36,12 +36,14 @@ services:
     environment:
       GOOGLE_API_KEY: xxx
       JWT_SECRET: xxx
-      GOOGLE_APPLICATION_CREDENTIALS: xxx
+      GOOGLE_APPLICATION_CREDENTIALS: /app/api/google-service-account.json
       DATABASE_URL: postgresql://postgres:pass@database:5432/swiftbooks?schema=public
     ports:
       - 3001:3001
     networks:
       - backend
+    volumes:
+      - $PWD/google-service-account.json:/app/api/google-service-account.json
 
   web:
     image: registry.digitalocean.com/swiftbooks/web:latest
