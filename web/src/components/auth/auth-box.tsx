@@ -1,13 +1,18 @@
-import { FC, FormEvent, ReactNode } from "react";
+import { FC, FormEvent, ReactNode, useCallback, useState } from "react";
 import { Alert, Anchor, Button, Card } from "@mantine/core";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { IconArrowRight, IconBrandGoogleFilled, IconExclamationCircle } from "@tabler/icons-react";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 import { Header } from "@/components/header";
 import { Hr } from "@/components/hr";
+import { ServerError, useOAuthLoginMutation } from "@/api/api";
+import { useAuth } from "@/components/auth/auth-context";
+import { app } from "@/firebase";
+import { OAuthRegister } from "@/components/auth/oauth-register";
 
-import classes from "./login.module.css";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import classes from "./auth-box.module.css";
 
 export interface AuthBoxProps {
   variant?: "login" | "register";
@@ -27,10 +32,61 @@ export const AuthBox: FC<AuthBoxProps> = ({
   error,
 }) => {
   const params = useSearchParams();
+  const [needsOAuthRegister, setNeedsOAuthRegister] = useState<{
+    name: string;
+    email: string;
+    token: string;
+  } | null>(null);
+
+  const { mutate: oauthLoginMutate } = useOAuthLoginMutation();
+  const auth = useAuth();
+
+  const onGoogleClick = useCallback(() => {
+    const firebaseAuth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    signInWithPopup(firebaseAuth, provider)
+      .then((result) => result.user.getIdToken())
+      .then((token) => {
+        oauthLoginMutate(
+          { token },
+          {
+            onSuccess: (data) => {
+              auth.login(data.token);
+            },
+            onError: (error) => {
+              if (error instanceof ServerError && error.status === 404) {
+                const user = firebaseAuth.currentUser;
+                if (user) {
+                  setNeedsOAuthRegister({
+                    name: user.displayName ?? "",
+                    email: user.email ?? "",
+                    token,
+                  });
+                }
+              }
+            },
+          },
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [auth, oauthLoginMutate]);
+
+  if (needsOAuthRegister) {
+    return (
+      <OAuthRegister
+        name={needsOAuthRegister.name}
+        email={needsOAuthRegister.email}
+        token={needsOAuthRegister.token}
+      />
+    );
+  }
 
   return (
     <Card shadow="sm" padding="md" radius="md" withBorder className={classes.container}>
-      <Header>{variant === "register" ? "Register" : "Login"}</Header>
+      <Header>{needsOAuthRegister || variant === "register" ? "Register" : "Login"}</Header>
       <form className={classes.sectionContainer} onSubmit={onSubmit} onReset={onReset}>
         <div className={classes.inputContainer}>{children}</div>
         {error ? (
@@ -66,6 +122,7 @@ export const AuthBox: FC<AuthBoxProps> = ({
           color="black"
           leftSection={<IconBrandGoogleFilled />}
           classNames={{ root: classes.googleButton, inner: classes.googleButtonInner }}
+          onClick={onGoogleClick}
         >
           Continue with Google
         </Button>

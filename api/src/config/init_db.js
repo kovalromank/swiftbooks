@@ -6,11 +6,13 @@ const initDB = async () => {
     const createUserTable = `
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
             username VARCHAR(50) NOT NULL UNIQUE,
             email VARCHAR(100) NOT NULL UNIQUE,
             password VARCHAR(255) NOT NULL,
             active BOOLEAN NOT NULL,
             status VARCHAR(20) NOT NULL,
+            external VARCHAR(128),
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
@@ -147,12 +149,12 @@ const fillDbWithTestData = async () => {
         const password3 = await bcrypt.hash('password', 10);
         const password4 = await bcrypt.hash('password', 10);
         const insertUsers = `
-            INSERT INTO users (username, email, password, active, status)
+            INSERT INTO users (name, username, email, password, active, status)
             VALUES 
-                ('admin', 'user1@example.com', '${password1}', true, 'admin'),
-                ('manager', 'user2@example.com', '${password2}', true, 'manager'),
-                ('active_user', 'user3@example.com', '${password3}', true, 'user'),
-                ('deactivated_user', 'user4@example.com', '${password4}', false, 'user');
+                ('Warren Howard', 'admin', 'user1@example.com', '${password1}', true, 'admin'),
+                ('Stewart Gray', 'manager', 'user2@example.com', '${password2}', true, 'manager'),
+                ('Olivia Johnston', 'active_user', 'user3@example.com', '${password3}', true, 'user'),
+                ('William Bell', 'deactivated_user', 'user4@example.com', '${password4}', false, 'user');
         `;
         await pool.query(insertUsers);
 

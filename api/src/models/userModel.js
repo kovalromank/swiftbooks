@@ -4,19 +4,35 @@ const jwt = require('jsonwebtoken');
 
 /**
  * Creates a new user in the database.
+ * @param {string} name - The name for the new user.
  * @param {string} username - The username for the new user.
  * @param {string} email - The email address for the new user.
  * @param {string} hashedPassword - The hashed password for the new user.
  * @returns {Object} The new user's information including the user ID.
  */
-const createUser = async (username, email, hashedPassword) => {
+const createUser = async (name, username, email, hashedPassword) => {
     const result = await pool.query(
-        'INSERT INTO users (username, email, password, active, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id', 
-        [username, email, hashedPassword, true, 'user']
+        'INSERT INTO users (name, username, email, password, active, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING id',
+        [name, username, email, hashedPassword, true, 'user']
     );
     return result.rows[0];
 };
 
+/**
+ * Creates an external user in the database.
+ * @param {string} name - The name for the new user.
+ * @param {string} username - The username for the new user.
+ * @param {string} email - The email address for the new user.
+ * @param {string} externalId - The user's external ID.
+ * @returns {Object} The new user's information including the user ID.
+ */
+const createExternalUser = async (name, username, email, externalId) => {
+    const result = await pool.query(
+        "INSERT INTO users (name, username, email, password, external, active, status, created_at, updated_at) VALUES ($1, $2, $3, '', $4, $5, $6, NOW(), NOW()) RETURNING id",
+        [name, username, email, externalId, true, 'user']
+    );
+    return result.rows[0];
+};
 
 /**
  * Finds a user in the database by their email.
@@ -198,4 +214,4 @@ const changeUserActive = async (user_id, active) => {
 };
 
 
-module.exports = { emailExists, createUser, findUserByEmail, getUserIdFromToken, getUsernameFromId, getUserDetails, isAdmin, isManager, userExists, getUsers, changeUserStatus, changeUserActive };
+module.exports = { emailExists, createUser, createExternalUser, findUserByEmail, getUserIdFromToken, getUsernameFromId, getUserDetails, isAdmin, isManager, userExists, getUsers, changeUserStatus, changeUserActive };

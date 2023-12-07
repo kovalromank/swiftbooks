@@ -5,6 +5,7 @@ import { AppShell, Burger, Title } from "@mantine/core";
 import Image from "next/image";
 import { useDisclosure } from "@mantine/hooks";
 import cx from "clsx";
+import Link from "next/link";
 
 import { CartMenu } from "@/components/cart/cart-menu";
 import { AccountMenu } from "@/components/account/account-menu";
@@ -28,25 +29,29 @@ export const AppShellLayout: FC<{ children: ReactNode }> = ({ children }) => {
           <div className={classes.headerBranding}>
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
 
-            <Image
-              src={logo}
-              alt="Swift Books logo"
-              width={40}
-              height={40}
-              className={classes.desktopLogo}
-            />
+            <Link href="/">
+              <Image
+                src={logo}
+                alt="Swift Books logo"
+                width={40}
+                height={40}
+                className={classes.desktopLogo}
+              />
+            </Link>
             <Title order={3} className={cx(classes.title, classes.headerTitle)}>
               Swift <span>Books</span>
             </Title>
           </div>
 
-          <Image
-            src={logo}
-            alt="Swift Books logo"
-            width={40}
-            height={40}
-            className={classes.mobileLogo}
-          />
+          <Link href="/">
+            <Image
+              src={logo}
+              alt="Swift Books logo"
+              width={40}
+              height={40}
+              className={classes.mobileLogo}
+            />
+          </Link>
 
           <HeaderLinks className={classes.links} />
 

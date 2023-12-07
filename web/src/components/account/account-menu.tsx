@@ -68,11 +68,12 @@ export const AccountMenu: FC<ActionIconProps> = (props) => {
                 <div className={classes.nameRow}>
                   {user ? (
                     <Title order={3} className={classes.name}>
-                      {user.username}
+                      {user.name}
                     </Title>
                   ) : null}
                   <CloseButton onClick={() => setOpened(false)} />
                 </div>
+                {user ? <div className={classes.email}>{user.username}</div> : null}
                 {user ? <div className={classes.email}>{user.email}</div> : null}
               </div>
               <Hr />

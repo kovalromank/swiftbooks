@@ -65,6 +65,15 @@ export interface ApiReviewInput {
   text_content: string;
 }
 
+export interface ApiOAuthLoginInput {
+  token: string;
+}
+
+export interface ApiOAuthRegisterInput {
+  username: string;
+  token: string;
+}
+
 export interface ApiLoginInput {
   email: string;
   password: string;
@@ -81,6 +90,7 @@ export interface ApiRegister {
 }
 
 export interface ApiRegisterInput {
+  name: string;
   email: string;
   username: string;
   password: string;
@@ -90,6 +100,7 @@ export type ApiUserStatus = "admin" | "manager" | "user";
 
 export interface ApiUser {
   id: number;
+  name: string;
   username: string;
   email: string;
   active: boolean;
