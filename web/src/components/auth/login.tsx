@@ -14,7 +14,7 @@ export const Login: FC = () => {
   const auth = useAuth();
 
   const formik = useFormik({
-    initialValues: { email: "user1@example.com", password: "password" },
+    initialValues: { email: "", password: "" },
     validationSchema: schema,
     onSubmit(values) {
       mutate(
@@ -28,15 +28,14 @@ export const Login: FC = () => {
     },
   });
 
-  const notActive =
-    isError && error instanceof ServerError && error.message === "account not active";
+  const errorMessage = isError && error instanceof ServerError ? error.message : undefined;
 
   return (
     <AuthBox
       variant="login"
       loading={isPending}
       onSubmit={formik.handleSubmit}
-      error={notActive ? "Account has been deactivated" : undefined}
+      error={errorMessage}
     >
       <TextInput
         placeholder="Email"

@@ -5,10 +5,10 @@ import { DateTime } from "luxon";
 import { IconEyeOff } from "@tabler/icons-react";
 
 import { ApiReview } from "@/api/types";
-
-import classes from "./review.module.css";
 import { useAuth } from "@/components/auth/auth-context";
 import { useCurrentUser, useToggleReviewMutation } from "@/api/api";
+
+import classes from "./review.module.css";
 
 interface DateProps {
   addedAt: string;
