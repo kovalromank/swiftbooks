@@ -7,6 +7,7 @@ import { AuthBox } from "@/components/auth/auth-box";
 import { useFormik } from "formik";
 import { useRegisterMutation } from "@/api/api";
 import { useAuth } from "@/components/auth/auth-context";
+
 import { schema } from "@shared/validation/register";
 
 export const Register: FC = () => {
@@ -14,11 +15,16 @@ export const Register: FC = () => {
   const auth = useAuth();
 
   const formik = useFormik({
-    initialValues: { email: "", username: "", password: "" },
+    initialValues: { name: "", email: "", username: "", password: "" },
     validationSchema: schema,
     onSubmit(values) {
       mutate(
-        { email: values.email, username: values.username, password: values.password },
+        {
+          name: values.name,
+          email: values.email,
+          username: values.username,
+          password: values.password,
+        },
         {
           onSuccess: (data) => {
             auth.login(data.token);
@@ -30,6 +36,16 @@ export const Register: FC = () => {
 
   return (
     <AuthBox variant="register" loading={isPending} onSubmit={formik.handleSubmit}>
+      <TextInput
+        placeholder="Full name"
+        variant="filled"
+        size="md"
+        name="name"
+        value={formik.values.name}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.name && formik.errors.name}
+      />
       <TextInput
         placeholder="Email"
         variant="filled"
