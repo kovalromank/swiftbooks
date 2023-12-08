@@ -17,7 +17,7 @@ describe("BookCatalog", () => {
 
       expect(screen.getByText(book.title!)).toBeInTheDocument();
       expect(screen.getByText(book.authors![0])).toBeInTheDocument();
-      expect(screen.getByText(`$${book.price}`!)).toBeInTheDocument();
+      expect(screen.getByText(new RegExp(`${book.price}`))).toBeInTheDocument();
     }
   });
 

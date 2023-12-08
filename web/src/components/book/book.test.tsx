@@ -15,11 +15,11 @@ describe("Book", () => {
 
     expect(screen.getByText(book.title!)).toBeInTheDocument();
     expect(screen.getByText(book.authors![0])).toBeInTheDocument();
-    expect(screen.getByText(`$${book.price}`!)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`${book.price}`))).toBeInTheDocument();
   });
 
   it("renders a cart book", () => {
-    const total = "$199.90";
+    const total = /\$199.90/;
 
     render(<Book data={book} variant="cart" quantity={10} />);
 

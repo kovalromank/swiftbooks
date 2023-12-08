@@ -55,7 +55,7 @@ exports[`Book renders book catalog unchanged 1`] = `
         <div
           class="price"
         >
-          $19.99
+          US$19.99
         </div>
         <button
           class="mantine-focus-auto mantine-active button m-77c9d27d mantine-Button-root m-87cf2631 mantine-UnstyledButton-root"
@@ -116,7 +116,7 @@ exports[`Book renders book catalog unchanged 1`] = `
         <div
           class="price"
         >
-          $29.99
+          US$29.99
         </div>
         <button
           class="mantine-focus-auto mantine-active button m-77c9d27d mantine-Button-root m-87cf2631 mantine-UnstyledButton-root"
@@ -177,7 +177,7 @@ exports[`Book renders book catalog unchanged 1`] = `
         <div
           class="price"
         >
-          $39.99
+          US$39.99
         </div>
         <button
           class="mantine-focus-auto mantine-active button m-77c9d27d mantine-Button-root m-87cf2631 mantine-UnstyledButton-root"
@@ -684,7 +684,7 @@ exports[`Book renders book unchanged 1`] = `
       <div
         class="price"
       >
-        $19.99
+        US$19.99
       </div>
       <button
         class="mantine-focus-auto mantine-active button m-77c9d27d mantine-Button-root m-87cf2631 mantine-UnstyledButton-root"
