@@ -10,6 +10,7 @@ const createJestConfig = nextJest({
 const config = {
   // Add more setup options before each test is run
   setupFilesAfterEnv: ["<rootDir>/jest.setup.mjs"],
+  modulePathIgnorePatterns: ["<rootDir>/e2e"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },

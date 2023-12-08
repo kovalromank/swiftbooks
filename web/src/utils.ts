@@ -6,6 +6,7 @@ export const useCurrencyFormat = () =>
       new Intl.NumberFormat(undefined, {
         style: "currency",
         currency: "USD",
+        currencyDisplay: "narrowSymbol",
         minimumFractionDigits: 2,
       }),
     [],

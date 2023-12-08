@@ -86,7 +86,7 @@ export const Review: FC<ReviewProps> = ({ data }) => {
     <Card shadow="sm" padding="md" radius="md" withBorder>
       <div className={classes.headerContainer}>
         <div className={classes.creator}>{data.username}</div>
-        <Rating value={data.stars} count={5} readOnly />
+        <Rating value={data.stars} count={5} readOnly id="review-rating-view" />
         <div className={classes.spacer}></div>
         <div className={classes.date}>
           <Date addedAt={data.added_at} />
